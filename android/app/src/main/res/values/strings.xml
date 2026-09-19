@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Daycraft</string>
+    <string name="title_activity_main">Daycraft</string>
+    <string name="package_name">com.omsai.daycraft</string>
+    <string name="custom_url_scheme">com.omsai.daycraft</string>
+</resources>

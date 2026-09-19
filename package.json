@@ -1,0 +1,26 @@
+{
+  "name": "my-planner",
+  "version": "1.0.0",
+  "description": "A plain HTML/CSS/JavaScript planner that can be installed as a PWA on your phone and laptop, with optional free cloud sync using Supabase.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omsai29-ctrl/daycraft.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/omsai29-ctrl/daycraft/issues"
+  },
+  "homepage": "https://github.com/omsai29-ctrl/daycraft#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  }
+}
