@@ -1150,3 +1150,31 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .auth-divider{display:flex;align-items:center;gap:10px;color:var(--ink-4);font-size:12px}
 .auth-divider:before,.auth-divider:after{content:"";height:1px;background:var(--line);flex:1}
 .btn-google{justify-content:center;width:100%;background:var(--paper);border:1px solid var(--line);}
+
+/* =========================================================================
+   COLLEGE TIMETABLE
+   ========================================================================= */
+.tt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r-l);background:var(--surface);box-shadow:var(--sh-1)}
+.tt-grid{display:grid;grid-template-columns:72px repeat(2,minmax(104px,1fr)) 74px repeat(2,minmax(104px,1fr)) 86px repeat(3,minmax(104px,1fr));grid-template-rows:54px repeat(5,minmax(72px,auto));min-width:1080px}
+.tt-day-head,.tt-day,.tt-slot,.tt-break,.tt-lunch{border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center}
+.tt-day-head,.tt-day{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken)}
+.tt-slot{flex-direction:column;gap:3px;background:var(--surface)}
+.tt-slot b{font-size:12px}.tt-slot small{font-size:10px;color:var(--ink-4);white-space:nowrap}
+.tt-break,.tt-lunch{z-index:3;font-size:11px;font-weight:700;line-height:1.35;writing-mode:vertical-rl;transform:none;background:var(--sunken);color:var(--ink-3)}
+.tt-lunch{background:var(--orange-bg);color:var(--orange-ink)}
+.tt-break small,.tt-lunch small{font-size:9px;font-weight:600}
+.tt-empty{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;min-width:0;cursor:pointer}
+.tt-empty:hover{background:var(--hover)}
+.tt-block{margin:3px;border:1px solid color-mix(in srgb,var(--ttc) 65%,var(--line));border-radius:var(--r-s);background:var(--ttc);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5px;min-width:0;overflow:hidden;box-shadow:var(--sh-1)}
+.tt-block:hover{filter:saturate(1.08) brightness(.98);transform:translateY(-1px)}
+.tt-block b{font-size:12px;line-height:1.2;overflow-wrap:anywhere}
+.tt-block small{font-size:10px;color:var(--ink-2);margin-top:3px}
+.tt-note{margin:var(--s4) 0 var(--s7);padding:11px 13px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--sunken);font-size:12.5px;color:var(--ink-3)}
+.tt-faculty{border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;background:var(--surface);box-shadow:var(--sh-1)}
+.tt-faculty-head,.tt-faculty-row{display:grid;grid-template-columns:60px 140px minmax(220px,1fr);gap:0;align-items:center}
+.tt-faculty-head{background:var(--sunken);font-size:10.5px;letter-spacing:var(--lbl-ls);text-transform:uppercase;color:var(--ink-3)}
+.tt-faculty-row{font-size:13px}
+.tt-faculty-head>* ,.tt-faculty-row>*{padding:9px 12px;border-right:1px solid var(--line)}
+.tt-faculty-row>*{border-top:1px solid var(--line)}
+.tt-faculty-head>*:last-child,.tt-faculty-row>*:last-child{border-right:0}
+@media(max-width:700px){.tt-scroll{border-radius:var(--r-m)}.tt-grid{grid-template-rows:50px repeat(5,minmax(82px,auto))}.tt-block b{font-size:11px}.tt-block small{font-size:9px}.tt-note{font-size:11.5px}}
