@@ -139,6 +139,14 @@ function onClick(e) {
       else U.pd = addDays(U.pd, U.pv === 'week' ? 7 * n : n);
       render(); break;
     }
+    case 'tt-theme': openTimetableTheme(); break;
+    case 'tt-theme-color': {
+      const k=d.kind, v=d.color; if(!D.timetable.appearance) ensureTimetable();
+      D.timetable.appearance[k]=v; save(); render(); openTimetableTheme(); break;
+    }
+    case 'tt-border-toggle': {
+      ensureTimetable(); D.timetable.appearance.showBorder=!D.timetable.appearance.showBorder; save(); render(); openTimetableTheme(); break;
+    }
     case 'tt-new': openTimetableForm(null, null); break;
     case 'tt-new-slot': openTimetableForm(null, { day: d.day, start: +d.start }); break;
     case 'tt-edit': openTimetableForm(d.id, null); break;
