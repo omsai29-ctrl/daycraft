@@ -147,10 +147,14 @@ function onClick(e) {
     case 'tt-border-toggle': {
       ensureTimetable(); D.timetable.appearance.showBorder=!D.timetable.appearance.showBorder; save(); render(); openTimetableTheme(); break;
     }
+    case 'tt-text-color': {
+      if(U.form&&U.form.kind==='timetable'){ U.form.text=d.color; $('#tt-text-sw button').forEach(b=>b.classList.toggle('on',b.dataset.color===d.color)); }
+      break;
+    }
     case 'tt-new': openTimetableForm(null, null); break;
     case 'tt-new-slot': openTimetableForm(null, { day: d.day, start: +d.start }); break;
     case 'tt-edit': openTimetableForm(d.id, null); break;
-    case 'tt-save': { const course=$('#tt-course').value.trim(); const day=$('#tt-day').value; const start=+$('#tt-start').value; const end=+$('#tt-end').value; const room=$('#tt-room').value.trim(); const color=$('#tt-color').value; if(!course){$('#tt-course').focus();break;} if(end<start){toast('End slot must be after start slot.');break;} const id=U.form&&U.form.id; closeModal(); mutate(()=>{const e={id:id||uid(),day,start,end,course,room,color}; if(id){const i=D.timetable.entries.findIndex(x=>x.id===id);if(i>=0)D.timetable.entries[i]=e;}else D.timetable.entries.push(e);}, id?'Timetable class updated':'Timetable class added'); break; }
+    case 'tt-save': { const course=$('#tt-course').value.trim(); const day=$('#tt-day').value; const start=+$('#tt-start').value; const end=+$('#tt-end').value; const room=$('#tt-room').value.trim(); const color=$('#tt-color').value; if(!course){$('#tt-course').focus();break;} if(end<start){toast('End slot must be after start slot.');break;} const id=U.form&&U.form.id, text=(U.form&&U.form.text)||null; closeModal(); mutate(()=>{const e={id:id||uid(),day,start,end,course,room,color,text}; if(id){const i=D.timetable.entries.findIndex(x=>x.id===id);if(i>=0)D.timetable.entries[i]=e;}else D.timetable.entries.push(e);}, id?'Timetable class updated':'Timetable class added'); break; }
     case 'tt-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.timetable.entries=D.timetable.entries.filter(e=>e.id!==id);},'Timetable class deleted'); break; }
     case 'pl-today': U.pd = today(); U.plannerScrolled = false; render(); break;
     case 'pl-view': U.pv = d.v; U.plannerScrolled = false; render(); break;
