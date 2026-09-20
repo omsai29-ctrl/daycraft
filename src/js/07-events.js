@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['tasks', 'Tasks'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
-  ['Plan', ['today', 'planner', 'tasks']],
+  ['Plan', ['today', 'planner', 'timetable', 'tasks']],
   ['Track', ['subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, tasks: viewTasks, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -139,6 +139,11 @@ function onClick(e) {
       else U.pd = addDays(U.pd, U.pv === 'week' ? 7 * n : n);
       render(); break;
     }
+    case 'tt-new': openTimetableForm(null, null); break;
+    case 'tt-new-slot': openTimetableForm(null, { day: d.day, start: +d.start }); break;
+    case 'tt-edit': openTimetableForm(d.id, null); break;
+    case 'tt-save': { const course=$('#tt-course').value.trim(); const day=$('#tt-day').value; const start=+$('#tt-start').value; const end=+$('#tt-end').value; const room=$('#tt-room').value.trim(); const color=$('#tt-color').value; if(!course){$('#tt-course').focus();break;} if(end<start){toast('End slot must be after start slot.');break;} const id=U.form&&U.form.id; closeModal(); mutate(()=>{const e={id:id||uid(),day,start,end,course,room,color}; if(id){const i=D.timetable.entries.findIndex(x=>x.id===id);if(i>=0)D.timetable.entries[i]=e;}else D.timetable.entries.push(e);}, id?'Timetable class updated':'Timetable class added'); break; }
+    case 'tt-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.timetable.entries=D.timetable.entries.filter(e=>e.id!==id);},'Timetable class deleted'); break; }
     case 'pl-today': U.pd = today(); U.plannerScrolled = false; render(); break;
     case 'pl-view': U.pv = d.v; U.plannerScrolled = false; render(); break;
     case 'pl-goto': e.stopPropagation(); U.pd = d.d; U.pv = 'day'; U.plannerScrolled = false; if (U.page !== 'planner') U.page = 'planner'; render(); break;
