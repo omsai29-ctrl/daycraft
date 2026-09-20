@@ -28,7 +28,7 @@ function ttStart(day,slot){return D.timetable.entries.find(e=>e.day===day&&e.sta
 function ttAt(day,slot){return D.timetable.entries.find(e=>e.day===day&&slot>=e.start&&slot<=e.end);}
 function ttBlock(e,row){return '<button class="tt-block" data-a="tt-edit" data-id="'+e.id+'" style="grid-column:'+ttCol(e.start)+' / span '+(e.end-e.start+1)+';grid-row:'+row+';--ttc:'+esc(e.color||TT_COLORS[0])+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>'+esc(e.room)+'</small>':'')+'</button>';}
 function viewTimetable(){
-ensureTimetable();const tt=D.timetable;
+const added=ensureTimetable();if(added)save();const tt=D.timetable;
 const head=pageHead('College Timetable','Section '+esc(tt.section)+' · Tap a class to edit it.','<button class="btn btn-primary" data-a="tt-new">'+ico('plus')+'Add class</button>');
 const slots=TT_SLOTS.map(s=>'<div class="tt-slot"><b>'+s.label+'</b><small>'+s.time+'</small></div>').join('');
 const rows=TT_DAYS.map((day,i)=>{const row=i+2,parts=['<div class="tt-day" style="grid-row:'+row+';grid-column:1">'+esc(day.slice(0,3))+'</div>'];for(let s=1;s<=8;s++){const e=ttStart(day,s);if(e)parts.push(ttBlock(e,row));else if(!ttAt(day,s))parts.push('<button class="tt-empty" data-a="tt-new-slot" data-day="'+day+'" data-start="'+s+'"></button>');}return parts.join('');}).join('');
