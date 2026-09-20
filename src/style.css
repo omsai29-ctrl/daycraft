@@ -1204,3 +1204,11 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-faculty-row>*{border-top:1px solid var(--line)}
 .tt-faculty-head>*:last-child,.tt-faculty-row>*:last-child{border-right:0}
 @media(max-width:700px){.tt-scroll{border-radius:var(--r-m)}.tt-grid{grid-template-rows:50px repeat(5,minmax(82px,auto))}.tt-block b{font-size:11px}.tt-block small{font-size:9px}.tt-note{font-size:11.5px}}
+
+
+/* Per-class timetable text colours */
+.tt-block{color:var(--ttx,var(--tt-page-text,var(--ink)))}
+.tt-block b,.tt-block small{color:inherit}
+.tt-class-color{display:flex;flex-direction:column;gap:8px}
+.tt-class-color>span{font-size:12px;font-weight:650;color:var(--ink-2)}
+.tt-class-color .hint{font-size:11.5px;color:var(--ink-4)}
