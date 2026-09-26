@@ -153,6 +153,31 @@ function viewExams() {
 }
 
 /* ================= REVIEW ================= */
+function attendancePct(a) {
+  return a.total ? Math.round((a.present / a.total) * 100) : 0;
+}
+function viewAttendance() {
+  const items = Object.entries(D.attendance || {});
+  const totalPresent = items.reduce((n,[,a]) => n + (a.present || 0), 0);
+  const totalHeld = items.reduce((n,[,a]) => n + (a.total || 0), 0);
+  const overall = totalHeld ? Math.round(totalPresent / totalHeld * 100) : 0;
+  return pageHead('Attendance', 'Track your CSE (AI & DS) · Section B attendance.', '') +
+    '<section class="attendance-overview"><div><b>'+overall+'%</b><span>Overall attendance</span></div><div><b>'+totalPresent+'/'+totalHeld+'</b><span>Classes attended</span></div></section>' +
+    '<section class="attendance-list">'+items.map(([id,a]) => {
+      const pct=attendancePct(a);
+      const cls=pct<75?' low':pct<85?' mid':'';
+      return '<article class="attendance-card">'+
+        '<div class="attendance-main"><div><b>'+esc(a.name)+'</b><small>'+esc(id)+'</small></div><strong class="'+cls+'">'+pct+'%</strong></div>'+
+        '<div class="attendance-bar"><span style="width:'+Math.min(100,pct)+'%"></span></div>'+
+        '<div class="attendance-meta"><span>'+a.present+' attended · '+a.total+' held</span><div class="attendance-actions">'+
+          '<button class="btn btn-sm" data-a="att-present" data-id="'+esc(id)+'">Present</button>'+
+          '<button class="btn btn-sm" data-a="att-absent" data-id="'+esc(id)+'">Absent</button>'+
+          (a.total ? '<button class="btn btn-sm btn-quiet" data-a="att-undo" data-id="'+esc(id)+'">Undo</button>' : '')+
+        '</div></div></article>';
+    }).join('')+'</section>'+
+    '<p class="hint attendance-note">Use Present or Absent after each class. Attendance below 75% is highlighted.</p>';
+}
+
 function focusClockText(sec) {
   sec = Math.max(0, Math.floor(sec || 0));
   return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
