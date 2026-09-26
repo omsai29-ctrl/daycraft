@@ -19,7 +19,7 @@
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="app"><div class="startup-loading" role="status">Loading Daycraft…</div></div>
 <div id="modal"></div>
 <div id="toasts" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -27,7 +27,22 @@
 (function(){
 'use strict';
 {{SCRIPT}}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+var __daycraftStarted = false;
+function __startDaycraft() {
+  if (__daycraftStarted) return;
+  __daycraftStarted = true;
+  requestAnimationFrame(function(){ boot(); });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', __startDaycraft, { once: true }); else __startDaycraft();
+window.addEventListener('load', __startDaycraft, { once: true });
+window.addEventListener('pageshow', function() {
+  requestAnimationFrame(function() {
+    var app = document.getElementById('app');
+    if (app && !app.querySelector('.shell')) {
+      try { render(); } catch (e) { console.error(e); }
+    }
+  });
+});
 })();
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
   navigator.serviceWorker.register('sw.js').catch(function(){});
