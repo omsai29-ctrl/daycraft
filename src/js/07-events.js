@@ -1,5 +1,5 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
   ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus', 'attendance']],
   ['Track', ['notes', 'subjects', 'goals', 'habits', 'exams']],
