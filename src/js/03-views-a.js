@@ -227,7 +227,6 @@ function viewToday() {
   </section>`;
 
   return `${notice}${head}${cards}${glance}
-  <div class="dash-actions"><button class="btn" data-a="nav" data-p="plans">${ico('check')}Plans<span class="dash-plan-count">${D.plans.filter(p=>!p.done).length || ''} </span></button></div>
   <div class="grid-2">
     <div class="col-stack">
       <div>${nowHtml}${nextHtml}</div>
