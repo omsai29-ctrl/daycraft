@@ -233,14 +233,23 @@ const midtermsAdded = ensureMidtermExams();
 function ensureAttendance() {
   if (!D.attendance || typeof D.attendance !== 'object' || Array.isArray(D.attendance)) D.attendance = {};
   const subjects = [
-    ['ELS','English Language Skills'],['LA','Linear Algebra & ODE'],['CP','Computer Programming'],
-    ['IQP','Introductory Quantum Physics'],['DVDF','Design Visualization & Digital Fabrication'],
-    ['EAI','Essentials of Artificial Intelligence']
+    ['ELS','English Language Skills',16,17],['LA','Linear Algebra & ODE',22,22],['CP','Computer Programming',24,24],
+    ['IQP','Introductory Quantum Physics',18,18],['DVDF','Design Visualization & Digital Fabrication',20,20],
+    ['EAI','Essentials of Artificial Intelligence',20,20]
   ];
   let changed = false;
-  subjects.forEach(([id,name]) => {
-    if (!D.attendance[id]) { D.attendance[id] = { name, present: 0, total: 0 }; changed = true; }
-    else if (!D.attendance[id].name) { D.attendance[id].name = name; changed = true; }
+  subjects.forEach(([id,name,present,total]) => {
+    if (!D.attendance[id]) {
+      D.attendance[id] = { name, present, total };
+      changed = true;
+    } else if (!D.attendance[id].name) {
+      D.attendance[id].name = name;
+      changed = true;
+    } else if (D.attendance[id].total === 0 && D.attendance[id].present === 0) {
+      D.attendance[id].present = present;
+      D.attendance[id].total = total;
+      changed = true;
+    }
   });
   return changed;
 }
