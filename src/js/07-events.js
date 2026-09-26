@@ -92,6 +92,7 @@ function onClick(e) {
   /* nested interactive elements inside a data-a container: the innermost wins (closest already does that) */
   switch (a) {
     case 'nav': if (modalOpen()) closeModal(); go(d.p); break;
+    case 'glance': go(d.p); break;
     case 'more': openMore(); break;
     case 'plan-new': openPlanForm(); break;
     case 'plan-edit': openPlanForm(d.id); break;
