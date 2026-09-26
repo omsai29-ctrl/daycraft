@@ -1268,3 +1268,5 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .exam-schedule-note{display:flex;flex-direction:column;gap:4px;margin:-4px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface)}
 .exam-schedule-note b{font-size:13px}.exam-schedule-note span{font-size:12px;color:var(--ink-3)}
 .exam-time{margin:-2px 0 12px;color:var(--ink-2);font-size:13px;font-weight:600}
+
+.startup-loading{min-height:100vh;display:grid;place-items:center;padding:24px;color:var(--ink-2);font-size:15px;background:var(--bg);font-family:var(--sans)}
