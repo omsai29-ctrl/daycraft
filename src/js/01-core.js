@@ -90,6 +90,9 @@ const IC = {
   chevron: '<path d="m6 9 6 6 6-6"/>'
 };
 const ico = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
+const notificationsSupported = () => 'Notification' in window;
+const notificationState = () => !notificationsSupported() ? 'unsupported' : Notification.permission;
+const sendPlannerNotification = (title, body) => { try { if (notificationsSupported() && Notification.permission === 'granted') return new Notification(title, { body }); } catch (e) { /* noop */ } return null; };
 
 /* ================= persistence ================= */
 const KEY = 'planner.v1';
