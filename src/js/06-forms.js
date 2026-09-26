@@ -86,13 +86,48 @@ function openNoteFolderForm(id){
     <div class="m-foot">${old ? '<button class="btn btn-danger" data-a="note-folder-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-folder-save">${old ? 'Save changes' : 'Create folder'}</button></div>`,
     { label: old ? 'Rename folder' : 'New folder', focus: '#note-folder-name' });
 }
+function daycraftFilesPlugin(){
+  try { return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles; }
+  catch(e){ return null; }
+}
+function noteAttachmentPath(n){
+  const f = n.folderId ? noteFolder(n.folderId) : null;
+  const parts = [];
+  if (n.subjectId) { const sb = subjOf(n.subjectId); if (sb) parts.push(sb.name); }
+  if (f) {
+    noteFolderPath(f.id).forEach(x => { if (!parts.includes(x.name)) parts.push(x.name); });
+  }
+  return parts.join('/');
+}
+function noteAttachmentsHtml(items){
+  return (items || []).map((a,i) => `<div class="note-attachment"><img src="${esc(a.uri)}" alt="${esc(a.name || 'Attached photo')}"><span>${esc(a.name || 'Photo')}</span><button class="icon-btn" data-a="note-photo-del" data-i="${i}" aria-label="Remove photo">${ico('x')}</button></div>`).join('');
+}
+async function addLocalNotePhoto(){
+  const F = U.form;
+  if (!F || F.kind !== 'note') return;
+  const plugin = daycraftFilesPlugin();
+  if (!plugin) { toast('Photo attachments are available in the Android app.'); return; }
+  try {
+    const noteId = F.id || (F.tempId || (F.tempId = uid()));
+    const res = await plugin.pickPhoto({ noteId, folderPath: noteAttachmentPath({ subjectId: $('#note-subject')?.value || null, folderId: $('#note-folder')?.value || null }) });
+    if (!res || !res.uri) return;
+    F.attachments = F.attachments || [];
+    F.attachments.push({ uri: res.uri, name: res.name || 'Photo', fileName: res.fileName || '' });
+    const box = $('#note-attachments-list');
+    if (box) box.innerHTML = noteAttachmentsHtml(F.attachments);
+    toast('Photo saved on this device.');
+  } catch(e) {
+    if (e && e.message && /cancel/i.test(e.message)) return;
+    toast(e?.message || 'Could not add photo.');
+  }
+}
 function openNoteForm(id){
   const old = id ? D.notes.find(n => n.id === id) : null;
   const n = old ? clone(old) : { id: uid(), title: '', body: '', folderId: U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? U.noteFolder : null, subjectId: U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null };
   const folders = (D.noteFolders || []).slice().sort((a,b) => noteFolderLabel(a.id).localeCompare(noteFolderLabel(b.id)));
   const folderOptions = '<option value="">None / subject root</option>' + folders.map(f => `<option value="${f.id}" ${n.folderId === f.id ? 'selected' : ''}>${esc(noteFolderLabel(f.id))}</option>`).join('');
   const subjectOptions = '<option value="">None</option>' + (D.subjects || []).map(s => `<option value="${s.id}" ${n.subjectId === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
-  U.form = { kind: 'note', id: old ? old.id : null };
+  U.form = { kind: 'note', id: old ? old.id : null, tempId: n.id, attachments: clone(n.attachments || []) };
   openModal(`<div class="m-head"><h2>${old ? 'Edit note' : 'New note'}</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
     <div class="m-body note-form-body">
       <label class="fld"><span>Title</span><input class="input lg" id="note-title" value="${esc(n.title)}" placeholder="Note title" autocomplete="off"></label>
@@ -101,7 +136,7 @@ function openNoteForm(id){
         <label class="fld"><span>Folder</span><select class="select" id="note-folder">${folderOptions}</select></label>
       </div>
       <label class="fld"><span>Note</span><textarea class="textarea note-editor" id="note-body" placeholder="Write your note here…">${esc(n.body)}</textarea></label>
-      <div class="note-attachments"><b>Attachments</b><p class="muted">Local photos/files will be added to the Android version without uploading them to Supabase.</p></div>
+      <div class="note-attachments"><div class="note-attachments-head"><b>Photos on this device</b><button class="btn btn-sm" data-a="note-photo">${ico('plus')}Add photo</button></div><p class="muted">Photos stay on this device and are not uploaded to Supabase.</p><div id="note-attachments-list" class="note-attachments-list">${noteAttachmentsHtml(U.form.attachments)}</div></div>
     </div>
     <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
 }
