@@ -185,7 +185,7 @@ function seed() {
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
-  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions', 'attendance'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
   o.tasks = o.tasks.map(t => blankTask(t));
   return o;
 }
@@ -227,6 +227,21 @@ function ensureMidtermExams() {
 
 let D = load();
 const midtermsAdded = ensureMidtermExams();
+function ensureAttendance() {
+  if (!D.attendance || typeof D.attendance !== 'object') D.attendance = {};
+  const subjects = [
+    ['ELS','English Language Skills'],['LA','Linear Algebra & ODE'],['CP','Computer Programming'],
+    ['IQP','Introductory Quantum Physics'],['DVDF','Design Visualization & Digital Fabrication'],
+    ['EAI','Essentials of Artificial Intelligence']
+  ];
+  let changed = false;
+  subjects.forEach(([id,name]) => {
+    if (!D.attendance[id]) { D.attendance[id] = { name, present: 0, total: 0 }; changed = true; }
+    else if (!D.attendance[id].name) { D.attendance[id].name = name; changed = true; }
+  });
+  return changed;
+}
+const attendanceAdded = ensureAttendance();
 let saveTimer = null;
 function save() {
   D.updatedAt = Date.now();
@@ -235,7 +250,7 @@ function save() {
   schedulePush();
 }
 
-if (midtermsAdded) save();
+if (midtermsAdded || attendanceAdded) save();
 
 /* ================= transient UI state ================= */
 const U = {
