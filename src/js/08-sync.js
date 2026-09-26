@@ -110,11 +110,28 @@ async function reconcile() {
   }
 }
 
+function attendanceHasData(a) {
+  return !!(a && typeof a === 'object' && !Array.isArray(a) &&
+    Object.values(a).some(x => Number(x?.total || 0) > 0 || Number(x?.present || 0) > 0));
+}
 async function pull(remote) {
   const o = JSON.parse(remote.payload || '{}');
   if (!o || !Array.isArray(o.tasks)) throw new Error('Invalid cloud data');
   const localAttachments = (D.notes || []).map(n => ({ id: n.id, attachments: clone(n.attachments || []) }));
-  D = migrate(o); D.notes = (D.notes || []).map(n => { const x = localAttachments.find(a => a.id === n.id); return x && x.attachments.length ? Object.assign({}, n, { attachments: x.attachments }) : n; }); D.updatedAt = remote.updated_at || Date.now(); SYNC.lastAt = D.updatedAt;
+  const localAttendance = clone(D.attendance || {});
+  D = migrate(o);
+  /*
+   * Older cloud rows may contain an empty 0/0 attendance object from before
+   * attendance was restored. Never let that legacy empty object erase real
+   * attendance already stored on this device.
+   */
+  if (!attendanceHasData(D.attendance) && attendanceHasData(localAttendance)) {
+    D.attendance = localAttendance;
+    save();
+  }
+  D.notes = (D.notes || []).map(n => { const x = localAttachments.find(a => a.id === n.id); return x && x.attachments.length ? Object.assign({}, n, { attachments: x.attachments }) : n; });
+  D.updatedAt = D.updatedAt || remote.updated_at || Date.now();
+  SYNC.lastAt = remote.updated_at || D.updatedAt;
   try { store && store.setItem(KEY, JSON.stringify(D)); } catch (e) { /* ignore */ }
   render();
 }
