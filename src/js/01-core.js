@@ -197,6 +197,7 @@ function load() {
 }
 
 function ensureMidtermExams() {
+  let changed = false;
   MIDTERM_EXAMS_B.forEach(x => {
     const existing = D.exams.find(e => e.courseCode === x.courseCode && e.date === x.date);
     if (existing) {
@@ -218,11 +219,13 @@ function ensureMidtermExams() {
       section: 'B',
       topics: []
     });
+    changed = true;
   });
+  return changed;
 }
 
 let D = load();
-ensureMidtermExams();
+const midtermsAdded = ensureMidtermExams();
 let saveTimer = null;
 function save() {
   D.updatedAt = Date.now();
@@ -230,6 +233,8 @@ function save() {
   saveTimer = setTimeout(() => { try { store && store.setItem(KEY, JSON.stringify(D)); } catch (e) { /* ignore */ } }, 120);
   schedulePush();
 }
+
+if (midtermsAdded) save();
 
 /* ================= transient UI state ================= */
 const U = {
