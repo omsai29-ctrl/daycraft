@@ -60,6 +60,13 @@ function mutate(fn, msg) {
   } });
 }
 
+/* ================= quick plans ================= */
+function openPlanForm(id){
+  const old=id?D.plans.find(p=>p.id===id):null;
+  const p=old?clone(old):{id:uid(),title:'',done:false};
+  U.form={kind:'plan',id:old?old.id:null};
+  openModal('<div class="m-head"><h2>'+ (old?'Edit plan':'Add plan') +'</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">'+ico('x')+'</button></div><div class="m-body"><label class="fld"><span>What do you need to do?</span><input class="input lg" id="plan-title" value="'+esc(p.title)+'" placeholder="e.g. Complete Physics record" autocomplete="off"></label><p class="plan-quick-hint">No date, start time or deadline needed.</p></div><div class="m-foot">'+(old?'<button class="btn btn-danger" data-a="plan-del">Delete</button>':'')+'<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="plan-save">'+(old?'Save changes':'Add plan')+'</button></div>',{label:old?'Edit plan':'Add plan',focus:'#plan-title'});
+}
 /* ================= task form ================= */
 function newTaskDefaults(o) {
   const s = D.settings, kind = o.kind || 'task';
@@ -424,7 +431,7 @@ function openPlanDay() {
 
 function openMore() {
   U.form = { kind: 'more' };
-  const items = [['timetable', 'Timetable'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review'], ['settings', 'Settings']];
+  const items = [['plans', 'Plans'], ['timetable', 'Timetable'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review'], ['settings', 'Settings']];
   openModal(`<div class="m-head"><h2>More</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
     <div class="m-body more-list">${items.map(([p, l]) => `<button data-a="nav" data-p="${p}">${ico(p)}${l}</button>`).join('')}</div>`, { cls: 'sm', autofocus: false });
 }
