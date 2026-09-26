@@ -1,12 +1,13 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
   ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus', 'attendance']],
+  ['Track', ['notes']],
   ['Track', ['subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +18,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','plans','focus','attendance','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -305,10 +306,30 @@ function onClick(e) {
     case 'import': $('#imp').click(); break;
     case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
-    case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
+    case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
     /* modal + forms */
     case 'scrim': if (!(U.form && U.form.dirty)) closeModal(); break;
     case 'close-modal': closeModal(); break;
+    case 'note-new': openNoteForm(); break;
+    case 'note-edit': openNoteForm(d.id); break;
+    case 'note-clear': U.noteQ = ''; U.focus = 'note-q'; render(); break;
+    case 'note-save': {
+      const title = $('#note-title').value.trim(), body = $('#note-body').value.trim();
+      if (!title && !body) { $('#note-title').focus(); break; }
+      const F = U.form, old = F && F.id;
+      closeModal();
+      mutate(() => {
+        if (old) { const n = D.notes.find(x => x.id === old); if (n) { n.title = title || 'Untitled note'; n.body = body; n.updatedAt = Date.now(); } }
+        else D.notes.unshift({ id: uid(), title: title || 'Untitled note', body, createdAt: Date.now(), updatedAt: Date.now() });
+      }, old ? 'Note updated' : 'Note saved');
+      break;
+    }
+    case 'note-del': {
+      const id = U.form && U.form.id;
+      closeModal();
+      mutate(() => { D.notes = D.notes.filter(n => n.id !== id); }, 'Note deleted');
+      break;
+    }
     case 'add-tab': switchAddTab(d.k); break;
     case 'f-prio': U.form.touched.priority = true; U.form.f.priority = d.v; U.form.dirty = true; syncTimeInputs(); break;
     case 'f-day': {
@@ -341,6 +362,7 @@ function addTopic(eid) {
 function onInput(e) {
   const el = e.target;
   if (el.dataset.set === 'tf-q') { U.tf.q = el.value; U.focus = 'tq'; U.focusEnd = true; render(); return; }
+  if (el.dataset.set === 'note-q') { U.noteQ = el.value; U.focus = 'note-q'; U.focusEnd = true; render(); return; }
   if (el.dataset.f && U.form && U.form.f) onFormField(el.dataset.f, el);
   else if (el.dataset.gf && U.form && U.form.g) {
     const g = U.form.g, k = el.dataset.gf;
