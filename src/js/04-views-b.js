@@ -236,25 +236,62 @@ function viewPlans(){
   }
   return pageHead('Plans','Things you need to do, without a schedule.', '')+body;
 }
+function noteFolder(id){ return (D.noteFolders || []).find(f => f.id === id) || null; }
+function noteFolderChildren(parentId, subjectId){
+  return (D.noteFolders || []).filter(f => (f.parentId || null) === (parentId || null) && (f.subjectId || null) === (subjectId || null))
+    .slice().sort((a,b) => a.name.localeCompare(b.name));
+}
+function noteFolderPath(id){
+  const out=[]; let f=noteFolder(id), guard=0;
+  while(f && guard++<100){ out.unshift(f); f=noteFolder(f.parentId); }
+  return out;
+}
+function noteFolderLabel(id){
+  const f=noteFolder(id);
+  return f ? noteFolderPath(id).map(x=>x.name).join(' / ') : '';
+}
 function viewNotes() {
   const q = (U.noteQ || '').trim().toLowerCase();
-  const notes = (D.notes || []).filter(n => !q || (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q))
-    .slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-  const search = `<div class="search notes-search">${ico('search')}<input class="input" id="note-q" type="search" data-set="note-q" value="${esc(U.noteQ || '')}" placeholder="Search notes" aria-label="Search notes" autocomplete="off">${q ? `<button class="icon-btn clr" data-a="note-clear" aria-label="Clear search">${ico('x')}</button>` : ''}</div>`;
+  const current = U.noteFolder || null;
+  const subjectRoot = current && current.indexOf('subject:') === 0 ? current.slice(8) : null;
+  const folderId = subjectRoot ? null : current;
+  const subject = subjectRoot ? (D.subjects || []).find(s => s.id === subjectRoot) : null;
+  const folders = noteFolderChildren(folderId, subject ? subject.id : null);
+  const notes = (D.notes || []).filter(n => {
+    const samePlace = (n.folderId || null) === folderId && (n.subjectId || null) === (subject ? subject.id : null);
+    return samePlace && (!q || (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q));
+  }).slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+  const title = subject ? subject.name : current ? noteFolder(current)?.name || 'Notes' : 'Notes';
+  const crumb = subject
+    ? `<button class="note-crumb" data-a="note-root">Notes</button><span>/</span><b>${esc(subject.name)}</b>`
+    : current
+      ? `<button class="note-crumb" data-a="note-root">Notes</button><span>/</span>${noteFolderPath(current).map((f,i)=>`<button class="note-crumb" data-a="note-open" data-id="${f.id}">${esc(f.name)}</button>`).join('<span>/</span>')}`
+      : `<b>Notes</b>`;
+
+  const search = `<div class="search notes-search">${ico('search')}<input class="input" id="note-q" type="search" data-set="note-q" value="${esc(U.noteQ || '')}" placeholder="Search this folder" aria-label="Search notes" autocomplete="off">${q ? `<button class="icon-btn clr" data-a="note-clear" aria-label="Clear search">${ico('x')}</button>` : ''}</div>`;
+  const folderCard = f => `<article class="note-folder-card"><button class="note-folder-open" data-a="note-open" data-id="${f.id}"><span class="note-folder-icon">${ico('plans')}</span><span class="note-folder-name">${esc(f.name)}</span><span class="note-folder-arrow">${ico('right')}</span></button></article>`;
+  const subjectCard = sb => `<article class="note-folder-card"><button class="note-folder-open" data-a="note-subject" data-id="${sb.id}"><span class="note-folder-icon">${ico('subjects')}</span><span class="note-folder-name">${esc(sb.name)}</span><span class="note-folder-arrow">${ico('right')}</span></button></article>`;
   const card = n => {
     const text = (n.body || '').trim();
-    const preview = text.replace(/\\s+/g, ' ').slice(0, 220);
+    const preview = text.replace(/\s+/g, ' ').slice(0, 220);
     const when = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
     return `<article class="note-card"><button class="note-open" data-a="note-edit" data-id="${n.id}"><div class="note-title">${esc(n.title || 'Untitled note')}</div>${preview ? `<div class="note-preview">${esc(preview)}${text.length > 220 ? '…' : ''}</div>` : '<div class="note-preview muted">No content yet.</div>'}<div class="note-meta">${when ? 'Updated ' + esc(when) : 'New note'}<span>${ico('right')}</span></div></button></article>`;
   };
-  let body;
-  if (!notes.length) {
-    body = emptyBox(q ? 'No notes found.' : 'No notes yet.', q ? 'Try another search term.' : 'Keep formulas, class notes, ideas and reminders here.', `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`, true);
-  } else {
-    body = `<div class="notes-grid">${notes.map(card).join('')}</div><button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`;
-  }
-  return pageHead('Notes','A simple place for notes that are separate from tasks.', `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`) + `<div class="notes-toolbar">${search}</div>${body}`;
+
+  const showSubjects = !current;
+  const foldersHtml = (showSubjects ? (D.subjects || []).map(subjectCard).join('') : '') + folders.map(folderCard).join('');
+  let body = '';
+  if (foldersHtml) body += `<div class="notes-grid note-folders">${foldersHtml}</div>`;
+  if (notes.length) body += `<div class="notes-grid">${notes.map(card).join('')}</div>`;
+  if (!body) body = emptyBox(q ? 'No notes found.' : 'This folder is empty.', q ? 'Try another search term.' : 'Create a folder or note to start organizing your study material.', '', true);
+
+  const newFolder = `<button class="btn" data-a="note-folder-new">${ico('plus')}New folder</button>`;
+  const newNote = `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`;
+  return pageHead(title, subject ? 'Study notes for this subject.' : current ? 'Organize notes inside nested folders.' : 'Organize your notes by subject, topic and nested folders.', newFolder + newNote)
+    + `<div class="note-breadcrumb">${crumb}</div><div class="notes-toolbar">${search}</div>${body}`;
 }
+
 function viewTasks() {
   const st = U.tf.status, q = U.tf.q || '';
   const counts = {
