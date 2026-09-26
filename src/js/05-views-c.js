@@ -153,6 +153,36 @@ function viewExams() {
 }
 
 /* ================= REVIEW ================= */
+function focusClockText(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+}
+function viewFocus() {
+  const active = U.focusTimer && U.focusTimer.running;
+  const paused = U.focusTimer && U.focusTimer.paused;
+  const remaining = U.focusTimer ? U.focusTimer.remaining : 25 * 60;
+  const elapsed = U.focusTimer ? U.focusTimer.elapsed : 0;
+  const todaySessions = (D.focusSessions || []).filter(s => s.date === today());
+  const todayMin = Math.floor(todaySessions.reduce((a,s) => a + (s.seconds || 0), 0) / 60);
+  const recent = (D.focusSessions || []).slice().sort((a,b) => (b.endedAt || '').localeCompare(a.endedAt || '')).slice(0,5);
+  const state = active ? (paused ? 'Paused' : 'Focused') : 'Ready to focus';
+  const button = active
+    ? (paused ? '<button class="btn btn-primary" data-a="focus-resume">Resume</button>' : '<button class="btn btn-primary" data-a="focus-pause">Pause</button>')
+    : '<button class="btn btn-primary" data-a="focus-start">Start focus</button>';
+  return pageHead('Focus', 'A distraction-free study session.', '') +
+    '<section class="focus-card">' +
+      '<div class="focus-eyebrow">'+esc(state)+'</div>' +
+      '<div class="focus-clock" id="focus-clock">'+focusClockText(remaining)+'</div>' +
+      '<div class="focus-sub">'+(active ? focusClockText(elapsed)+' focused' : 'Choose a session length and start.')+'</div>' +
+      '<div class="focus-presets">' +
+        [25,50,90].map(m => '<button class="chip '+(!active && remaining === m*60 ? 'on' : '')+'" data-a="focus-length" data-m="'+m+'" '+(active?'disabled':'')+'>'+m+' min</button>').join('') +
+      '</div>' +
+      '<div class="focus-actions">'+button+(active ? '<button class="btn btn-danger" data-a="focus-stop">Stop &amp; save</button>' : '')+'</div>' +
+    '</section>' +
+    '<section class="focus-summary"><div><b>'+todayMin+' min</b><span>Focused today</span></div><div><b>'+todaySessions.length+'</b><span>Sessions today</span></div></section>' +
+    (recent.length ? '<section><h2 class="h2">Recent sessions</h2><ul class="tlist">'+recent.map(s => '<li><div class="grow"><b>'+esc(s.label || 'Focus session')+'</b><div class="muted">'+esc(s.date)+' · '+Math.floor((s.seconds||0)/60)+' min</div></div></li>').join('')+'</ul></section>' : '');
+}
+
 function viewReview() {
   const r = reviewData(U.rv), td = today(), isThis = r.days.includes(td);
   const label = fmtShort(r.days[0]) + ' – ' + fmtShort(r.days[6]);
