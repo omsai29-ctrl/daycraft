@@ -1212,3 +1212,36 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-class-color{display:flex;flex-direction:column;gap:8px}
 .tt-class-color>span{font-size:12px;font-weight:650;color:var(--ink-2)}
 .tt-class-color .hint{font-size:11.5px;color:var(--ink-4)}
+
+/* Quick Plans */
+.dash-actions{display:flex;justify-content:flex-start;margin:-2px 0 14px}
+.dash-actions .btn{gap:7px}
+.dash-plan-count{min-width:18px;font-size:12px;font-weight:700}
+.plan-section{margin-bottom:24px;max-width:760px}
+.plan-items{list-style:none;margin:0 0 18px;padding:0;border-top:1px solid var(--line);background:var(--surface);border-radius:var(--r-m);overflow:hidden}
+.plan-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);min-height:52px}
+.plan-item:last-child{border-bottom:0}
+.plan-item .chk{flex:0 0 auto}
+.plan-name{flex:1;min-width:0;text-align:left;border:0;background:none;padding:5px 0;font-size:14.5px;color:var(--ink);overflow-wrap:anywhere}
+.plan-item.done .plan-name{color:var(--ink-4);text-decoration:line-through}
+.plan-quick-hint{margin:0;color:var(--ink-4);font-size:12.5px}
+
+/* Mobile timetable: one day at a time */
+.tt-mobile-view{display:none}
+.tt-mobile-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 0 12px}
+.tt-mobile-nav>div{text-align:center;display:flex;flex-direction:column;gap:2px}
+.tt-mobile-nav b{font-family:var(--serif);font-size:20px;font-weight:500}
+.tt-mobile-nav small{font-size:11px;color:var(--ink-4)}
+.tt-mobile-nav .btn{min-width:44px}
+.tt-mobile-list{border:1px solid var(--tt-border-color,var(--line));border-radius:var(--r-m);overflow:hidden;background:var(--surface)}
+.tt-mobile-slot{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:68px;border-bottom:1px solid var(--tt-border-color,var(--line))}
+.tt-mobile-slot:last-child{border-bottom:0}
+.tt-mobile-time{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:8px 10px;background:var(--sunken);border-right:1px solid var(--tt-border-color,var(--line))}
+.tt-mobile-time b{font-size:11px;color:var(--ink-2)}
+.tt-mobile-time small{font-size:10px;color:var(--ink-4);line-height:1.2}
+.tt-mobile-class{display:flex;align-items:stretch;min-width:0;padding:5px}
+.tt-mobile-class>button{width:100%;min-height:56px;border:0;border-radius:var(--r-s);background:var(--ttc,var(--sunken));color:var(--ttx,var(--ink));display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:8px 10px}
+.tt-mobile-class>button b{font-size:13px;line-height:1.2;overflow-wrap:anywhere}
+.tt-mobile-class>button small{font-size:10.5px;margin-top:4px;color:inherit;opacity:.8}
+.tt-mobile-empty{background:transparent!important;color:var(--ink-4)!important;font-weight:500!important}
+@media(max-width:700px){.tt-desktop-view{display:none}.tt-mobile-view{display:block}.tt-faculty{margin-top:16px}}
