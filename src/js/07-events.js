@@ -95,6 +95,7 @@ function onClick(e) {
     case 'more': openMore(); break;
     case 'plan-new': openPlanForm(); break;
     case 'plan-edit': openPlanForm(d.id); break;
+    case 'plan-save': { const title=$('#plan-title').value.trim(); if(!title){$('#plan-title').focus();break;} const F=U.form, old=F&&F.id; closeModal(); mutate(()=>{if(old){const p=D.plans.find(x=>x.id===old); if(p)p.title=title;}else D.plans.unshift({id:uid(),title,done:false});},old?'Plan updated':'Plan added'); break; }
     case 'plan-toggle': { const p=D.plans.find(x=>x.id===d.id); if(p) mutate(()=>{p.done=!p.done;}, p.done?'Plan reopened':'Plan completed'); break; }
     case 'plan-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.plans=D.plans.filter(x=>x.id!==id);},'Plan deleted'); break; }
     case 'add': {
