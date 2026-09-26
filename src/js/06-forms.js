@@ -438,7 +438,7 @@ function openPlanDay() {
 
 function openMore() {
   U.form = { kind: 'more' };
-  const items = [['plans', 'Plans'], ['timetable', 'Timetable'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review'], ['settings', 'Settings']];
+  const items = [['plans', 'Plans'], ['timetable', 'Timetable'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review'], ['settings', 'Settings']];
   openModal(`<div class="m-head"><h2>More</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
     <div class="m-body more-list">${items.map(([p, l]) => `<button data-a="nav" data-p="${p}">${ico(p)}${l}</button>`).join('')}</div>`, { cls: 'sm', autofocus: false });
 }
