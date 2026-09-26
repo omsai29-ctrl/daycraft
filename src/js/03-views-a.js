@@ -224,7 +224,7 @@ function viewToday() {
     <div class="glance-card" data-a="glance" data-p="plans" role="button" tabindex="0"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div></div>
     <div class="glance-card" data-a="glance" data-p="exams" role="button" tabindex="0"><span class="glance-icon">${ico('exams')}</span><div><b>${esc(examLabel)}</b><small>${nextExam ? esc(nextExam.title) : 'Upcoming exam'}</small></div></div>
     <div class="glance-card" data-a="glance" data-p="habits" role="button" tabindex="0"><span class="glance-icon">${ico('habits')}</span><div><b>${habitDone}/${D.habits.length}</b><small>Habits today</small></div></div>
-  </section>
+  </section>`;
 
   return `${notice}${head}${cards}${glance}
   <div class="dash-actions"><button class="btn" data-a="nav" data-p="plans">${ico('check')}Plans<span class="dash-plan-count">${D.plans.filter(p=>!p.done).length || ''} </span></button></div>
