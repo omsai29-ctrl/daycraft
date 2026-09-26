@@ -495,7 +495,12 @@ function importData(file) {
   r.readAsText(file);
 }
 function applyImport(o) {
-  D = migrate(o); D.sample = false; save(); render(); toast('Backup imported.');
+  D = migrate(o);
+  const attendanceAdded = ensureAttendance();
+  D.sample = false;
+  save();
+  render();
+  toast(attendanceAdded ? 'Backup imported. Attendance restored.' : 'Backup imported.');
 }
 
 /* ================= drag & drop (planner) ================= */
