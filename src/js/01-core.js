@@ -186,7 +186,8 @@ function seed() {
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
-  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions', 'attendance'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  if (!o.attendance || typeof o.attendance !== 'object' || Array.isArray(o.attendance)) o.attendance = {};
   o.tasks = o.tasks.map(t => blankTask(t));
   return o;
 }
@@ -229,7 +230,7 @@ function ensureMidtermExams() {
 let D = load();
 const midtermsAdded = ensureMidtermExams();
 function ensureAttendance() {
-  if (!D.attendance || typeof D.attendance !== 'object') D.attendance = {};
+  if (!D.attendance || typeof D.attendance !== 'object' || Array.isArray(D.attendance)) D.attendance = {};
   const subjects = [
     ['ELS','English Language Skills'],['LA','Linear Algebra & ODE'],['CP','Computer Programming'],
     ['IQP','Introductory Quantum Physics'],['DVDF','Design Visualization & Digital Fabrication'],
