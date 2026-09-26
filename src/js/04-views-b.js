@@ -254,8 +254,13 @@ function viewNotes() {
   const q = (U.noteQ || '').trim().toLowerCase();
   const current = U.noteFolder || null;
   const subjectRoot = current && current.indexOf('subject:') === 0 ? current.slice(8) : null;
+  const currentFolder = current && !subjectRoot ? noteFolder(current) : null;
   const folderId = subjectRoot ? null : current;
-  const subject = subjectRoot ? (D.subjects || []).find(s => s.id === subjectRoot) : null;
+  const subject = subjectRoot
+    ? (D.subjects || []).find(s => s.id === subjectRoot)
+    : currentFolder && currentFolder.subjectId
+      ? (D.subjects || []).find(s => s.id === currentFolder.subjectId)
+      : null;
   const folders = noteFolderChildren(folderId, subject ? subject.id : null);
   const notes = (D.notes || []).filter(n => {
     const samePlace = (n.folderId || null) === folderId && (n.subjectId || null) === (subject ? subject.id : null);
