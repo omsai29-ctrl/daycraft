@@ -1263,3 +1263,8 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .exam-count-num small{display:block;font-size:11px;font-weight:600;color:var(--ink-3);margin-top:4px}
 .exam-count-meta{grid-column:1/-1;color:var(--ink-2);font-size:13px}
 @media(max-width:600px){.exam-countdown{grid-template-columns:1fr auto;padding:16px 17px}.exam-countdown h2{font-size:20px}.exam-count-num{font-size:32px}}
+
+/* Mid-term exam schedule */
+.exam-schedule-note{display:flex;flex-direction:column;gap:4px;margin:-4px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface)}
+.exam-schedule-note b{font-size:13px}.exam-schedule-note span{font-size:12px;color:var(--ink-3)}
+.exam-time{margin:-2px 0 12px;color:var(--ink-2);font-size:13px;font-weight:600}
