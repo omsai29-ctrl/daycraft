@@ -187,6 +187,17 @@ function onClick(e) {
     case 'tt-new': openTimetableForm(null, null); break;
     case 'tt-new-slot': openTimetableForm(null, { day: d.day, start: +d.start }); break;
     case 'tt-edit': openTimetableForm(d.id, null); break;
+    case 'tt-task': {
+      const id=U.form&&U.form.id, e=D.timetable&&D.timetable.entries.find(x=>x.id===id);
+      if(!e) break;
+      closeModal();
+      const dayIndex=TT_DAYS.indexOf(e.day), todayIndex=(new Date().getDay()+6)%7;
+      const date=addDays(today(), (dayIndex-todayIndex+7)%7);
+      const base=(e.course||'Class').replace(/-LAB$/,'');
+      const subjectId=(D.subjects||[]).find(s=>s.id===base||s.name.toLowerCase().startsWith(base.toLowerCase()))?.id||null;
+      openAdd({title:'Prepare for '+e.course,date,start:ttEndMin(e.end)!=null?fromMin(ttEndMin(e.end)):'',duration:30,subjectId});
+      break;
+    }
     case 'tt-save': { const course=$('#tt-course').value.trim(); const day=$('#tt-day').value; const start=+$('#tt-start').value; const end=+$('#tt-end').value; const room=$('#tt-room').value.trim(); const color=$('#tt-color').value; if(!course){$('#tt-course').focus();break;} if(end<start){toast('End slot must be after start slot.');break;} const id=U.form&&U.form.id, text=(U.form&&U.form.text)||null; closeModal(); mutate(()=>{const e={id:id||uid(),day,start,end,course,room,color,text}; if(id){const i=D.timetable.entries.findIndex(x=>x.id===id);if(i>=0)D.timetable.entries[i]=e;}else D.timetable.entries.push(e);}, id?'Timetable class updated':'Timetable class added'); break; }
     case 'tt-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.timetable.entries=D.timetable.entries.filter(e=>e.id!==id);},'Timetable class deleted'); break; }
     case 'pl-today': U.pd = today(); U.plannerScrolled = false; render(); break;
