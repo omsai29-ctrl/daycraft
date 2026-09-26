@@ -1310,3 +1310,25 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .wrap-card .grow{min-width:0}
   .wrap-card .sub{overflow-wrap:anywhere}
 }
+
+/* Hard mobile containment for Today active card */
+@media(max-width:700px){
+  section.now,
+  section.now > *,
+  section.now .now-top,
+  section.now .now-meta,
+  section.now .now-actions,
+  section.now .subs{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+  section.now .now-top>*,
+  section.now .now-meta>*,
+  section.now .now-actions>*,
+  section.now .subs li{
+    min-width:0;
+    max-width:100%;
+  }
+}
