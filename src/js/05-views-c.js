@@ -106,9 +106,33 @@ function viewHabits() {
 }
 
 /* ================= EXAMS ================= */
+function examCountdownText(n) {
+  if (n < 0) return 'Exam completed';
+  if (n === 0) return 'Exam is today';
+  if (n === 1) return '1 day remaining';
+  return n + ' days remaining';
+}
+
+function examCountdownText(n) {
+  if (n < 0) return 'Exam completed';
+  if (n === 0) return 'Exam is today';
+  if (n === 1) return '1 day remaining';
+  return n + ' days remaining';
+}
+
 function viewExams() {
   const td = today();
   const list = D.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+  const upcoming = list.filter(e => e.date >= td).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const countdown = upcoming ? (() => {
+    const n = diffDays(td, upcoming.date), sb = subjOf(upcoming.subjectId);
+    return '<section class="exam-countdown"'+(sb ? ' style="--bc:'+sb.color+'"' : '')+'>' +
+      '<div><span class="eyebrow">NEXT EXAM</span><h2>'+esc(upcoming.title)+'</h2>' +
+      (sb ? '<span class="muted">'+esc(sb.name)+'</span>' : '')+'</div>' +
+      '<div class="exam-count-num">'+n+'<small>'+ (n === 1 ? 'day' : 'days') +'</small></div>' +
+      '<div class="exam-count-meta">'+esc(fmtFull(upcoming.date))+' · '+esc(examCountdownText(n))+'</div>' +
+      '</section>';
+  })() : '';
   const html = list.map(e => {
     const pct = examPct(e), n = diffDays(td, e.date), sb = subjOf(e.subjectId);
     const sessions = D.tasks.filter(t => t.examId === e.id).sort((a, b) => (a.date || '9') < (b.date || '9') ? -1 : 1);
@@ -128,7 +152,7 @@ function viewExams() {
       <div class="chips" style="margin-top:14px"><button class="btn btn-sm" data-a="exam-session" data-id="${e.id}" data-t="Revise">${ico('plus')}Revision session</button><button class="btn btn-sm" data-a="exam-session" data-id="${e.id}" data-t="Practice">${ico('plus')}Practice session</button></div>
     </section>`;
   }).join('');
-  return pageHead('Exams', 'Plan what to cover and when.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}New exam</button>`) +
+  return pageHead('Exams', 'Plan what to cover and when.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}New exam</button>`) + countdown +
     (html || emptyBox('No exams planned.', 'Add an exam to track topics and schedule revision.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}Add an exam</button>`));
 }
 
