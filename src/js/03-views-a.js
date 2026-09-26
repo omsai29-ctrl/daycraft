@@ -136,7 +136,8 @@ function viewToday() {
     '<button class="glance-card" data-a="glance" data-p="planner" onclick="event.preventDefault();go('planner')"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></button>' +
     '<button class="glance-card" data-a="glance" data-p="plans" onclick="event.preventDefault();go('plans')"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></button>' +
     '<button class="glance-card" data-a="glance" data-p="exams" onclick="event.preventDefault();go('exams')"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="habits" onclick="event.preventDefault();go('habits')"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
+    '<button class="glance-card" data-a="glance" data-p="habits" onclick="event.preventDefault();go(\'habits\')"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
+    '<button class="glance-card glance-plans" data-a="glance" data-p="plans" onclick="event.preventDefault();go(\'plans\')"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div><span class="glance-arrow">'+ico('right')+'</span></button>' +
   '</section>';
   /* ---- NOW ---- */
   let nowHtml;
@@ -226,7 +227,6 @@ function viewToday() {
   const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="glance" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
 
   return `${notice}${head}${cards}${glance}
-  <button class="glance-card glance-plans" data-a="glance" data-p="plans"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div><span class="glance-arrow">${ico('right')}</span></button>
   <div class="grid-2">
     <div class="col-stack">
       <div>${nowHtml}${nextHtml}</div>
