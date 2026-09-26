@@ -113,13 +113,6 @@ function examCountdownText(n) {
   return n + ' days remaining';
 }
 
-function examCountdownText(n) {
-  if (n < 0) return 'Exam completed';
-  if (n === 0) return 'Exam is today';
-  if (n === 1) return '1 day remaining';
-  return n + ' days remaining';
-}
-
 function viewExams() {
   const td = today();
   const list = D.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1);
@@ -139,9 +132,11 @@ function viewExams() {
     const soon = n >= 0 && n <= 7;
     return `<section class="exam ${soon ? 'soon' : ''}" ${sb ? `style="--bc:${sb.color}"` : ''}>
       <div class="exam-h"><h2 class="exam-t">${esc(e.title)}</h2>
+        ${e.courseCode ? `<span class="exam-d st">${esc(e.courseCode)}</span>` : ''}
         ${sb ? `<span class="exam-d st" style="display:inline-flex;gap:6px;align-items:center"><i class="dot" style="background:${sb.color}"></i>${esc(sb.name)}</span>` : ''}
         <span class="exam-when ${soon ? 'pill pill-red' : 'muted'}">${fmtShort(e.date)} · ${n < 0 ? 'passed' : inLabel(n)}</span>
         <button class="btn btn-sm btn-quiet" data-a="exam-edit" data-id="${e.id}">Edit</button></div>
+      ${e.time ? `<div class="exam-time">${esc(e.time)}</div>` : ''}
       <div class="prep">${bar(pct, pct >= 100 ? 'green' : '')}<b class="num">${pct}%</b></div>
       <div class="prep-l">Prepared${e.topics.length ? ` · ${e.topics.filter(t => t.done).length} of ${e.topics.length} topics covered` : ''}</div>
       <h4>Topics</h4>
@@ -152,7 +147,8 @@ function viewExams() {
       <div class="chips" style="margin-top:14px"><button class="btn btn-sm" data-a="exam-session" data-id="${e.id}" data-t="Revise">${ico('plus')}Revision session</button><button class="btn btn-sm" data-a="exam-session" data-id="${e.id}" data-t="Practice">${ico('plus')}Practice session</button></div>
     </section>`;
   }).join('');
-  return pageHead('Exams', 'Plan what to cover and when.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}New exam</button>`) + countdown +
+  const midtermNote = `<div class="exam-schedule-note"><b>Mid-Terms · B.Tech CSE (AI &amp; DS) · Section B</b><span>Official schedule from the uploaded university PDF</span></div>`;
+  return pageHead('Exams', 'Plan what to cover and when.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}New exam</button>`) + midtermNote + countdown +
     (html || emptyBox('No exams planned.', 'Add an exam to track topics and schedule revision.', `<button class="btn btn-primary" data-a="exam-new">${ico('plus')}Add an exam</button>`));
 }
 
