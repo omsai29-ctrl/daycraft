@@ -1245,7 +1245,9 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 
 /* Today dashboard at-a-glance */
 .today-glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 20px}
-.glance-card{min-width:0;padding:13px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);display:flex;align-items:center;gap:10px}
+.glance-card{min-width:0;padding:13px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);display:flex;align-items:center;gap:10px;text-align:left;color:var(--ink);font:inherit;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.glance-card:active{transform:scale(.98)}
+.glance-card:hover{border-color:var(--line-strong,var(--line));background:var(--surface-2,var(--surface))}
 .glance-icon{width:34px;height:34px;display:grid;place-items:center;flex:none;border-radius:10px;background:var(--sunken);color:var(--ink-2)}
 .glance-icon .i{width:18px;height:18px}
 .glance-card b{display:block;font-size:17px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
