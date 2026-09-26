@@ -215,6 +215,18 @@ function viewToday() {
   const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="nav" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
 
   return `${notice}${head}${cards}
+  const planOpen = Array.isArray(D.plans) ? D.plans.filter(p => !p.done).length : 0;
+  const habitDone = D.habits.filter(h => h.log[td]).length;
+  const nextExam = D.exams.filter(e => e.date >= td).sort((a, b) => a.date.localeCompare(b.date))[0];
+  const examDays = nextExam ? diffDays(td, nextExam.date) : null;
+  const examLabel = nextExam ? (examDays === 0 ? 'Today' : examDays + ' days') : 'None';
+  const glance = `<section class="today-glance" aria-label="Today at a glance">
+    <div class="glance-card" data-a="glance" data-p="planner" role="button" tabindex="0"><span class="glance-icon">${ico('planner')}</span><div><b>${checks.length}</b><small>Today's tasks</small></div></div>
+    <div class="glance-card" data-a="glance" data-p="plans" role="button" tabindex="0"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div></div>
+    <div class="glance-card" data-a="glance" data-p="exams" role="button" tabindex="0"><span class="glance-icon">${ico('exams')}</span><div><b>${esc(examLabel)}</b><small>${nextExam ? esc(nextExam.title) : 'Upcoming exam'}</small></div></div>
+    <div class="glance-card" data-a="glance" data-p="habits" role="button" tabindex="0"><span class="glance-icon">${ico('habits')}</span><div><b>${habitDone}/${D.habits.length}</b><small>Habits today</small></div></div>
+  </section>
+
   <div class="dash-actions"><button class="btn" data-a="nav" data-p="plans">${ico('check')}Plans<span class="dash-plan-count">${D.plans.filter(p=>!p.done).length || ''} </span></button></div>
   <div class="grid-2">
     <div class="col-stack">
