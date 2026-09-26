@@ -244,7 +244,25 @@ function onClick(e) {
     case 'rv': U.rv = addDays(U.rv, +d.n); render(); break;
     /* settings */
     case 'theme': D.settings.theme = d.v; save(); render(); break;
-    case 'notify': try { Notification.requestPermission().then(p => toast(p === 'granted' ? 'Notifications on.' : 'Notifications are blocked here. In-page reminders still work.')); } catch (err) { toast('Notifications aren\'t available here. In-page reminders still work.'); } break;
+    case 'notify': {
+      if (!notificationsSupported()) { toast('This browser does not support notifications. In-page reminders still work.'); break; }
+      if (Notification.permission === 'granted') {
+        sendPlannerNotification('Daycraft', 'Notifications are working. Your task reminders can appear here.');
+        toast('Test notification sent.');
+        break;
+      }
+      try {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') {
+            sendPlannerNotification('Daycraft', 'Notifications are now enabled.');
+            toast('Notifications enabled.');
+          } else if (p === 'denied') toast('Notifications are blocked. Allow them in your browser settings.');
+          else toast('Notification permission was not granted.');
+          render();
+        });
+      } catch (err) { toast('Notifications aren\'t available here. In-page reminders still work.'); }
+      break;
+    }
     case 'sync-now': if (AUTH.user) push(); else openAuthModal(); break;
     case 'auth-open': openAuthModal(); break;
     case 'auth-signin': authEmail('signin'); break;
@@ -565,7 +583,7 @@ function checkReminders(n) {
       fired.add(key);
       const left = i.start - n;
       toast(i.t.title + ' starts in ' + minsLabel(left) + ' (' + fmtT(i.start) + ')', { cls: 'remind', ms: 12000 });
-      try { if (window.Notification && Notification.permission === 'granted') new Notification(i.t.title, { body: 'Starts in ' + minsLabel(left) }); } catch (e) { /* noop */ }
+      try { sendPlannerNotification(i.t.title, 'Starts in ' + minsLabel(left) + ' (' + fmtT(i.start) + ')'); } catch (e) { /* noop */ }
     }
   });
 }
