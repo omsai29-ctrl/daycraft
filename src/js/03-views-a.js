@@ -133,10 +133,10 @@ function viewToday() {
   const nextExam = D.exams.filter(e => e.date >= td).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const examText = nextExam ? (diffDays(td, nextExam.date) === 0 ? 'Today' : diffDays(td, nextExam.date) + ' days') : 'None';
   const glance = '<section class="today-glance" aria-label="Today at a glance">' +
-    '<button class="glance-card" data-a="glance" data-p="planner" onclick="event.preventDefault();go('planner')"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="plans" onclick="event.preventDefault();go('plans')"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="exams" onclick="event.preventDefault();go('exams')"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="habits" onclick="event.preventDefault();go(\'habits\')"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
+    '<button class="glance-card" data-a="glance" data-p="planner" onclick="event.preventDefault();go(&quot;planner&quot;)"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></button>' +
+    '<button class="glance-card" data-a="glance" data-p="plans" onclick="event.preventDefault();go(&quot;plans&quot;)"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></button>' +
+    '<button class="glance-card" data-a="glance" data-p="exams" onclick="event.preventDefault();go(&quot;exams&quot;)"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></button>' +
+    '<button class="glance-card" data-a="glance" data-p="habits" onclick="event.preventDefault();go(&quot;habits&quot;)"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
 
   '</section>';
   /* ---- NOW ---- */
