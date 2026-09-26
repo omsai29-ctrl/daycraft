@@ -1292,3 +1292,10 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .attendance-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--ink-3);font-size:12px}.attendance-actions{display:flex;gap:6px;flex-wrap:wrap}
 .attendance-note{margin-top:14px}
 @media(max-width:600px){.attendance-meta{align-items:flex-end;flex-direction:column}.attendance-actions{width:100%}.attendance-actions .btn{flex:1}}
+
+/* Mobile viewport containment */
+@media(max-width:900px){
+  html,body,#app{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+  .shell,.main{width:100%;max-width:100%;min-width:0}
+  .main>*{max-width:100%}
+}
