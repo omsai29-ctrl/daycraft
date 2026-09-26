@@ -1299,3 +1299,14 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .shell,.main{width:100%;max-width:100%;min-width:0}
   .main>*{max-width:100%}
 }
+
+/* Mobile dashboard text containment */
+@media(max-width:700px){
+  .now-top{min-width:0}
+  .now-left{min-width:0;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .now-title{overflow-wrap:anywhere}
+  .h2{min-width:0}
+  .h2 .aux{min-width:0;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wrap-card .grow{min-width:0}
+  .wrap-card .sub{overflow-wrap:anywhere}
+}
