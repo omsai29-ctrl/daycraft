@@ -311,6 +311,16 @@ function onClick(e) {
     case 'close-modal': closeModal(); break;
     case 'note-new': openNoteForm(); break;
     case 'note-edit': openNoteForm(d.id); break;
+    case 'note-photo': addLocalNotePhoto(); break;
+    case 'note-photo-del': {
+      const i = +d.i;
+      if (U.form && U.form.attachments) {
+        U.form.attachments.splice(i, 1);
+        const box = $('#note-attachments-list');
+        if (box) box.innerHTML = noteAttachmentsHtml(U.form.attachments);
+      }
+      break;
+    }
     case 'note-open': U.noteFolder = d.id; U.noteQ = ''; render(); break;
     case 'note-root': U.noteFolder = null; U.noteQ = ''; render(); break;
     case 'note-subject': U.noteFolder = 'subject:' + d.id; U.noteQ = ''; render(); break;
@@ -348,14 +358,14 @@ function onClick(e) {
       const title = $('#note-title').value.trim(), body = $('#note-body').value.trim();
       if (!title && !body) { $('#note-title').focus(); break; }
       const subjectId = $('#note-subject').value || null, folderId = $('#note-folder').value || null;
-      const F = U.form, old = F && F.id;
+      const F = U.form, old = F && F.id, attachments = clone((F && F.attachments) || []);
       closeModal();
       mutate(() => {
         if (old) {
           const n = D.notes.find(x => x.id === old);
-          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.updatedAt = Date.now(); }
+          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.attachments = attachments; n.updatedAt = Date.now(); }
         } else {
-          D.notes.unshift({ id: uid(), title: title || 'Untitled note', body, subjectId, folderId, createdAt: Date.now(), updatedAt: Date.now() });
+          D.notes.unshift({ id: F.tempId || uid(), title: title || 'Untitled note', body, subjectId, folderId, attachments, createdAt: Date.now(), updatedAt: Date.now() });
         }
       }, old ? 'Note updated' : 'Note saved');
       break;
