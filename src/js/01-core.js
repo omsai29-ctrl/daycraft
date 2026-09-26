@@ -229,6 +229,15 @@ function ensureMidtermExams() {
 
 let D = load();
 const midtermsAdded = ensureMidtermExams();
+const SIS_ATTENDANCE_B = {
+  ELS: { name: 'English Language Skills', present: 16, total: 17 },
+  LA: { name: 'Linear Algebra & ODE', present: 22, total: 22 },
+  CP: { name: 'Computer Programming', present: 24, total: 24 },
+  IQP: { name: 'Introductory Quantum Physics', present: 18, total: 18 },
+  DVDF: { name: 'Design Visualization & Digital Fabrication', present: 20, total: 20 },
+  EAI: { name: 'Essentials of Artificial Intelligence', present: 20, total: 20 }
+};
+
 function ensureAttendance() {
   if (!D.attendance || typeof D.attendance !== 'object' || Array.isArray(D.attendance)) D.attendance = {};
   const subjects = [
@@ -238,8 +247,21 @@ function ensureAttendance() {
   ];
   let changed = false;
   subjects.forEach(([id,name]) => {
-    if (!D.attendance[id]) { D.attendance[id] = { name, present: 0, total: 0 }; changed = true; }
-    else if (!D.attendance[id].name) { D.attendance[id].name = name; changed = true; }
+    const seed = SIS_ATTENDANCE_B[id];
+    if (!D.attendance[id]) {
+      D.attendance[id] = seed ? { name: seed.name, present: seed.present, total: seed.total } : { name, present: 0, total: 0 };
+      changed = true;
+    } else if (!D.attendance[id].name) {
+      D.attendance[id].name = name;
+      changed = true;
+    }
+    // If this is still the untouched empty tracker, populate it from the supplied SIS snapshot.
+    if (seed && D.attendance[id].total === 0 && D.attendance[id].present === 0) {
+      D.attendance[id].present = seed.present;
+      D.attendance[id].total = seed.total;
+      D.attendance[id].name = seed.name;
+      changed = true;
+    }
   });
   return changed;
 }
