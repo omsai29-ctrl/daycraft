@@ -215,6 +215,7 @@ function viewToday() {
   const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="nav" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
 
   return `${notice}${head}${cards}
+  <div class="dash-actions"><button class="btn" data-a="nav" data-p="plans">'+ico('check')+'Plans<span class="dash-plan-count">'+(D.plans.filter(p=>!p.done).length||'')+'</span></button></div>
   <div class="grid-2">
     <div class="col-stack">
       <div>${nowHtml}${nextHtml}</div>
