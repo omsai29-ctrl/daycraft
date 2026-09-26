@@ -1281,3 +1281,14 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .focus-summary>div{padding:16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);text-align:center}
 .focus-summary b{display:block;font-size:20px}.focus-summary span{display:block;margin-top:4px;color:var(--ink-3);font-size:12px}
 @media(max-width:600px){.focus-card{padding:24px 16px}.focus-clock{font-size:58px}}
+
+.attendance-overview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 18px}
+.attendance-overview>div{padding:18px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);text-align:center}
+.attendance-overview b{display:block;font-size:25px}.attendance-overview span{display:block;margin-top:4px;color:var(--ink-3);font-size:12px}
+.attendance-list{display:grid;gap:10px}.attendance-card{padding:16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface)}
+.attendance-main{display:flex;justify-content:space-between;align-items:center;gap:12px}.attendance-main b{display:block}.attendance-main small{display:block;margin-top:3px;color:var(--ink-3);font-size:11px}
+.attendance-main strong{font-size:22px}.attendance-main strong.low{color:#E57373}.attendance-main strong.mid{color:#E0A458}
+.attendance-bar{height:5px;margin:12px 0;border-radius:99px;background:var(--sunken);overflow:hidden}.attendance-bar span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.attendance-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--ink-3);font-size:12px}.attendance-actions{display:flex;gap:6px;flex-wrap:wrap}
+.attendance-note{margin-top:14px}
+@media(max-width:600px){.attendance-meta{align-items:flex-end;flex-direction:column}.attendance-actions{width:100%}.attendance-actions .btn{flex:1}}
