@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
 const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
-  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus']],
+  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus', 'attendance']],
   ['Track', ['subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, focus: viewFocus, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','plans','focus','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','plans','focus','attendance','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -94,6 +94,15 @@ function onClick(e) {
     case 'nav': if (modalOpen()) closeModal(); go(d.p); break;
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
+    case 'att-present': {
+      const a=D.attendance&&D.attendance[d.id]; if(a) mutate(()=>{a.present++;a.total++;},'Attendance marked present'); break;
+    }
+    case 'att-absent': {
+      const a=D.attendance&&D.attendance[d.id]; if(a) mutate(()=>{a.total++;},'Attendance marked absent'); break;
+    }
+    case 'att-undo': {
+      const a=D.attendance&&D.attendance[d.id]; if(a&&a.total>0) mutate(()=>{a.total--; if(a.present>a.total)a.present=a.total;},'Attendance entry undone'); break;
+    }
     case 'focus-length': {
       if (U.focusTimer && U.focusTimer.running) break;
       const m = Math.max(1, +d.m || 25);
