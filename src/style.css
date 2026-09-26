@@ -1367,3 +1367,21 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
     max-width:100%;
   }
 }
+/* Notes */
+.notes-toolbar{margin:0 0 18px;display:flex;max-width:760px}
+.notes-search{width:100%;max-width:520px}
+.notes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:900px;margin:0 0 18px}
+.note-card{min-width:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);overflow:hidden;box-shadow:var(--sh-1)}
+.note-open{display:block;width:100%;min-width:0;border:0;background:none;text-align:left;padding:16px;color:var(--ink);font:inherit;cursor:pointer}
+.note-open:hover{background:var(--surface-2,var(--sunken))}
+.note-title{font-size:16px;font-weight:650;line-height:1.25;overflow-wrap:anywhere}
+.note-preview{margin-top:8px;color:var(--ink-2);font-size:13px;line-height:1.45;min-height:38px;overflow-wrap:anywhere}
+.note-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-4)}
+.note-meta .i{width:15px;height:15px}
+.note-form-body{display:flex;flex-direction:column;gap:16px}
+.note-editor{min-height:260px;resize:vertical;line-height:1.55}
+@media(max-width:700px){
+  .notes-grid{grid-template-columns:1fr;gap:10px}
+  .note-open{padding:14px}
+  .note-editor{min-height:220px}
+}
