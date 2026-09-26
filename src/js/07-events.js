@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['plans', 'Plans'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['focus', 'Focus'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
-  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans']],
+  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus']],
   ['Track', ['subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, plans: viewPlans, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, focus: viewFocus, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','plans','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','plans','focus','subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -94,6 +94,17 @@ function onClick(e) {
     case 'nav': if (modalOpen()) closeModal(); go(d.p); break;
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
+    case 'focus-length': {
+      if (U.focusTimer && U.focusTimer.running) break;
+      const m = Math.max(1, +d.m || 25);
+      U.focusTimer = { remaining: m * 60, elapsed: 0, total: m * 60, running: false, paused: false, startedAt: null };
+      render();
+      break;
+    }
+    case 'focus-start': startFocusTimer(); break;
+    case 'focus-pause': pauseFocusTimer(); break;
+    case 'focus-resume': resumeFocusTimer(); break;
+    case 'focus-stop': stopFocusTimer(true); break;
     case 'plan-new': openPlanForm(); break;
     case 'plan-edit': openPlanForm(d.id); break;
     case 'plan-save': { const title=$('#plan-title').value.trim(); if(!title){$('#plan-title').focus();break;} const F=U.form, old=F&&F.id; closeModal(); mutate(()=>{if(old){const p=D.plans.find(x=>x.id===old); if(p)p.title=title;}else D.plans.unshift({id:uid(),title,done:false});},old?'Plan updated':'Plan added'); break; }
@@ -405,6 +416,40 @@ const snap15 = m => Math.round(m / 15) * 15;
 
 function elAtPoint(x, y) { return (document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)]).filter(Boolean); }
 
+function startFocusTimer() {
+  const t = U.focusTimer || { remaining: 25 * 60, elapsed: 0, total: 25 * 60 };
+  t.running = true; t.paused = false; t.startedAt = t.startedAt || Date.now();
+  U.focusTimer = t; render();
+}
+function pauseFocusTimer() {
+  if (!U.focusTimer || !U.focusTimer.running) return;
+  U.focusTimer.paused = true; render();
+}
+function resumeFocusTimer() {
+  if (!U.focusTimer || !U.focusTimer.running) return;
+  U.focusTimer.paused = false; render();
+}
+function stopFocusTimer(saveSession) {
+  const t = U.focusTimer;
+  if (!t) return;
+  if (saveSession && t.elapsed >= 60) {
+    D.focusSessions.push({ id: uid(), date: today(), seconds: t.elapsed, endedAt: new Date().toISOString(), label: 'Focus session' });
+    save();
+  }
+  U.focusTimer = null; render();
+}
+function tickFocusTimer() {
+  const t = U.focusTimer;
+  if (!t || !t.running || t.paused) return;
+  t.elapsed += 1; t.remaining = Math.max(0, t.total - t.elapsed);
+  const el = document.getElementById('focus-clock');
+  if (el) el.textContent = focusClockText(t.remaining);
+  if (t.remaining <= 0) {
+    stopFocusTimer(true);
+    try { sendPlannerNotification('Daycraft', 'Focus session complete.'); } catch (e) {}
+  }
+}
+
 function onPointerDown(e) {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   if (e.target.closest('[data-a=toggle]')) return;
@@ -619,5 +664,6 @@ function boot() {
   render();
   initSync();
   setInterval(tick, 15000);
+  setInterval(tickFocusTimer, 1000);
   tick();
 }
