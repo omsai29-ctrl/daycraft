@@ -1311,10 +1311,9 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .wrap-card .sub{overflow-wrap:anywhere}
 }
 
-/* Hard mobile containment for Today active card */
+/* Mobile active card: contain the card without forcing flex children to full width */
 @media(max-width:700px){
   section.now,
-  section.now > *,
   section.now .now-top,
   section.now .now-meta,
   section.now .now-actions,
@@ -1324,7 +1323,21 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
     min-width:0;
     box-sizing:border-box;
   }
-  section.now .now-top>*,
+  section.now .now-top{
+    display:flex;
+    align-items:center;
+    gap:var(--s3);
+  }
+  section.now .now-top>*{
+    min-width:0;
+    max-width:100%;
+  }
+  section.now .now-left{
+    flex:1 1 auto;
+    margin-left:auto;
+    text-align:right;
+    overflow-wrap:anywhere;
+  }
   section.now .now-meta>*,
   section.now .now-actions>*,
   section.now .subs li{
