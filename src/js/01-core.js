@@ -184,7 +184,7 @@ function seed() {
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
-  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
   o.tasks = o.tasks.map(t => blankTask(t));
   return o;
 }
