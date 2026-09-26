@@ -127,18 +127,6 @@ function viewToday() {
       <div class="acts"><button class="btn btn-sm" data-a="carry" data-scope="today" data-to="tomorrow">Move to tomorrow</button><button class="btn btn-sm" data-a="carry" data-scope="today" data-to="pick">Pick a date</button><button class="btn btn-sm btn-quiet" data-a="carry" data-scope="today" data-to="none">Unschedule</button>${!eod ? `<button class="icon-btn" data-a="wrap-off" aria-label="Dismiss">${ico('x')}</button>` : ''}</div></div>`;
   }
 
-  /* ---- TODAY AT A GLANCE ---- */
-  const planOpen = Array.isArray(D.plans) ? D.plans.filter(p => !p.done).length : 0;
-  const habitDone = D.habits.filter(h => h.log[td]).length;
-  const nextExam = D.exams.filter(e => e.date >= td).sort((a,b)=>a.date.localeCompare(b.date))[0];
-  const examText = nextExam ? (diffDays(td, nextExam.date) === 0 ? 'Today' : diffDays(td, nextExam.date) + ' days') : 'None';
-  const glance = '<section class="today-glance" aria-label="Today at a glance">' +
-    '<button class="glance-card" data-a="glance" data-p="planner" onclick="event.preventDefault();go(&quot;planner&quot;)"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="plans" onclick="event.preventDefault();go(&quot;plans&quot;)"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="exams" onclick="event.preventDefault();go(&quot;exams&quot;)"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></button>' +
-    '<button class="glance-card" data-a="glance" data-p="habits" onclick="event.preventDefault();go(&quot;habits&quot;)"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
-
-  '</section>';
   /* ---- NOW ---- */
   let nowHtml;
   if (cur) {
@@ -224,9 +212,10 @@ function viewToday() {
   const remHtml = att.length ? `<section><h2 class="h2">Needs attention</h2><ul class="rem">${att.map(a => `<li class="k-${a.kind}">${ico('alert')}<div class="grow"><div>${esc(a.text)}</div><div class="rs">${esc(a.sub)}</div></div><button class="btn btn-sm btn-quiet" data-a="${a.a}" data-id="${a.id || ''}" data-d="${a.d || ''}" data-p="${a.p || ''}">${a.label}</button></li>`).join('')}</ul></section>` : '';
 
   /* ---- habits ---- */
-  const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="glance" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
+  const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="nav" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
 
-  return `${notice}${head}${cards}${glance}
+  return `${notice}${head}${cards}
+  <div class="dash-actions"><button class="btn" data-a="nav" data-p="plans">${ico('check')}Plans<span class="dash-plan-count">${D.plans.filter(p=>!p.done).length || ''} </span></button></div>
   <div class="grid-2">
     <div class="col-stack">
       <div>${nowHtml}${nextHtml}</div>
