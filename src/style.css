@@ -1242,3 +1242,12 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-mobile-class small{font-size:10.5px;margin-top:4px;color:inherit;opacity:.8}
 .tt-mobile-empty{border:0;border-bottom:1px solid var(--tt-border-color,var(--line));background:transparent!important;color:var(--ink-4)!important;font-weight:500!important;text-align:left;padding:8px 10px}
 @media(max-width:700px){.tt-desktop-view{display:none}.tt-mobile-view{display:block}.tt-faculty{margin-top:16px}}
+
+/* Today dashboard at-a-glance */
+.today-glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 20px}
+.glance-card{min-width:0;padding:13px 12px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);display:flex;align-items:center;gap:10px}
+.glance-icon{width:34px;height:34px;display:grid;place-items:center;flex:none;border-radius:10px;background:var(--sunken);color:var(--ink-2)}
+.glance-icon .i{width:18px;height:18px}
+.glance-card b{display:block;font-size:17px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.glance-card small{display:block;margin-top:3px;color:var(--ink-3);font-size:11px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.today-glance{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 18px}.glance-card{padding:11px 10px}.glance-icon{width:30px;height:30px}.glance-card b{font-size:16px}}
