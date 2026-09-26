@@ -1385,3 +1385,28 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .note-open{padding:14px}
   .note-editor{min-height:220px}
 }
+
+
+/* Hierarchical Notes */
+.note-breadcrumb{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 14px;color:var(--ink-3);font-size:12px}
+.note-crumb{border:0;background:none;padding:2px 0;color:var(--ink-2);font:inherit;cursor:pointer}
+.note-crumb:hover{text-decoration:underline}
+.note-folder-card{position:relative;display:flex;min-width:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);overflow:hidden;box-shadow:var(--sh-1)}
+.note-folder-open{display:flex;align-items:center;gap:11px;flex:1;min-width:0;border:0;background:none;text-align:left;padding:15px;color:var(--ink);font:inherit;cursor:pointer}
+.note-folder-open:hover{background:var(--surface-2,var(--sunken))}
+.note-folder-icon{width:34px;height:34px;display:grid;place-items:center;flex:none;border-radius:9px;background:var(--sunken);color:var(--ink-2)}
+.note-folder-icon .i{width:18px;height:18px}
+.note-folder-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:650}
+.note-folder-arrow{margin-left:auto;color:var(--ink-3)}
+.note-folder-arrow .i{width:16px;height:16px}
+.note-folder-edit{flex:0 0 auto;margin:8px}
+.note-folders{margin-bottom:14px}
+.note-attachments{padding:12px;border:1px dashed var(--line-2);border-radius:var(--r-m);background:var(--sunken)}
+.note-attachments b{font-size:12px}
+.note-attachments p{margin:5px 0 0;font-size:11.5px}
+@media(max-width:700px){
+  .note-folder-open{padding:13px}
+  .note-folder-icon{width:31px;height:31px}
+  .note-folder-edit{margin:6px}
+  .note-breadcrumb{margin-bottom:10px}
+}
