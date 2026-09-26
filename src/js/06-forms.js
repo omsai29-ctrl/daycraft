@@ -75,14 +75,33 @@ function openPlanForm(id){
   openModal('<div class="m-head"><h2>'+ (old?'Edit plan':'Add plan') +'</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">'+ico('x')+'</button></div><div class="m-body"><label class="fld"><span>What do you need to do?</span><input class="input lg" id="plan-title" value="'+esc(p.title)+'" placeholder="e.g. Complete Physics record" autocomplete="off"></label><p class="plan-quick-hint">No date, start time or deadline needed.</p></div><div class="m-foot">'+(old?'<button class="btn btn-danger" data-a="plan-del">Delete</button>':'')+'<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="plan-save">'+(old?'Save changes':'Add plan')+'</button></div>',{label:old?'Edit plan':'Add plan',focus:'#plan-title'});
 }
 /* ================= notes ================= */
+function openNoteFolderForm(id){
+  const old = id ? noteFolder(id) : null;
+  const parent = U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? noteFolder(U.noteFolder) : null;
+  const subjectId = parent ? parent.subjectId : (U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null);
+  const f = old ? clone(old) : { id: uid(), name: '', parentId: parent ? parent.id : null, subjectId: subjectId || null };
+  U.form = { kind: 'note-folder', id: old ? old.id : null };
+  openModal(`<div class="m-head"><h2>${old ? 'Rename folder' : 'New folder'}</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
+    <div class="m-body"><label class="fld"><span>Folder name</span><input class="input lg" id="note-folder-name" value="${esc(f.name)}" placeholder="e.g. Formulas" autocomplete="off"></label></div>
+    <div class="m-foot">${old ? '<button class="btn btn-danger" data-a="note-folder-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-folder-save">${old ? 'Save changes' : 'Create folder'}</button></div>`,
+    { label: old ? 'Rename folder' : 'New folder', focus: '#note-folder-name' });
+}
 function openNoteForm(id){
   const old = id ? D.notes.find(n => n.id === id) : null;
-  const n = old ? clone(old) : { id: uid(), title: '', body: '' };
+  const n = old ? clone(old) : { id: uid(), title: '', body: '', folderId: U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? U.noteFolder : null, subjectId: U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null };
+  const folders = (D.noteFolders || []).slice().sort((a,b) => noteFolderLabel(a.id).localeCompare(noteFolderLabel(b.id)));
+  const folderOptions = '<option value="">None / subject root</option>' + folders.map(f => `<option value="${f.id}" ${n.folderId === f.id ? 'selected' : ''}>${esc(noteFolderLabel(f.id))}</option>`).join('');
+  const subjectOptions = '<option value="">None</option>' + (D.subjects || []).map(s => `<option value="${s.id}" ${n.subjectId === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
   U.form = { kind: 'note', id: old ? old.id : null };
   openModal(`<div class="m-head"><h2>${old ? 'Edit note' : 'New note'}</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
     <div class="m-body note-form-body">
       <label class="fld"><span>Title</span><input class="input lg" id="note-title" value="${esc(n.title)}" placeholder="Note title" autocomplete="off"></label>
+      <div class="fgrid">
+        <label class="fld"><span>Subject</span><select class="select" id="note-subject">${subjectOptions}</select></label>
+        <label class="fld"><span>Folder</span><select class="select" id="note-folder">${folderOptions}</select></label>
+      </div>
       <label class="fld"><span>Note</span><textarea class="textarea note-editor" id="note-body" placeholder="Write your note here…">${esc(n.body)}</textarea></label>
+      <div class="note-attachments"><b>Attachments</b><p class="muted">Local photos/files will be added to the Android version without uploading them to Supabase.</p></div>
     </div>
     <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
 }
