@@ -74,6 +74,7 @@ const IC = {
   focus: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>',
   settings: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
   more: '<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',
+  notes: '<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9l-4 3v-3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 8h10M7 12h7"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
   left: '<path d="m15 18-6-6 6-6"/>',
@@ -180,13 +181,13 @@ function seed() {
   const topic = (t, d) => ({ id: uid(), text: t, done: d });
   const exams = [{ id: ex1, title: 'Physics Mid-Sem', subjectId: S('Physics'), date: '2026-10-12',
     topics: [topic('Units', true), topic('Waves', true), topic('Optics', true), topic('Diffraction', true), topic('Modern Physics', false)] }];
-  return { v: 1, sample: true, updatedAt: 0, settings: clone(DEFAULT_SETTINGS), subjects: subj, tasks, plans: [], goals, exams, habits };
+  return { v: 1, sample: true, updatedAt: 0, settings: clone(DEFAULT_SETTINGS), subjects: subj, tasks, plans: [], notes: [], goals, exams, habits };
 }
 
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
-  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits', 'focusSessions'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  ['subjects', 'tasks', 'plans', 'notes', 'goals', 'exams', 'habits', 'focusSessions'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
   if (!o.attendance || typeof o.attendance !== 'object' || Array.isArray(o.attendance)) o.attendance = {};
   o.tasks = o.tasks.map(t => blankTask(t));
   return o;
