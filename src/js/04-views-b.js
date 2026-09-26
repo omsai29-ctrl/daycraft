@@ -236,6 +236,18 @@ function viewPlans(){
   }
   return pageHead('Plans','Things you need to do, without a schedule.', '')+body;
 }
+function viewPlans(){
+  const open=D.plans.filter(p=>!p.done), done=D.plans.filter(p=>p.done);
+  const row=p=>'<li class="plan-item '+(p.done?'done':'')+'"><button class="chk '+(p.done?'on':'')+'" data-a="plan-toggle" data-id="'+p.id+'" aria-label="'+(p.done?'Mark plan open':'Mark plan complete')+'">'+ico('check')+'</button><button class="plan-name" data-a="plan-edit" data-id="'+p.id+'">'+esc(p.title)+'</button><button class="icon-btn" data-a="plan-edit" data-id="'+p.id+'" aria-label="Edit plan">'+ico('edit')+'</button></li>';
+  let body='';
+  if(!open.length&&!done.length) body=emptyBox('No plans yet.','Add something you need to do without scheduling it.','<button class="btn btn-primary" data-a="plan-new">'+ico('plus')+'Add plan</button>',true);
+  else {
+    if(open.length) body+='<section class="plan-section"><div class="grp-h">Open<span class="n">'+open.length+'</span></div><ul class="plan-items">'+open.map(row).join('')+'</ul></section>';
+    if(done.length) body+='<section class="plan-section"><div class="grp-h">Completed<span class="n">'+done.length+'</span></div><ul class="plan-items">'+done.map(row).join('')+'</ul></section>';
+    body+='<button class="btn btn-primary" data-a="plan-new">'+ico('plus')+'Add plan</button>';
+  }
+  return pageHead('Plans','Things you need to do, without a schedule.','')+body;
+}
 function viewTasks() {
   const st = U.tf.status, q = U.tf.q || '';
   const counts = {
