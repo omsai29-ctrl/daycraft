@@ -1295,6 +1295,28 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 
 /* Mobile viewport containment */
 @media(max-width:900px){
+  /* Prevent grid/flex children from using desktop min-content width on mobile. */
+  .grid-2,
+  .col-stack{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+  .grid-2 > *,
+  .col-stack > *{
+    min-width:0;
+    max-width:100%;
+  }
+  .tl,
+  .dl,
+  .tlist,
+  .rem{
+    min-width:0;
+    max-width:100%;
+  }
+}
+
+@media(max-width:900px){
   html,body,#app{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
   .shell,.main{width:100%;max-width:100%;min-width:0}
   .main>*{max-width:100%}
