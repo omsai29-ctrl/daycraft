@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['plans', 'Plans'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
   ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans']],
   ['Track', ['subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, plans: viewPlans, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -98,6 +98,11 @@ function onClick(e) {
     case 'plan-save': { const title=$('#plan-title').value.trim(); if(!title){$('#plan-title').focus();break;} const F=U.form, old=F&&F.id; closeModal(); mutate(()=>{if(old){const p=D.plans.find(x=>x.id===old); if(p)p.title=title;}else D.plans.unshift({id:uid(),title,done:false});},old?'Plan updated':'Plan added'); break; }
     case 'plan-toggle': { const p=D.plans.find(x=>x.id===d.id); if(p) mutate(()=>{p.done=!p.done;}, p.done?'Plan reopened':'Plan completed'); break; }
     case 'plan-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.plans=D.plans.filter(x=>x.id!==id);},'Plan deleted'); break; }
+    case 'plan-new': openPlanForm(); break;
+    case 'plan-edit': openPlanForm(d.id); break;
+    case 'plan-save': { const title=$('#plan-title').value.trim(); if(!title){$('#plan-title').focus();break;} const F=U.form, old=F&&F.id; closeModal(); mutate(()=>{if(old){const p=D.plans.find(x=>x.id===old); if(p)p.title=title;}else D.plans.unshift({id:uid(),title,done:false});},old?'Plan updated':'Plan added'); break; }
+    case 'plan-toggle': { const p=D.plans.find(x=>x.id===d.id); if(p) mutate(()=>{p.done=!p.done;}, p.done?'Plan reopened':'Plan completed'); break; }
+    case 'plan-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.plans=D.plans.filter(x=>x.id!==id);},'Plan deleted'); break; }
     case 'add': {
       const o = {};
       if (d.date) o.date = d.date;
@@ -156,6 +161,8 @@ function onClick(e) {
       if(U.form&&U.form.kind==='timetable'){ U.form.text=d.color; $('#tt-text-sw button').forEach(b=>b.classList.toggle('on',b.dataset.color===d.color)); }
       break;
     }
+    case 'tt-day-prev': { const i=TT_DAYS.indexOf(U.ttDay||TT_DAYS[0]); U.ttDay=TT_DAYS[(i+TT_DAYS.length-1)%TT_DAYS.length]; render(); break; }
+    case 'tt-day-next': { const i=TT_DAYS.indexOf(U.ttDay||TT_DAYS[0]); U.ttDay=TT_DAYS[(i+1)%TT_DAYS.length]; render(); break; }
     case 'tt-new': openTimetableForm(null, null); break;
     case 'tt-new-slot': openTimetableForm(null, { day: d.day, start: +d.start }); break;
     case 'tt-edit': openTimetableForm(d.id, null); break;
