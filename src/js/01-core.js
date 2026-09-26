@@ -165,13 +165,13 @@ function seed() {
   const topic = (t, d) => ({ id: uid(), text: t, done: d });
   const exams = [{ id: ex1, title: 'Physics Mid-Sem', subjectId: S('Physics'), date: '2026-10-12',
     topics: [topic('Units', true), topic('Waves', true), topic('Optics', true), topic('Diffraction', true), topic('Modern Physics', false)] }];
-  return { v: 1, sample: true, updatedAt: 0, settings: clone(DEFAULT_SETTINGS), subjects: subj, tasks, goals, exams, habits };
+  return { v: 1, sample: true, updatedAt: 0, settings: clone(DEFAULT_SETTINGS), subjects: subj, tasks, plans: [], goals, exams, habits };
 }
 
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
-  ['subjects', 'tasks', 'goals', 'exams', 'habits'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
+  ['subjects', 'tasks', 'plans', 'goals', 'exams', 'habits'].forEach(k => { if (!Array.isArray(o[k])) o[k] = []; });
   o.tasks = o.tasks.map(t => blankTask(t));
   return o;
 }
