@@ -236,6 +236,25 @@ function viewPlans(){
   }
   return pageHead('Plans','Things you need to do, without a schedule.', '')+body;
 }
+function viewNotes() {
+  const q = (U.noteQ || '').trim().toLowerCase();
+  const notes = (D.notes || []).filter(n => !q || (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q))
+    .slice().sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const search = `<div class="search notes-search">${ico('search')}<input class="input" id="note-q" type="search" data-set="note-q" value="${esc(U.noteQ || '')}" placeholder="Search notes" aria-label="Search notes" autocomplete="off">${q ? `<button class="icon-btn clr" data-a="note-clear" aria-label="Clear search">${ico('x')}</button>` : ''}</div>`;
+  const card = n => {
+    const text = (n.body || '').trim();
+    const preview = text.replace(/\\s+/g, ' ').slice(0, 220);
+    const when = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+    return `<article class="note-card"><button class="note-open" data-a="note-edit" data-id="${n.id}"><div class="note-title">${esc(n.title || 'Untitled note')}</div>${preview ? `<div class="note-preview">${esc(preview)}${text.length > 220 ? '…' : ''}</div>` : '<div class="note-preview muted">No content yet.</div>'}<div class="note-meta">${when ? 'Updated ' + esc(when) : 'New note'}<span>${ico('right')}</span></div></button></article>`;
+  };
+  let body;
+  if (!notes.length) {
+    body = emptyBox(q ? 'No notes found.' : 'No notes yet.', q ? 'Try another search term.' : 'Keep formulas, class notes, ideas and reminders here.', `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`, true);
+  } else {
+    body = `<div class="notes-grid">${notes.map(card).join('')}</div><button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`;
+  }
+  return pageHead('Notes','A simple place for notes that are separate from tasks.', `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`) + `<div class="notes-toolbar">${search}</div>${body}`;
+}
 function viewTasks() {
   const st = U.tf.status, q = U.tf.q || '';
   const counts = {
