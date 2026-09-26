@@ -103,6 +103,15 @@ const storageOK = !!store;
 const DEFAULT_SETTINGS = { dayStart: '07:00', dayEnd: '22:00', defaultDuration: 45, view: 'week', weekStart: 1, reminder: 10, theme: 'system' };
 const SUBJECT_COLORS = ['#2A9D8F', '#C9883A', '#C25B7A', '#3B9AB5', '#7A8B45', '#B0703F', '#7B8794', '#8A6FD6', '#4F8F5B'];
 
+const MIDTERM_EXAMS_B = [
+  { date: '2026-10-05', courseCode: 'BS103', title: 'Linear Algebra & Ordinary Differential Equations', time: '10:30 AM – 12:00 PM' },
+  { date: '2026-10-06', courseCode: 'ES101', title: 'Computer Programming', time: '10:30 AM – 12:00 PM' },
+  { date: '2026-10-07', courseCode: 'ES111', title: 'Essentials of Artificial Intelligence', time: '10:30 AM – 12:00 PM' },
+  { date: '2026-10-08', courseCode: 'BS107', title: 'Introductory Quantum Physics', time: '10:30 AM – 12:00 PM' },
+  { date: '2026-10-09', courseCode: 'ES109', title: 'Design Visualization and Digital Fabrication', time: '10:30 AM – 12:00 PM' },
+  { date: '2026-10-12', courseCode: 'EG101', title: 'English Language Skills', time: '10:30 AM – 12:00 PM' }
+];
+
 function defaultSubjects() {
   return [['C Programming', '#2A9D8F'], ['Mathematics', '#C9883A'], ['Physics', '#C25B7A'], ['AI', '#3B9AB5'], ['Projects', '#7A8B45'], ['Assignments', '#B0703F'], ['Personal', '#7B8794']]
     .map(([name, color]) => ({ id: 's_' + name.toLowerCase().replace(/[^a-z]+/g, ''), name, color }));
@@ -186,7 +195,34 @@ function load() {
   } catch (e) { /* fall through */ }
   return seed();
 }
+
+function ensureMidtermExams() {
+  MIDTERM_EXAMS_B.forEach(x => {
+    const existing = D.exams.find(e => e.courseCode === x.courseCode && e.date === x.date);
+    if (existing) {
+      existing.title = x.title;
+      existing.time = x.time;
+      existing.courseCode = x.courseCode;
+      existing.midterm = true;
+      existing.section = 'B';
+      return;
+    }
+    D.exams.push({
+      id: 'mid_b_' + x.courseCode.toLowerCase(),
+      title: x.title,
+      subjectId: null,
+      date: x.date,
+      time: x.time,
+      courseCode: x.courseCode,
+      midterm: true,
+      section: 'B',
+      topics: []
+    });
+  });
+}
+
 let D = load();
+ensureMidtermExams();
 let saveTimer = null;
 function save() {
   D.updatedAt = Date.now();
