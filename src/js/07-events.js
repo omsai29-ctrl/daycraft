@@ -465,6 +465,16 @@ function updateDrag(e) {
   } else drag.cur = null;
 }
 function onPointerUp(e) {
+  const glance = e.target.closest && e.target.closest('[data-a="glance"]');
+  if (glance) {
+    e.preventDefault();
+    e.stopPropagation();
+    const p = glance.dataset.p;
+    drag = null;
+    dragJustEnded = false;
+    go(p);
+    return;
+  }
   if (!drag || e.pointerId !== drag.pid) return;
   clearTimeout(drag.timer);
   if (!drag.active) { drag = null; return; }
