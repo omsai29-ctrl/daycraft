@@ -180,7 +180,7 @@ function viewSettings() {
       ${row('Week starts on', '', sel('weekStart', [[1, 'Monday'], [0, 'Sunday'], [6, 'Saturday']], s.weekStart))}</div>
     <div class="set-sec"><h2 class="h2">Reminders</h2>
       ${row('Default reminder', 'Applies to timed tasks. Reminders show while this page is open.', sel('reminder', [['off', 'None'], [10, '10 min before'], [30, '30 min before'], [60, '1 hour before']], s.reminder))}
-      ${row('Browser notifications', 'Optional. Works only if your browser allows it here.', `<button class="btn btn-sm" data-a="notify">Enable</button>`)}</div>
+      ${row('Browser notifications', 'Task reminders can appear as system notifications while Daycraft is open.', `<button class="btn btn-sm" data-a="notify">${notificationState() === 'granted' ? 'Enabled · Test' : notificationState() === 'denied' ? 'Blocked' : notificationState() === 'unsupported' ? 'Unavailable' : 'Enable'}</button>`)}</div>
     <div class="set-sec"><h2 class="h2">Appearance</h2>
       ${row('Theme', '', `<div class="seg">${[['light', 'Light'], ['dark', 'Dark'], ['system', 'System']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`)}</div>
     <div class="set-sec"><h2 class="h2">Sync</h2>
