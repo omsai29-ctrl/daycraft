@@ -113,7 +113,8 @@ async function reconcile() {
 async function pull(remote) {
   const o = JSON.parse(remote.payload || '{}');
   if (!o || !Array.isArray(o.tasks)) throw new Error('Invalid cloud data');
-  D = migrate(o); D.updatedAt = remote.updated_at || Date.now(); SYNC.lastAt = D.updatedAt;
+  const localAttachments = (D.notes || []).map(n => ({ id: n.id, attachments: clone(n.attachments || []) }));
+  D = migrate(o); D.notes = (D.notes || []).map(n => { const x = localAttachments.find(a => a.id === n.id); return x && x.attachments.length ? Object.assign({}, n, { attachments: x.attachments }) : n; }); D.updatedAt = remote.updated_at || Date.now(); SYNC.lastAt = D.updatedAt;
   try { store && store.setItem(KEY, JSON.stringify(D)); } catch (e) { /* ignore */ }
   render();
 }
@@ -126,6 +127,21 @@ async function doPull() {
     if (remote && (remote.updated_at || 0) > (D.updatedAt || 0)) { await pull(remote); toast('Updated from another device.'); }
     setSync('synced');
   } catch (e) { console.error(e); setSync('error'); }
+}
+
+function cloudSnapshot(){
+  const o = clone(D);
+  o.notes = (o.notes || []).map(n => {
+    const x = Object.assign({}, n);
+    delete x.attachments;
+    return x;
+  });
+  return o;
+}
+function mergeLocalNoteAttachments(remoteNotes){
+  const local = {};
+  (D.notes || []).forEach(n => { if (n.attachments && n.attachments.length) local[n.id] = clone(n.attachments); });
+  return (remoteNotes || []).map(n => local[n.id] ? Object.assign({}, n, { attachments: local[n.id] }) : n);
 }
 
 function schedulePush() {
@@ -148,7 +164,7 @@ async function push() {
       const { error } = await AUTH.client.from('planner_data').upsert({
         user_id: AUTH.user.id,
         updated_at: at,
-        payload: JSON.stringify(D)
+        payload: JSON.stringify(cloudSnapshot())
       }, { onConflict: 'user_id' });
       if (error) throw error;
       SYNC.lastAt = at;
