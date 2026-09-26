@@ -270,7 +270,7 @@ function viewNotes() {
       : `<b>Notes</b>`;
 
   const search = `<div class="search notes-search">${ico('search')}<input class="input" id="note-q" type="search" data-set="note-q" value="${esc(U.noteQ || '')}" placeholder="Search this folder" aria-label="Search notes" autocomplete="off">${q ? `<button class="icon-btn clr" data-a="note-clear" aria-label="Clear search">${ico('x')}</button>` : ''}</div>`;
-  const folderCard = f => `<article class="note-folder-card"><button class="note-folder-open" data-a="note-open" data-id="${f.id}"><span class="note-folder-icon">${ico('plans')}</span><span class="note-folder-name">${esc(f.name)}</span><span class="note-folder-arrow">${ico('right')}</span></button></article>`;
+  const folderCard = f => `<article class="note-folder-card"><button class="note-folder-open" data-a="note-open" data-id="${f.id}"><span class="note-folder-icon">${ico('plans')}</span><span class="note-folder-name">${esc(f.name)}</span><span class="note-folder-arrow">${ico('right')}</span></button><button class="icon-btn note-folder-edit" data-a="note-folder-edit" data-id="${f.id}" aria-label="Rename ${esc(f.name)}">${ico('more')}</button></article>`;
   const subjectCard = sb => `<article class="note-folder-card"><button class="note-folder-open" data-a="note-subject" data-id="${sb.id}"><span class="note-folder-icon">${ico('subjects')}</span><span class="note-folder-name">${esc(sb.name)}</span><span class="note-folder-arrow">${ico('right')}</span></button></article>`;
   const card = n => {
     const text = (n.body || '').trim();
