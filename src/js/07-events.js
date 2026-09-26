@@ -305,21 +305,58 @@ function onClick(e) {
     case 'import': $('#imp').click(); break;
     case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
-    case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
+    case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.noteFolders = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
     /* modal + forms */
     case 'scrim': if (!(U.form && U.form.dirty)) closeModal(); break;
     case 'close-modal': closeModal(); break;
     case 'note-new': openNoteForm(); break;
     case 'note-edit': openNoteForm(d.id); break;
+    case 'note-open': U.noteFolder = d.id; U.noteQ = ''; render(); break;
+    case 'note-root': U.noteFolder = null; U.noteQ = ''; render(); break;
+    case 'note-subject': U.noteFolder = 'subject:' + d.id; U.noteQ = ''; render(); break;
     case 'note-clear': U.noteQ = ''; U.focus = 'note-q'; render(); break;
+    case 'note-folder-new': openNoteFolderForm(); break;
+    case 'note-folder-edit': openNoteFolderForm(d.id); break;
+    case 'note-folder-save': {
+      const name = $('#note-folder-name').value.trim();
+      if (!name) { $('#note-folder-name').focus(); break; }
+      const F = U.form, oldFolder = F && F.id;
+      closeModal();
+      mutate(() => {
+        if (oldFolder) {
+          const f = noteFolder(oldFolder);
+          if (f) f.name = name;
+        } else {
+          const parent = U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? noteFolder(U.noteFolder) : null;
+          const subjectId = parent ? parent.subjectId : (U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null);
+          D.noteFolders.push({ id: uid(), name, parentId: parent ? parent.id : null, subjectId: subjectId || null, createdAt: Date.now() });
+        }
+      }, oldFolder ? 'Folder renamed' : 'Folder created');
+      break;
+    }
+    case 'note-folder-del': {
+      const id = U.form && U.form.id, f = noteFolder(id);
+      if (!f) { closeModal(); break; }
+      const hasChildren = (D.noteFolders || []).some(x => x.parentId === id);
+      const hasNotes = (D.notes || []).some(n => n.folderId === id);
+      if (hasChildren || hasNotes) { toast('Empty the folder before deleting it.'); break; }
+      closeModal();
+      mutate(() => { D.noteFolders = D.noteFolders.filter(x => x.id !== id); }, 'Folder deleted');
+      break;
+    }
     case 'note-save': {
       const title = $('#note-title').value.trim(), body = $('#note-body').value.trim();
       if (!title && !body) { $('#note-title').focus(); break; }
+      const subjectId = $('#note-subject').value || null, folderId = $('#note-folder').value || null;
       const F = U.form, old = F && F.id;
       closeModal();
       mutate(() => {
-        if (old) { const n = D.notes.find(x => x.id === old); if (n) { n.title = title || 'Untitled note'; n.body = body; n.updatedAt = Date.now(); } }
-        else D.notes.unshift({ id: uid(), title: title || 'Untitled note', body, createdAt: Date.now(), updatedAt: Date.now() });
+        if (old) {
+          const n = D.notes.find(x => x.id === old);
+          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.updatedAt = Date.now(); }
+        } else {
+          D.notes.unshift({ id: uid(), title: title || 'Untitled note', body, subjectId, folderId, createdAt: Date.now(), updatedAt: Date.now() });
+        }
       }, old ? 'Note updated' : 'Note saved');
       break;
     }
