@@ -133,10 +133,10 @@ function viewToday() {
   const nextExam = D.exams.filter(e => e.date >= td).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const examText = nextExam ? (diffDays(td, nextExam.date) === 0 ? 'Today' : diffDays(td, nextExam.date) + ' days') : 'None';
   const glance = '<section class="today-glance" aria-label="Today at a glance">' +
-    '<div class="glance-card"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></div>' +
-    '<div class="glance-card"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></div>' +
-    '<div class="glance-card"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></div>' +
-    '<div class="glance-card"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></div>' +
+    '<button class="glance-card" data-a="nav" data-p="planner"><span class="glance-icon">'+ico('planner')+'</span><div><b>'+checks.length+'</b><small>Today\'s tasks</small></div></button>' +
+    '<button class="glance-card" data-a="nav" data-p="plans"><span class="glance-icon">'+ico('plans')+'</span><div><b>'+planOpen+'</b><small>Open plans</small></div></button>' +
+    '<button class="glance-card" data-a="nav" data-p="exams"><span class="glance-icon">'+ico('exams')+'</span><div><b>'+esc(examText)+'</b><small>'+(nextExam ? esc(nextExam.title) : 'Upcoming exam')+'</small></div></button>' +
+    '<button class="glance-card" data-a="nav" data-p="habits"><span class="glance-icon">'+ico('habits')+'</span><div><b>'+habitDone+'/'+D.habits.length+'</b><small>Habits today</small></div></button>' +
   '</section>';
   /* ---- NOW ---- */
   let nowHtml;
