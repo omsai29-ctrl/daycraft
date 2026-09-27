@@ -361,6 +361,31 @@ function onClick(e) {
       }
       break;
     }
+    case 'note-device-files': openNoteDeviceFiles(noteDeviceFolderPath(), (U.noteFolder ? 'Files · ' + (noteFolder(U.noteFolder)?.name || 'Folder') : 'Files on device')); break;
+    case 'note-device-photo': {
+      const p = daycraftFilesPlugin();
+      if (!p || !p.pickPhoto) { toast('Photo attachments are available in the Android app.'); break; }
+      try { await p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) {}
+      break;
+    }
+    case 'note-device-file': {
+      const p = daycraftFilesPlugin();
+      if (!p || !p.pickFile) { toast('File attachments are available in the Android app.'); break; }
+      try { await p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) {}
+      break;
+    }
+    case 'note-device-open': {
+      const f = U.deviceFiles && U.deviceFiles[+d.i], p = daycraftFilesPlugin();
+      if (f && p && p.openFile) { try { await p.openFile({ uri:f.uri, mime:f.mime || '*/*' }); } catch(e) { toast('Couldn\'t open file.'); } }
+      break;
+    }
+    case 'note-device-del': {
+      const f = U.deviceFiles && U.deviceFiles[+d.i], p = daycraftFilesPlugin();
+      if (!f || !p || !p.deleteFile) break;
+      if (!confirm('Delete "' + (f.name || 'this file') + '" from this device?')) break;
+      try { await p.deleteFile({ uri:f.uri }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) { toast('Couldn\'t delete file.'); }
+      break;
+    }
     case 'note-open': U.noteFolder = d.id; U.noteQ = ''; render(); break;
     case 'note-root': U.noteFolder = null; U.noteQ = ''; render(); break;
     case 'note-subject': U.noteFolder = 'subject:' + d.id; U.noteQ = ''; render(); break;
