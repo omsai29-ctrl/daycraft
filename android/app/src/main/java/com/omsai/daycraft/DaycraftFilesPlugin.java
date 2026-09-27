@@ -209,6 +209,70 @@ public class DaycraftFilesPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void listFiles(PluginCall call) {
+        try {
+            String folderPath = safePath(call.getString("folderPath", ""));
+            String docPrefix = Environment.DIRECTORY_DOCUMENTS + "/" + ROOT + folderPath;
+            String picPrefix = Environment.DIRECTORY_PICTURES + "/" + ROOT + folderPath;
+            java.util.ArrayList<JSObject> out = new java.util.ArrayList<>();
+            ContentResolver resolver = getContext().getContentResolver();
+
+            String[] projection = {
+                    MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
+                    MediaStore.MediaColumns.MIME_TYPE, MediaStore.MediaColumns.SIZE,
+                    MediaStore.MediaColumns.DATE_MODIFIED, MediaStore.MediaColumns.RELATIVE_PATH
+            };
+
+            Uri[] bases = { MediaStore.Files.getContentUri("external"), MediaStore.Images.Media.EXTERNAL_CONTENT_URI };
+            for (Uri base : bases) {
+                try (Cursor cur = resolver.query(base, projection, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
+                    if (cur == null) continue;
+                    int idCol = cur.getColumnIndex(MediaStore.MediaColumns._ID);
+                    int nameCol = cur.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                    int mimeCol = cur.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE);
+                    int sizeCol = cur.getColumnIndex(MediaStore.MediaColumns.SIZE);
+                    int dateCol = cur.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED);
+                    int pathCol = cur.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH);
+                    while (cur.moveToNext()) {
+                        String rel = pathCol >= 0 ? cur.getString(pathCol) : "";
+                        if (!docPrefix.equals(rel) && !picPrefix.equals(rel)) continue;
+                        long id = cur.getLong(idCol);
+                        Uri uri = Uri.withAppendedPath(base, String.valueOf(id));
+                        JSObject x = new JSObject();
+                        x.put("uri", uri.toString());
+                        x.put("name", nameCol >= 0 ? cur.getString(nameCol) : "File");
+                        x.put("mime", mimeCol >= 0 ? cur.getString(mimeCol) : "");
+                        x.put("size", sizeCol >= 0 ? cur.getLong(sizeCol) : 0);
+                        x.put("modified", dateCol >= 0 ? cur.getLong(dateCol) * 1000L : 0);
+                        x.put("kind", (mimeCol >= 0 && String.valueOf(cur.getString(mimeCol)).startsWith("image/")) ? "image" : "file");
+                        out.add(x);
+                    }
+                }
+            }
+            JSObject ret = new JSObject();
+            org.json.JSONArray arr = new org.json.JSONArray();
+            for (JSObject x : out) arr.put(new org.json.JSONObject(x.toString()));
+            ret.put("files", arr);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Could not list folder files", e);
+        }
+    }
+
+    @PluginMethod
+    public void deleteFile(PluginCall call) {
+        try {
+            String uriString = call.getString("uri", "");
+            if (uriString.isEmpty()) throw new Exception("No file URI");
+            int deleted = getContext().getContentResolver().delete(Uri.parse(uriString), null, null);
+            if (deleted <= 0) throw new Exception("File was not deleted");
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Could not delete file", e);
+        }
+    }
+
+    @PluginMethod
     public void openFile(PluginCall call) {
         try {
             String uriString = call.getString("uri", "");
