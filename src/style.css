@@ -1441,3 +1441,5 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .note-file-open span{max-width:100%;padding:0;font-size:10px}
 .note-file-open small{font-size:9px;color:var(--ink-3)}
 @media(max-width:520px){.note-attachments-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.note-device-folder-wrap{margin-top:18px}.notes-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.notes-section-head b{font-size:16px}.note-device-folder-grid{margin-top:0}
