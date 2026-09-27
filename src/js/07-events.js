@@ -365,13 +365,13 @@ function onClick(e) {
     case 'note-device-photo': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickPhoto) { toast('Photo attachments are available in the Android app.'); break; }
-      try { p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh() : null; }).catch(e => toast((e && e.message) || 'Could not add photos.')); } catch(e) { toast('Could not add photos.'); }
+      try { p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add photos.')); } catch(e) { toast('Could not add photos.'); }
       break;
     }
     case 'note-device-file': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickFile) { toast('File attachments are available in the Android app.'); break; }
-      try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh() : null; }).catch(e => toast((e && e.message) || 'Could not add files.')); } catch(e) { toast('Could not add files.'); }
+      try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add files.')); } catch(e) { toast('Could not add files.'); }
       break;
     }
     case 'note-device-open': {
