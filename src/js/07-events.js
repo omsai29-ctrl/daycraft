@@ -374,6 +374,11 @@ function onClick(e) {
       try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add files.')); } catch(e) { toast('Could not add files.'); }
       break;
     }
+    case 'note-device-open-folder-file': {
+      const p = daycraftFilesPlugin();
+      if (p && p.openFile) { try { p.openFile({uri:d.uri, mime:d.mime || '*/*'}).catch(() => toast('Could not open file.')); } catch(e) { toast('Could not open file.'); } }
+      break;
+    }
     case 'note-device-open': {
       const f = U.deviceFiles && U.deviceFiles[+d.i], p = daycraftFilesPlugin();
       if (f && p && p.openFile) { try { p.openFile({ uri:f.uri, mime:f.mime || '*/*' }).catch(() => toast('Couldn\'t open file.')); } catch(e) { toast('Couldn\'t open file.'); } }
