@@ -365,16 +365,16 @@ function onClick(e) {
     case 'note-device-photo': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickPhoto) { toast('Photo attachments are available in the Android app.'); break; }
-      try { p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add photos.')); } catch(e) { toast('Could not add photos.'); }
+      try { p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { const added = res && Array.isArray(res.files) ? res.files : []; U.deviceFiles = mergeNoteDeviceFiles(Array.isArray(U.deviceFiles) ? U.deviceFiles : [], added); rememberNoteDeviceFiles(U.deviceFilesFolder || '', U.deviceFiles); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add photos.')); } catch(e) { toast('Could not add photos.'); }
       break;
     }
     case 'note-device-file': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickFile) { toast('File attachments are available in the Android app.'); break; }
-      try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { if (res && Array.isArray(res.files) && U.deviceFiles) U.deviceFiles = U.deviceFiles.concat(res.files); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add files.')); } catch(e) { toast('Could not add files.'); }
+      try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(res => { const added = res && Array.isArray(res.files) ? res.files : []; U.deviceFiles = mergeNoteDeviceFiles(Array.isArray(U.deviceFiles) ? U.deviceFiles : [], added); rememberNoteDeviceFiles(U.deviceFilesFolder || '', U.deviceFiles); return U.deviceFilesRefresh ? U.deviceFilesRefresh(true) : null; }).catch(e => toast((e && e.message) || 'Could not add files.')); } catch(e) { toast('Could not add files.'); }
       break;
     }
-    case 'note-device-done': { const files = Array.isArray(U.deviceFiles) ? U.deviceFiles.slice() : []; const folder = noteDeviceFolderPath(); closeModal(); setTimeout(() => { if (U.deviceFilesFolder === folder && files.length) renderNoteFolderDeviceFiles(files); else refreshNoteFolderDeviceFiles(folder); }, 50); break; }
+    case 'note-device-done': { const folder = noteDeviceFolderPath(); const files = rememberNoteDeviceFiles(folder, Array.isArray(U.deviceFiles) ? U.deviceFiles : []); closeModal(); setTimeout(() => renderNoteFolderDeviceFiles(files), 50); break; }
     case 'note-device-open-folder-file': {
       const p = daycraftFilesPlugin();
       if (p && p.openFile) { try { p.openFile({uri:d.uri, mime:d.mime || '*/*'}).catch(() => toast('Could not open file.')); } catch(e) { toast('Could not open file.'); } }
