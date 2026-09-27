@@ -233,7 +233,7 @@ public class DaycraftFilesPlugin extends Plugin {
                     MediaStore.MediaColumns.DATE_MODIFIED, MediaStore.MediaColumns.RELATIVE_PATH
             };
 
-            Uri[] bases = { MediaStore.Files.getContentUri("external"), MediaStore.Images.Media.EXTERNAL_CONTENT_URI };
+            Uri[] bases = { MediaStore.Files.getContentUri("external") };
             for (Uri base : bases) {
                 try (Cursor cur = resolver.query(base, projection, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
                     if (cur == null) continue;
