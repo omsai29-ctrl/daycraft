@@ -29,6 +29,7 @@ public class DaycraftFilesPlugin extends Plugin {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(call, intent, "photoPicked");
     }
 
@@ -38,55 +39,59 @@ public class DaycraftFilesPlugin extends Plugin {
             call.reject("Photo selection cancelled");
             return;
         }
-        Uri source = result.getData().getData();
-        if (source == null) { call.reject("No photo was selected"); return; }
-
         try {
+            android.content.Intent data = result.getData();
+            java.util.ArrayList<Uri> sources = new java.util.ArrayList<>();
+            if (data.getClipData() != null) {
+                for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                    Uri u = data.getClipData().getItemAt(i).getUri();
+                    if (u != null) sources.add(u);
+                }
+            } else if (data.getData() != null) {
+                sources.add(data.getData());
+            }
+            if (sources.isEmpty()) throw new Exception("No photos were selected");
+
             String noteId = safe(call.getString("noteId", "note"));
             String folderPath = safePath(call.getString("folderPath", ""));
-            String originalName = safe(queryName(source));
-            if (originalName.isEmpty()) originalName = "photo.jpg";
-            String ext = extension(originalName);
-            String fileName = noteId + "_" + System.currentTimeMillis() + ext;
             String relative = Environment.DIRECTORY_PICTURES + "/" + ROOT + folderPath;
-
             ContentResolver resolver = getContext().getContentResolver();
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-            String mime = resolver.getType(source);
-            values.put(MediaStore.Images.Media.MIME_TYPE, mime == null ? "image/jpeg" : mime);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, relative);
-                values.put(MediaStore.Images.Media.IS_PENDING, 1);
+            org.json.JSONArray files = new org.json.JSONArray();
+
+            for (Uri source : sources) {
+                String originalName = safe(queryName(source));
+                if (originalName.isEmpty()) originalName = "photo.jpg";
+                String ext = extension(originalName);
+                String fileName = noteId + "_" + System.currentTimeMillis() + "_" + files.length() + ext;
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+                String mime = resolver.getType(source);
+                values.put(MediaStore.Images.Media.MIME_TYPE, mime == null ? "image/jpeg" : mime);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    values.put(MediaStore.Images.Media.RELATIVE_PATH, relative);
+                    values.put(MediaStore.Images.Media.IS_PENDING, 1);
+                }
+                Uri target = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                if (target == null) throw new Exception("Could not create local photo");
+                try (InputStream in = resolver.openInputStream(source); OutputStream out = resolver.openOutputStream(target)) {
+                    if (in == null || out == null) throw new Exception("Could not open photo");
+                    byte[] buf = new byte[8192]; int n;
+                    while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ContentValues done = new ContentValues();
+                    done.put(MediaStore.Images.Media.IS_PENDING, 0);
+                    resolver.update(target, done, null, null);
+                }
+                JSObject f = new JSObject();
+                f.put("uri", target.toString()); f.put("name", originalName); f.put("fileName", fileName);
+                f.put("mime", mime == null ? "image/jpeg" : mime); f.put("relativePath", relative);
+                files.put(new org.json.JSONObject(f.toString()));
             }
-
-            Uri target = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            if (target == null) throw new Exception("Could not create local photo");
-
-            try (InputStream in = resolver.openInputStream(source);
-                 OutputStream out = resolver.openOutputStream(target)) {
-                if (in == null || out == null) throw new Exception("Could not open photo");
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentValues done = new ContentValues();
-                done.put(MediaStore.Images.Media.IS_PENDING, 0);
-                resolver.update(target, done, null, null);
-            }
-
             JSObject ret = new JSObject();
-            ret.put("uri", target.toString());
-            ret.put("name", originalName);
-            ret.put("fileName", fileName);
-            ret.put("mime", mime);
-            ret.put("relativePath", relative);
+            ret.put("files", files);
             call.resolve(ret);
-        } catch (Exception e) {
-            call.reject("Could not save photo locally", e);
-        }
+        } catch (Exception e) { call.reject("Could not save photos locally", e); }
     }
 
     @PluginMethod
@@ -101,6 +106,7 @@ public class DaycraftFilesPlugin extends Plugin {
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         });
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(call, intent, "filePicked");
     }
 
@@ -110,56 +116,60 @@ public class DaycraftFilesPlugin extends Plugin {
             call.reject("File selection cancelled");
             return;
         }
-        Uri source = result.getData().getData();
-        if (source == null) { call.reject("No file was selected"); return; }
-
         try {
+            android.content.Intent data = result.getData();
+            java.util.ArrayList<Uri> sources = new java.util.ArrayList<>();
+            if (data.getClipData() != null) {
+                for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                    Uri u = data.getClipData().getItemAt(i).getUri();
+                    if (u != null) sources.add(u);
+                }
+            } else if (data.getData() != null) {
+                sources.add(data.getData());
+            }
+            if (sources.isEmpty()) throw new Exception("No files were selected");
+
             String noteId = safe(call.getString("noteId", "note"));
             String folderPath = safePath(call.getString("folderPath", ""));
-            String originalName = safe(queryName(source));
-            if (originalName.isEmpty()) originalName = "attachment";
-            String ext = extension(originalName);
-            String fileName = noteId + "_" + System.currentTimeMillis() + ext;
             String relative = Environment.DIRECTORY_DOCUMENTS + "/" + ROOT + folderPath;
-
             ContentResolver resolver = getContext().getContentResolver();
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
-            String mime = resolver.getType(source);
-            if (mime == null || mime.isEmpty()) mime = mimeFromName(originalName);
-            values.put(MediaStore.Files.FileColumns.MIME_TYPE, mime);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, relative);
-                values.put(MediaStore.Files.FileColumns.IS_PENDING, 1);
+            org.json.JSONArray files = new org.json.JSONArray();
+
+            for (Uri source : sources) {
+                String originalName = safe(queryName(source));
+                if (originalName.isEmpty()) originalName = "attachment";
+                String ext = extension(originalName);
+                String fileName = noteId + "_" + System.currentTimeMillis() + "_" + files.length() + ext;
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
+                String mime = resolver.getType(source);
+                if (mime == null || mime.isEmpty()) mime = mimeFromName(originalName);
+                values.put(MediaStore.Files.FileColumns.MIME_TYPE, mime);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, relative);
+                    values.put(MediaStore.Files.FileColumns.IS_PENDING, 1);
+                }
+                Uri target = resolver.insert(MediaStore.Files.getContentUri("external"), values);
+                if (target == null) throw new Exception("Could not create local file");
+                try (InputStream in = resolver.openInputStream(source); OutputStream out = resolver.openOutputStream(target)) {
+                    if (in == null || out == null) throw new Exception("Could not open file");
+                    byte[] buf = new byte[8192]; int n;
+                    while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ContentValues done = new ContentValues();
+                    done.put(MediaStore.Files.FileColumns.IS_PENDING, 0);
+                    resolver.update(target, done, null, null);
+                }
+                JSObject f = new JSObject();
+                f.put("uri", target.toString()); f.put("name", originalName); f.put("fileName", fileName);
+                f.put("mime", mime); f.put("relativePath", relative);
+                files.put(new org.json.JSONObject(f.toString()));
             }
-
-            Uri target = resolver.insert(MediaStore.Files.getContentUri("external"), values);
-            if (target == null) throw new Exception("Could not create local file");
-
-            try (InputStream in = resolver.openInputStream(source);
-                 OutputStream out = resolver.openOutputStream(target)) {
-                if (in == null || out == null) throw new Exception("Could not open file");
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentValues done = new ContentValues();
-                done.put(MediaStore.Files.FileColumns.IS_PENDING, 0);
-                resolver.update(target, done, null, null);
-            }
-
             JSObject ret = new JSObject();
-            ret.put("uri", target.toString());
-            ret.put("name", originalName);
-            ret.put("fileName", fileName);
-            ret.put("mime", mime);
-            ret.put("relativePath", relative);
+            ret.put("files", files);
             call.resolve(ret);
-        } catch (Exception e) {
-            call.reject("Could not save file locally", e);
-        }
+        } catch (Exception e) { call.reject("Could not save files locally", e); }
     }
 
     @PluginMethod
