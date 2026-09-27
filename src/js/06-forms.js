@@ -105,7 +105,7 @@ async function openNoteDeviceFiles(folderPath, title){
     const root=$('#modal .m-body');
     if(root) root.innerHTML=files.length?'<div class="note-device-grid">'+cards+'</div>':'<div class="empty">No files in this folder yet.</div>';
   };
-  openModal('<div class="m-head"><h2>'+esc(title||'Files')+'</h2><button class="icon-btn" data-a="close-modal">'+ico('x')+'</button></div><div class="m-body"><div class="note-device-files-loading">Loading files…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photos</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add files</button><span class="grow"></span><button class="btn" data-a="close-modal">Done</button></div>',{label:'Files'});
+  openModal('<div class="m-head"><h2>'+esc(title||'Files')+'</h2><button class="icon-btn" data-a="close-modal">'+ico('x')+'</button></div><div class="m-body"><div class="note-device-files-loading">Loading files…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photos</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add files</button><span class="grow"></span><button class="btn" data-a="note-device-done">Done</button></div>',{label:'Files'});
   U.deviceFilesFolder=folderPath||''; U.deviceFilesRefresh=renderFiles; await renderFiles();
 }
 async function refreshNoteFolderDeviceFiles(folderPath){
