@@ -339,6 +339,19 @@ function onClick(e) {
     case 'note-new': openNoteForm(); break;
     case 'note-edit': openNoteForm(d.id); break;
     case 'note-photo': addLocalNotePhoto(); break;
+    case 'note-photo-open': {
+      const imgs = noteImageItems();
+      const clicked = +d.i;
+      const target = U.form?.attachments?.[clicked];
+      const index = target ? imgs.indexOf(target) : 0;
+      openNotePhotoGallery(index >= 0 ? index : 0);
+      break;
+    }
+    case 'note-gallery-close': closeNotePhotoGallery(); break;
+    case 'note-gallery-prev': moveNotePhotoGallery(-1); break;
+    case 'note-gallery-next': moveNotePhotoGallery(1); break;
+    case 'note-file': addLocalNoteFile(); break;
+    case 'note-file-open': openLocalNoteFile(d.i); break;
     case 'note-photo-del': {
       const i = +d.i;
       if (U.form && U.form.attachments) {
@@ -462,6 +475,12 @@ function onChange(e) {
   render();
 }
 function onKey(e) {
+  const gallery = document.getElementById('note-photo-gallery');
+  if (gallery) {
+    if (e.key === 'Escape') { e.preventDefault(); closeNotePhotoGallery(); return; }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); moveNotePhotoGallery(-1); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); moveNotePhotoGallery(1); return; }
+  }
   const el = e.target;
   if (e.key === 'Escape') { if (drag && drag.active) { cancelDrag(); return; } if (modalOpen()) { closeModal(); e.preventDefault(); } return; }
   if (e.key === 'Tab' && modalOpen()) { trapFocus(e); return; }

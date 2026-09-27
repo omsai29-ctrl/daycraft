@@ -99,8 +99,86 @@ function noteAttachmentPath(n){
   }
   return parts.join('/');
 }
+function noteAttachmentViewUri(a){
+  const raw = String(a && a.uri || '');
+  try {
+    return window.Capacitor && typeof window.Capacitor.convertFileSrc === 'function' ? window.Capacitor.convertFileSrc(raw) : raw;
+  } catch(e){ return raw; }
+}
+function noteAttachmentKind(a){
+  if (a && a.kind) return a.kind;
+  const m = String(a && a.mime || '').toLowerCase();
+  const name = String(a && (a.name || a.fileName || a.uri) || '').toLowerCase();
+  if (m.indexOf('image/') === 0 || /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i.test(name)) return 'image';
+  return 'file';
+}
+function noteFileIcon(a){
+  const name = String(a && (a.name || a.fileName) || '').toLowerCase();
+  const mime = String(a && a.mime || '').toLowerCase();
+  if (mime === 'application/pdf' || name.endsWith('.pdf')) return 'PDF';
+  if (mime.indexOf('word') >= 0 || name.endsWith('.doc') || name.endsWith('.docx')) return 'DOC';
+  if (mime.indexOf('presentation') >= 0 || name.endsWith('.ppt') || name.endsWith('.pptx')) return 'PPT';
+  return 'FILE';
+}
 function noteAttachmentsHtml(items){
-  return (items || []).map((a,i) => `<div class="note-attachment"><img src="${esc(a.uri)}" alt="${esc(a.name || 'Attached photo')}"><span>${esc(a.name || 'Photo')}</span><button class="icon-btn" data-a="note-photo-del" data-i="${i}" aria-label="Remove photo">${ico('x')}</button></div>`).join('');
+  return (items || []).map((a,i) => {
+    const kind = noteAttachmentKind(a);
+    if (kind === 'image') return \`<div class="note-attachment note-attachment-image"><button class="note-photo-open" data-a="note-photo-open" data-i="\${i}" aria-label="View \${esc(a.name || 'Photo')}"><img src="\${esc(a.uri)}" alt="\${esc(a.name || 'Attached photo')}"><span>\${esc(a.name || 'Photo')}</span></button><button class="icon-btn" data-a="note-photo-del" data-i="\${i}" aria-label="Remove photo">\${ico('x')}</button></div>\`;
+    const label = noteFileIcon(a);
+    return \`<div class="note-attachment note-attachment-file"><button class="note-file-open" data-a="note-file-open" data-i="\${i}" title="Open \${esc(a.name || 'file')}"><strong>\${label}</strong><span>\${esc(a.name || 'Attached file')}</span><small>Open with another app</small></button><button class="icon-btn" data-a="note-photo-del" data-i="\${i}" aria-label="Remove file">\${ico('x')}</button></div>\`;
+  }).join('');
+}
+function noteImageItems(){
+  const F = U.form;
+  return F && Array.isArray(F.attachments) ? F.attachments.filter(a => noteAttachmentKind(a) === 'image') : [];
+}
+function openNotePhotoGallery(index){
+  const items = noteImageItems();
+  if (!items.length) return;
+  const start = Math.max(0, Math.min(+index || 0, items.length - 1));
+  const overlay = document.createElement('div');
+  overlay.id = 'note-photo-gallery';
+  overlay.className = 'note-photo-gallery';
+  overlay.innerHTML = \`<div class="note-photo-gallery-scrim" data-a="note-gallery-close"></div><div class="note-photo-gallery-bar"><button class="icon-btn note-gallery-close" data-a="note-gallery-close" aria-label="Close photo viewer">\${ico('x')}</button><span id="note-gallery-count"></span><button class="icon-btn" data-a="note-gallery-next" aria-label="Next photo">\${ico('right')}</button></div><div class="note-photo-gallery-track" id="note-gallery-track">\${items.map((a,i) => \`<div class="note-photo-gallery-slide"><img src="\${esc(a.uri)}" alt="\${esc(a.name || 'Photo')}" data-gallery-index="\${i}"></div>\`).join('')}</div><div class="note-photo-gallery-nav"><button class="btn btn-sm" data-a="note-gallery-prev">\${ico('left')}Previous</button><span id="note-gallery-name"></span><button class="btn btn-sm" data-a="note-gallery-next">Next\${ico('right')}</button></div>\`;
+  document.body.appendChild(overlay);
+  document.body.classList.add('noscroll');
+  overlay._index = start;
+  overlay._items = items;
+  const track = $('#note-gallery-track');
+  function updateGallery(){
+    const i = overlay._index;
+    if (track) track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+    const count = $('#note-gallery-count'); if (count) count.textContent = \`\${i + 1} / \${items.length}\`;
+    const name = $('#note-gallery-name'); if (name) name.textContent = items[i]?.name || 'Photo';
+  }
+  overlay._updateGallery = updateGallery;
+  if (track) {
+    let scrollTimer = null;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        if (!track.clientWidth) return;
+        const next = Math.max(0, Math.min(items.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+        if (next !== overlay._index) {
+          overlay._index = next;
+          const count = $('#note-gallery-count'); if (count) count.textContent = \`\${next + 1} / \${items.length}\`;
+          const name = $('#note-gallery-name'); if (name) name.textContent = items[next]?.name || 'Photo';
+        }
+      }, 80);
+    }, { passive: true });
+  }
+  updateGallery();
+}
+function closeNotePhotoGallery(){
+  const overlay = document.getElementById('note-photo-gallery');
+  if (overlay) overlay.remove();
+  document.body.classList.remove('noscroll');
+}
+function moveNotePhotoGallery(delta){
+  const overlay = document.getElementById('note-photo-gallery');
+  if (!overlay || !overlay._items?.length) return;
+  overlay._index = Math.max(0, Math.min(overlay._items.length - 1, overlay._index + delta));
+  if (overlay._updateGallery) overlay._updateGallery();
 }
 async function addLocalNotePhoto(){
   const F = U.form;
@@ -112,13 +190,44 @@ async function addLocalNotePhoto(){
     const res = await plugin.pickPhoto({ noteId, folderPath: noteAttachmentPath({ subjectId: $('#note-subject')?.value || null, folderId: $('#note-folder')?.value || null }) });
     if (!res || !res.uri) return;
     F.attachments = F.attachments || [];
-    F.attachments.push({ uri: res.uri, name: res.name || 'Photo', fileName: res.fileName || '' });
+    F.attachments.push({ kind: 'image', uri: res.uri, name: res.name || 'Photo', fileName: res.fileName || '', mime: res.mime || 'image/*' });
     const box = $('#note-attachments-list');
     if (box) box.innerHTML = noteAttachmentsHtml(F.attachments);
     toast('Photo saved on this device.');
   } catch(e) {
     if (e && e.message && /cancel/i.test(e.message)) return;
     toast(e?.message || 'Could not add photo.');
+  }
+}
+async function addLocalNoteFile(){
+  const F = U.form;
+  if (!F || F.kind !== 'note') return;
+  const plugin = daycraftFilesPlugin();
+  if (!plugin) { toast('File attachments are available in the Android app.'); return; }
+  try {
+    const noteId = F.id || (F.tempId || (F.tempId = uid()));
+    const res = await plugin.pickFile({ noteId, folderPath: noteAttachmentPath({ subjectId: $('#note-subject')?.value || null, folderId: $('#note-folder')?.value || null }) });
+    if (!res || !res.uri) return;
+    F.attachments = F.attachments || [];
+    F.attachments.push({ kind: 'file', uri: res.uri, name: res.name || 'Attached file', fileName: res.fileName || '', mime: res.mime || '' });
+    const box = $('#note-attachments-list');
+    if (box) box.innerHTML = noteAttachmentsHtml(F.attachments);
+    toast('File saved on this device.');
+  } catch(e) {
+    if (e && e.message && /cancel/i.test(e.message)) return;
+    toast(e?.message || 'Could not add file.');
+  }
+}
+async function openLocalNoteFile(i){
+  const F = U.form;
+  const a = F && F.attachments && F.attachments[+i];
+  if (!a || noteAttachmentKind(a) === 'image') return;
+  const plugin = daycraftFilesPlugin();
+  if (!plugin) { toast('File opening is available in the Android app.'); return; }
+  try {
+    await plugin.openFile({ uri: a.uri, mime: a.mime || '' });
+  } catch(e) {
+    toast(e?.message || 'Could not open file.');
   }
 }
 function openNoteForm(id){
@@ -136,7 +245,7 @@ function openNoteForm(id){
         <label class="fld"><span>Folder</span><select class="select" id="note-folder">${folderOptions}</select></label>
       </div>
       <label class="fld"><span>Note</span><textarea class="textarea note-editor" id="note-body" placeholder="Write your note here…">${esc(n.body)}</textarea></label>
-      <div class="note-attachments"><div class="note-attachments-head"><b>Photos on this device</b><button class="btn btn-sm" data-a="note-photo">${ico('plus')}Add photo</button></div><p class="muted">Photos stay on this device and are not uploaded to Supabase.</p><div id="note-attachments-list" class="note-attachments-list">${noteAttachmentsHtml(U.form.attachments)}</div></div>
+       <div class="note-attachments"><div class="note-attachments-head"><b>Attachments on this device</b><div class="note-attachments-actions"><button class="btn btn-sm" data-a="note-photo">${ico('plus')}Add photo</button><button class="btn btn-sm" data-a="note-file">${ico('plus')}Add file</button></div></div><p class="muted">Photos can be viewed here. PDF, DOC and PPT files stay on this device and open with another app such as Drive or Files. Nothing is uploaded to Supabase.</p><div id="note-attachments-list" class="note-attachments-list">${noteAttachmentsHtml(U.form.attachments)}</div></div>
     </div>
     <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
 }
