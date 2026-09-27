@@ -123,7 +123,7 @@ function noteFileIcon(a){
 function noteAttachmentsHtml(items){
   return (items || []).map((a,i) => {
     const kind = noteAttachmentKind(a);
-    if (kind === 'image') return `<div class="note-attachment note-attachment-image"><button class="note-photo-open" data-a="note-photo-open" data-i="${i}" aria-label="View ${esc(a.name || 'Photo')}"><img src="${esc(a.uri)}" alt="${esc(a.name || 'Attached photo')}"><span>${esc(a.name || 'Photo')}</span></button><button class="icon-btn" data-a="note-photo-del" data-i="${i}" aria-label="Remove photo">${ico('x')}</button></div>`;
+    if (kind === 'image') return `<div class="note-attachment note-attachment-image"><button class="note-photo-open" data-a="note-photo-open" data-i="${i}" aria-label="View ${esc(a.name || 'Photo')}"><img src="${esc(noteAttachmentViewUri(a))}" alt="${esc(a.name || 'Attached photo')}"><span>${esc(a.name || 'Photo')}</span></button><button class="icon-btn" data-a="note-photo-del" data-i="${i}" aria-label="Remove photo">${ico('x')}</button></div>`;
     const label = noteFileIcon(a);
     return `<div class="note-attachment note-attachment-file"><button class="note-file-open" data-a="note-file-open" data-i="${i}" title="Open ${esc(a.name || 'file')}"><strong>${label}</strong><span>${esc(a.name || 'Attached file')}</span><small>Open with another app</small></button><button class="icon-btn" data-a="note-photo-del" data-i="${i}" aria-label="Remove file">${ico('x')}</button></div>`;
   }).join('');
@@ -139,7 +139,7 @@ function openNotePhotoGallery(index){
   const overlay = document.createElement('div');
   overlay.id = 'note-photo-gallery';
   overlay.className = 'note-photo-gallery';
-  overlay.innerHTML = `<div class="note-photo-gallery-scrim" data-a="note-gallery-close"></div><div class="note-photo-gallery-bar"><button class="icon-btn note-gallery-close" data-a="note-gallery-close" aria-label="Close photo viewer">${ico('x')}</button><span id="note-gallery-count"></span><button class="icon-btn" data-a="note-gallery-next" aria-label="Next photo">${ico('right')}</button></div><div class="note-photo-gallery-track" id="note-gallery-track">${items.map((a,i) => `<div class="note-photo-gallery-slide"><img src="${esc(a.uri)}" alt="${esc(a.name || 'Photo')}" data-gallery-index="${i}"></div>`).join('')}</div><div class="note-photo-gallery-nav"><button class="btn btn-sm" data-a="note-gallery-prev">${ico('left')}Previous</button><span id="note-gallery-name"></span><button class="btn btn-sm" data-a="note-gallery-next">Next${ico('right')}</button></div>`;
+  overlay.innerHTML = `<div class="note-photo-gallery-scrim" data-a="note-gallery-close"></div><div class="note-photo-gallery-bar"><button class="icon-btn note-gallery-close" data-a="note-gallery-close" aria-label="Close photo viewer">${ico('x')}</button><span id="note-gallery-count"></span><button class="icon-btn" data-a="note-gallery-next" aria-label="Next photo">${ico('right')}</button></div><div class="note-photo-gallery-track" id="note-gallery-track">${items.map((a,i) => `<div class="note-photo-gallery-slide"><img src="${esc(noteAttachmentViewUri(a))}" alt="${esc(a.name || 'Photo')}" data-gallery-index="${i}"></div>`).join('')}</div><div class="note-photo-gallery-nav"><button class="btn btn-sm" data-a="note-gallery-prev">${ico('left')}Previous</button><span id="note-gallery-name"></span><button class="btn btn-sm" data-a="note-gallery-next">Next${ico('right')}</button></div>`;
   document.body.appendChild(overlay);
   document.body.classList.add('noscroll');
   overlay._index = start;
