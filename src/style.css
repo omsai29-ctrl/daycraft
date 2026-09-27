@@ -1187,6 +1187,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-slot{flex-direction:column;gap:3px;background:var(--surface)}
 .tt-slot b{font-size:12px}.tt-slot small{font-size:10px;color:var(--ink-4);white-space:nowrap}
 .tt-break,.tt-lunch{z-index:3;font-size:11px;font-weight:700;line-height:1.35;writing-mode:vertical-rl;transform:none;background:var(--sunken);color:var(--ink-3)}
+.tt-header-break{writing-mode:horizontal-tb;transform:none;font-size:11px;line-height:1.2}
 .tt-lunch{background:var(--orange-bg);color:var(--orange-ink)}
 .tt-break small,.tt-lunch small{font-size:9px;font-weight:600}
 .tt-empty{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;min-width:0;cursor:pointer}
