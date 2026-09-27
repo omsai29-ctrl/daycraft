@@ -239,8 +239,8 @@ public class DaycraftFilesPlugin extends Plugin {
             try (Cursor cur = resolver.query(
                     MediaStore.Files.getContentUri("external"),
                     projection,
-                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
-                    new String[]{docPrefix},
+                    MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?",
+                    new String[]{docPrefix + "%"},
                     MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
                 if (cur != null) {
                     int idCol = cur.getColumnIndex(MediaStore.MediaColumns._ID);
@@ -269,8 +269,8 @@ public class DaycraftFilesPlugin extends Plugin {
             try (Cursor cur = resolver.query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     projection,
-                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
-                    new String[]{picPrefix},
+                    MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?",
+                    new String[]{picPrefix + "%"},
                     MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
                 if (cur != null) {
                     int idCol = cur.getColumnIndex(MediaStore.MediaColumns._ID);
