@@ -108,6 +108,27 @@ async function openNoteDeviceFiles(folderPath, title){
   openModal('<div class="m-head"><h2>'+esc(title||'Files')+'</h2><button class="icon-btn" data-a="close-modal">'+ico('x')+'</button></div><div class="m-body"><div class="note-device-files-loading">Loading files…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photos</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add files</button><span class="grow"></span><button class="btn" data-a="note-device-done">Done</button></div>',{label:'Files'});
   U.deviceFilesFolder=folderPath||''; U.deviceFilesRefresh=renderFiles; await renderFiles();
 }
+function noteDeviceRegistryKey(folderPath){ return 'daycraft_note_device_files:' + String(folderPath || ''); }
+function noteDeviceRegistryRead(folderPath){
+  try { const v = JSON.parse(localStorage.getItem(noteDeviceRegistryKey(folderPath)) || '[]'); return Array.isArray(v) ? v : []; } catch(e){ return []; }
+}
+function noteDeviceRegistryWrite(folderPath, files){
+  try { localStorage.setItem(noteDeviceRegistryKey(folderPath), JSON.stringify(Array.isArray(files) ? files : [])); } catch(e){}
+}
+function mergeNoteDeviceFiles(a,b){
+  const out=[]; const seen=new Set();
+  [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(f=>{
+    const key=String(f && (f.uri || f.fileName || f.name) || '');
+    if(key && !seen.has(key)){ seen.add(key); out.push(f); }
+  });
+  return out;
+}
+function rememberNoteDeviceFiles(folderPath, files){
+  const merged=mergeNoteDeviceFiles(noteDeviceRegistryRead(folderPath), files);
+  noteDeviceRegistryWrite(folderPath, merged);
+  return merged;
+}
+
 function renderNoteFolderDeviceFiles(files){
   const root = document.querySelector('#note-device-folder-grid');
   if (!root) return;
@@ -121,11 +142,14 @@ function renderNoteFolderDeviceFiles(files){
 }
 async function refreshNoteFolderDeviceFiles(folderPath){
   const p = daycraftFilesPlugin();
-  if (!p || !p.listFiles) return;
+  const saved = noteDeviceRegistryRead(folderPath);
+  if (!p || !p.listFiles) { renderNoteFolderDeviceFiles(saved); return; }
   try {
     const res = await p.listFiles({folderPath: folderPath || ''});
-    renderNoteFolderDeviceFiles(Array.isArray(res && res.files) ? res.files : []);
-  } catch(e) {}
+    const nativeFiles = Array.isArray(res && res.files) ? res.files : [];
+    const merged = rememberNoteDeviceFiles(folderPath, mergeNoteDeviceFiles(saved, nativeFiles));
+    renderNoteFolderDeviceFiles(merged);
+  } catch(e) { renderNoteFolderDeviceFiles(saved); }
 }
 
 function noteDeviceFolderPath(){
