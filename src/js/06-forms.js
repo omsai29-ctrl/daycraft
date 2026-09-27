@@ -99,6 +99,12 @@ function noteAttachmentPath(n){
   }
   return parts.join('/');
 }
+function noteAttachmentViewUri(a){
+  const raw = String(a && a.uri || '');
+  try {
+    return window.Capacitor && typeof window.Capacitor.convertFileSrc === 'function' ? window.Capacitor.convertFileSrc(raw) : raw;
+  } catch(e){ return raw; }
+}
 function noteAttachmentKind(a){
   if (a && a.kind) return a.kind;
   const m = String(a && a.mime || '').toLowerCase();
