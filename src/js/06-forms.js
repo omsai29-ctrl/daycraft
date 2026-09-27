@@ -108,19 +108,23 @@ async function openNoteDeviceFiles(folderPath, title){
   openModal('<div class="m-head"><h2>'+esc(title||'Files')+'</h2><button class="icon-btn" data-a="close-modal">'+ico('x')+'</button></div><div class="m-body"><div class="note-device-files-loading">Loading files…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photos</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add files</button><span class="grow"></span><button class="btn" data-a="note-device-done">Done</button></div>',{label:'Files'});
   U.deviceFilesFolder=folderPath||''; U.deviceFilesRefresh=renderFiles; await renderFiles();
 }
+function renderNoteFolderDeviceFiles(files){
+  const root = document.querySelector('#note-device-folder-grid');
+  if (!root) return;
+  files = Array.isArray(files) ? files : [];
+  if (!files.length) { root.innerHTML = ''; return; }
+  root.innerHTML = '<div class="notes-section-head"><b>Files</b><button class="btn" data-a="note-device-files">'+ico('plans')+'Open files</button></div><div class="note-device-grid note-device-folder-grid">'+files.map(f => {
+    const image = f.kind === 'image';
+    const src = image ? noteAttachmentViewUri(f) : '';
+    return '<article class="note-device-card"><button class="note-device-open" data-a="note-device-open-folder-file" data-uri="'+esc(f.uri||'')+'" data-mime="'+esc(f.mime||'')+'">'+(image ? '<img class="note-device-preview" src="'+esc(src)+'" alt="">' : '<span class="note-device-fileicon">'+esc(noteFileIcon(f))+'</span>')+'</button><div class="note-device-name" title="'+esc(f.name||'File')+'">'+esc(f.name||'File')+'</div></article>';
+  }).join('')+'</div>';
+}
 async function refreshNoteFolderDeviceFiles(folderPath){
   const p = daycraftFilesPlugin();
-  const root = document.querySelector('#note-device-folder-grid');
-  if (!root || !p || !p.listFiles) return;
+  if (!p || !p.listFiles) return;
   try {
     const res = await p.listFiles({folderPath: folderPath || ''});
-    const files = Array.isArray(res && res.files) ? res.files : [];
-    if (!files.length) { root.innerHTML = ''; return; }
-    root.innerHTML = '<div class="notes-section-head"><b>Files</b><button class="btn" data-a="note-device-files">'+ico('plans')+'Open files</button></div><div class="note-device-grid note-device-folder-grid">'+files.map((f,i) => {
-      const image = f.kind === 'image';
-      const src = image ? noteAttachmentViewUri(f) : '';
-      return '<article class="note-device-card"><button class="note-device-open" data-a="note-device-open-folder-file" data-uri="'+esc(f.uri)+'" data-mime="'+esc(f.mime||'')+'">'+(image ? '<img class="note-device-preview" src="'+esc(src)+'" alt="">' : '<span class="note-device-fileicon">'+esc(noteFileIcon(f))+'</span>')+'</button><div class="note-device-name" title="'+esc(f.name||'File')+'">'+esc(f.name||'File')+'</div></article>';
-    }).join('')+'</div>';
+    renderNoteFolderDeviceFiles(Array.isArray(res && res.files) ? res.files : []);
   } catch(e) {}
 }
 
