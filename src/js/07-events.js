@@ -365,25 +365,25 @@ function onClick(e) {
     case 'note-device-photo': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickPhoto) { toast('Photo attachments are available in the Android app.'); break; }
-      try { await p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) {}
+      try { p.pickPhoto({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(() => U.deviceFilesRefresh ? U.deviceFilesRefresh() : null).catch(() => {}); } catch(e) {}
       break;
     }
     case 'note-device-file': {
       const p = daycraftFilesPlugin();
       if (!p || !p.pickFile) { toast('File attachments are available in the Android app.'); break; }
-      try { await p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) {}
+      try { p.pickFile({ noteId:'folder', folderPath: U.deviceFilesFolder || '' }).then(() => U.deviceFilesRefresh ? U.deviceFilesRefresh() : null).catch(() => {}); } catch(e) {}
       break;
     }
     case 'note-device-open': {
       const f = U.deviceFiles && U.deviceFiles[+d.i], p = daycraftFilesPlugin();
-      if (f && p && p.openFile) { try { await p.openFile({ uri:f.uri, mime:f.mime || '*/*' }); } catch(e) { toast('Couldn\'t open file.'); } }
+      if (f && p && p.openFile) { try { p.openFile({ uri:f.uri, mime:f.mime || '*/*' }).catch(() => toast('Couldn\'t open file.')); } catch(e) { toast('Couldn\'t open file.'); } }
       break;
     }
     case 'note-device-del': {
       const f = U.deviceFiles && U.deviceFiles[+d.i], p = daycraftFilesPlugin();
       if (!f || !p || !p.deleteFile) break;
       if (!confirm('Delete "' + (f.name || 'this file') + '" from this device?')) break;
-      try { await p.deleteFile({ uri:f.uri }); if (U.deviceFilesRefresh) await U.deviceFilesRefresh(); } catch(e) { toast('Couldn\'t delete file.'); }
+      try { p.deleteFile({ uri:f.uri }).then(() => U.deviceFilesRefresh ? U.deviceFilesRefresh() : null).catch(() => toast('Couldn\'t delete file.')); } catch(e) { toast('Couldn\'t delete file.'); }
       break;
     }
     case 'note-open': U.noteFolder = d.id; U.noteQ = ''; render(); break;
