@@ -85,7 +85,7 @@ public class DaycraftFilesPlugin extends Plugin {
                 }
                 JSObject f = new JSObject();
                 f.put("uri", target.toString()); f.put("name", originalName); f.put("fileName", fileName);
-                f.put("mime", mime == null ? "image/jpeg" : mime); f.put("relativePath", relative);
+                f.put("mime", mime == null ? "image/jpeg" : mime); f.put("relativePath", relative); f.put("kind", "image");
                 files.put(new org.json.JSONObject(f.toString()));
             }
             JSObject ret = new JSObject();
@@ -163,7 +163,7 @@ public class DaycraftFilesPlugin extends Plugin {
                 }
                 JSObject f = new JSObject();
                 f.put("uri", target.toString()); f.put("name", originalName); f.put("fileName", fileName);
-                f.put("mime", mime); f.put("relativePath", relative);
+                f.put("mime", mime); f.put("relativePath", relative); f.put("kind", "file");
                 files.put(new org.json.JSONObject(f.toString()));
             }
             JSObject ret = new JSObject();
