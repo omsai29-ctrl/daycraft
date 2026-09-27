@@ -294,8 +294,11 @@ function viewNotes() {
   const newFolder = `<button class="btn" data-a="note-folder-new">${ico('plus')}New folder</button>`;
   const newNote = `<button class="btn btn-primary" data-a="note-new">${ico('plus')}New note</button>`;
   const deviceFiles = current ? `<button class="btn" data-a="note-device-files">${ico('plans')}Files</button>` : '';
-  return pageHead(title, subject ? 'Study notes for this subject.' : current ? 'Organize notes inside nested folders.' : 'Organize your notes by subject, topic and nested folders.', newFolder + deviceFiles + newNote)
-    + `<div class="note-breadcrumb">${crumb}</div><div class="notes-toolbar">${search}</div>${body}`;
+  const deviceGrid = current ? '<div id="note-device-folder-grid" class="note-device-folder-wrap"></div>' : '';
+  const out = pageHead(title, subject ? 'Study notes for this subject.' : current ? 'Organize notes inside nested folders.' : 'Organize your notes by subject, topic and nested folders.', newFolder + deviceFiles + newNote)
+    + `<div class="note-breadcrumb">${crumb}</div><div class="notes-toolbar">${search}</div>${body}${deviceGrid}`;
+  if (current) setTimeout(() => refreshNoteFolderDeviceFiles(noteDeviceFolderPath()), 0);
+  return out;
 }
 
 function viewTasks() {
