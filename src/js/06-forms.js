@@ -90,6 +90,52 @@ function daycraftFilesPlugin(){
   try { return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles; }
   catch(e){ return null; }
 }
+async function openNoteDeviceFiles(folderPath, title){
+  const plugin = daycraftFilesPlugin();
+  if (!plugin || !plugin.listFiles) { toast('Device file manager is available in the Android app.'); return; }
+  const renderFiles = async () => {
+    const res = await plugin.listFiles({ folderPath: folderPath || '' });
+    const files = Array.isArray(res && res.files) ? res.files : [];
+    const fmtSize = n => {
+      n = Number(n || 0);
+      if (!n) return '';
+      if (n < 1024) return n + ' B';
+      if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+      return (n / 1048576).toFixed(1) + ' MB';
+    };
+    const icon = f => f.kind === 'image' ? 'IMG' : noteFileIcon(f);
+    const rows = files.map((f,i) => {
+      const view = f.kind === 'image' ? noteAttachmentViewUri(f) : '';
+      return '<article class="note-device-file">'+
+        (f.kind === 'image' ? '<button class="note-device-thumb" data-a="note-device-open" data-i="'+i+'"><img src="'+esc(view)+'" alt=""></button>' : '<button class="note-device-type" data-a="note-device-open" data-i="'+i+'">'+icon(f)+'</button>')+
+        '<button class="note-device-main" data-a="note-device-open" data-i="'+i+'"><strong>'+esc(f.name || 'File')+'</strong><small>'+esc(f.mime || '')+(fmtSize(f.size) ? ' · '+fmtSize(f.size) : '')+'</small></button>'+
+        '<button class="icon-btn" data-a="note-device-del" data-i="'+i+'" aria-label="Delete '+esc(f.name || 'file')+'">'+ico('trash')+'</button>'+
+      '</article>';
+    }).join('');
+    const body = files.length ? '<div class="note-device-files">'+rows+'</div>' : '<div class="empty">No files in this folder yet.</div>';
+    U.deviceFiles = files;
+    const modal = $('#modal');
+    if (!modal || !modal.classList.contains('open')) return;
+    const root = modal.querySelector('.m-body');
+    if (root) root.innerHTML = body;
+  };
+  openModal('<div class="m-head"><h2>'+esc(title || 'Files on this device')+'</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">'+ico('x')+'</button></div><div class="m-body"><div class="muted">Files stay on this device and are not synced.</div><div class="note-device-files-loading">Loading…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photo</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add file</button><span class="grow"></span><button class="btn" data-a="close-modal">Done</button></div>',{label:'Files on device'});
+  U.deviceFilesFolder = folderPath || '';
+  U.deviceFilesRefresh = renderFiles;
+  await renderFiles();
+}
+function noteDeviceFolderPath(){
+  const current = U.noteFolder || null;
+  if (!current) return '';
+  if (current.indexOf('subject:') === 0) {
+    const sb = subjOf(current.slice(8));
+    return sb ? sb.name : '';
+  }
+  const f = noteFolder(current);
+  if (!f) return '';
+  return noteAttachmentPath({folderId:f.id, subjectId:f.subjectId});
+}
+
 function noteAttachmentPath(n){
   const f = n.folderId ? noteFolder(n.folderId) : null;
   const parts = [];
