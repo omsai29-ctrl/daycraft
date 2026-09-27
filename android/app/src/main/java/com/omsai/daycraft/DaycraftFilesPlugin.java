@@ -26,7 +26,7 @@ public class DaycraftFilesPlugin extends Plugin {
 
     @PluginMethod
     public void pickPhoto(PluginCall call) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -233,7 +233,7 @@ public class DaycraftFilesPlugin extends Plugin {
                     MediaStore.MediaColumns.DATE_MODIFIED, MediaStore.MediaColumns.RELATIVE_PATH
             };
 
-            Uri[] bases = { MediaStore.Files.getContentUri("external") };
+            Uri[] bases = { MediaStore.Files.getContentUri("external"), MediaStore.Images.Media.EXTERNAL_CONTENT_URI };
             for (Uri base : bases) {
                 try (Cursor cur = resolver.query(base, projection, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
                     if (cur == null) continue;
