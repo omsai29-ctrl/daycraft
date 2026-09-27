@@ -225,8 +225,9 @@ public class DaycraftFilesPlugin extends Plugin {
             String folderPath = safePath(call.getString("folderPath", ""));
             String docPrefix = Environment.DIRECTORY_DOCUMENTS + "/" + ROOT + folderPath;
             String picPrefix = Environment.DIRECTORY_PICTURES + "/" + ROOT + folderPath;
-            java.util.ArrayList<JSObject> out = new java.util.ArrayList<>();
             ContentResolver resolver = getContext().getContentResolver();
+            org.json.JSONArray arr = new org.json.JSONArray();
+            java.util.HashSet<String> seen = new java.util.HashSet<>();
 
             String[] projection = {
                     MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
@@ -234,35 +235,66 @@ public class DaycraftFilesPlugin extends Plugin {
                     MediaStore.MediaColumns.DATE_MODIFIED, MediaStore.MediaColumns.RELATIVE_PATH
             };
 
-            Uri[] bases = { MediaStore.Files.getContentUri("external"), MediaStore.Images.Media.EXTERNAL_CONTENT_URI };
-            for (Uri base : bases) {
-                try (Cursor cur = resolver.query(base, projection, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
-                    if (cur == null) continue;
+            // Documents: query the Files collection directly for the exact folder.
+            try (Cursor cur = resolver.query(
+                    MediaStore.Files.getContentUri("external"),
+                    projection,
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                    new String[]{docPrefix},
+                    MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
+                if (cur != null) {
                     int idCol = cur.getColumnIndex(MediaStore.MediaColumns._ID);
                     int nameCol = cur.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
                     int mimeCol = cur.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE);
                     int sizeCol = cur.getColumnIndex(MediaStore.MediaColumns.SIZE);
                     int dateCol = cur.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED);
-                    int pathCol = cur.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH);
                     while (cur.moveToNext()) {
-                        String rel = pathCol >= 0 ? cur.getString(pathCol) : "";
-                        if (!docPrefix.equals(rel) && !picPrefix.equals(rel)) continue;
                         long id = cur.getLong(idCol);
-                        Uri uri = Uri.withAppendedPath(base, String.valueOf(id));
+                        Uri uri = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), String.valueOf(id));
+                        if (!seen.add(uri.toString())) continue;
                         JSObject x = new JSObject();
                         x.put("uri", uri.toString());
                         x.put("name", nameCol >= 0 ? cur.getString(nameCol) : "File");
                         x.put("mime", mimeCol >= 0 ? cur.getString(mimeCol) : "");
                         x.put("size", sizeCol >= 0 ? cur.getLong(sizeCol) : 0);
                         x.put("modified", dateCol >= 0 ? cur.getLong(dateCol) * 1000L : 0);
-                        x.put("kind", (mimeCol >= 0 && String.valueOf(cur.getString(mimeCol)).startsWith("image/")) ? "image" : "file");
-                        out.add(x);
+                        x.put("kind", "file");
+                        arr.put(new org.json.JSONObject(x.toString()));
                     }
                 }
             }
+
+            // Photos: query Images separately. This avoids MediaStore.Files filtering
+            // inconsistencies on some Android versions.
+            try (Cursor cur = resolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                    new String[]{picPrefix},
+                    MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
+                if (cur != null) {
+                    int idCol = cur.getColumnIndex(MediaStore.MediaColumns._ID);
+                    int nameCol = cur.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                    int mimeCol = cur.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE);
+                    int sizeCol = cur.getColumnIndex(MediaStore.MediaColumns.SIZE);
+                    int dateCol = cur.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED);
+                    while (cur.moveToNext()) {
+                        long id = cur.getLong(idCol);
+                        Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
+                        if (!seen.add(uri.toString())) continue;
+                        JSObject x = new JSObject();
+                        x.put("uri", uri.toString());
+                        x.put("name", nameCol >= 0 ? cur.getString(nameCol) : "Photo");
+                        x.put("mime", mimeCol >= 0 ? cur.getString(mimeCol) : "image/*");
+                        x.put("size", sizeCol >= 0 ? cur.getLong(sizeCol) : 0);
+                        x.put("modified", dateCol >= 0 ? cur.getLong(dateCol) * 1000L : 0);
+                        x.put("kind", "image");
+                        arr.put(new org.json.JSONObject(x.toString()));
+                    }
+                }
+            }
+
             JSObject ret = new JSObject();
-            org.json.JSONArray arr = new org.json.JSONArray();
-            for (JSObject x : out) arr.put(new org.json.JSONObject(x.toString()));
             ret.put("files", arr);
             call.resolve(ret);
         } catch (Exception e) {
