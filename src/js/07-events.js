@@ -513,13 +513,32 @@ function onKey(e) {
 /* ================= export / import ================= */
 async function exportData() {
   const json = JSON.stringify(D, null, 2);
+  const fileName = 'planner-backup-' + today() + '.json';
+
+  try {
+    const native = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles;
+    if (native && native.exportBackup) {
+      await native.exportBackup({ fileName, data: json });
+      toast('Backup saved to Downloads/Daycraft.');
+      return;
+    }
+  } catch (err) {
+    console.warn('Native backup export failed', err);
+  }
+
   try {
     const dl = window.claude && await window.claude.use('downloads');
-    if (dl) { await dl.save({ filename: 'planner-backup-' + today() + '.json', data: json }); toast('Backup ready.'); return; }
+    if (dl) { await dl.save({ filename: fileName, data: json }); toast('Backup ready.'); return; }
   } catch (err) { if (err && err.code === 'declined') return; }
+
   try {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-    a.download = 'planner-backup-' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   } catch (err) { toast('Couldn\'t export from here.'); }
 }
 function importData(file) {
