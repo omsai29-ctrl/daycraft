@@ -96,33 +96,17 @@ async function openNoteDeviceFiles(folderPath, title){
   const renderFiles = async () => {
     const res = await plugin.listFiles({ folderPath: folderPath || '' });
     const files = Array.isArray(res && res.files) ? res.files : [];
-    const fmtSize = n => {
-      n = Number(n || 0);
-      if (!n) return '';
-      if (n < 1024) return n + ' B';
-      if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
-      return (n / 1048576).toFixed(1) + ' MB';
-    };
-    const icon = f => f.kind === 'image' ? 'IMG' : noteFileIcon(f);
-    const rows = files.map((f,i) => {
-      const view = f.kind === 'image' ? noteAttachmentViewUri(f) : '';
-      return '<article class="note-device-file">'+
-        (f.kind === 'image' ? '<button class="note-device-thumb" data-a="note-device-open" data-i="'+i+'"><img src="'+esc(view)+'" alt=""></button>' : '<button class="note-device-type" data-a="note-device-open" data-i="'+i+'">'+icon(f)+'</button>')+
-        '<button class="note-device-main" data-a="note-device-open" data-i="'+i+'"><strong>'+esc(f.name || 'File')+'</strong><small>'+esc(f.mime || '')+(fmtSize(f.size) ? ' · '+fmtSize(f.size) : '')+'</small></button>'+
-        '<button class="icon-btn" data-a="note-device-del" data-i="'+i+'" aria-label="Delete '+esc(f.name || 'file')+'">'+ico('trash')+'</button>'+
-      '</article>';
+    const fmtSize = n => { n=Number(n||0); if(!n)return ''; if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; };
+    const cards = files.map((f,i) => {
+      const image = f.kind === 'image', view = image ? noteAttachmentViewUri(f) : '';
+      return '<article class="note-device-card"><button class="note-device-open" data-a="note-device-open" data-i="'+i+'">'+(image?'<img class="note-device-preview" src="'+esc(view)+'" alt="">':'<span class="note-device-fileicon">'+esc(noteFileIcon(f))+'</span>')+'</button><div class="note-device-card-foot"><div class="note-device-name" title="'+esc(f.name||'File')+'">'+esc(f.name||'File')+'</div><button class="icon-btn" data-a="note-device-del" data-i="'+i+'" aria-label="Delete">'+ico('trash')+'</button></div><small class="note-device-meta">'+esc(fmtSize(f.size)||(f.mime||'File'))+'</small></article>';
     }).join('');
-    const body = files.length ? '<div class="note-device-files">'+rows+'</div>' : '<div class="empty">No files in this folder yet.</div>';
-    U.deviceFiles = files;
-    const modal = $('#modal');
-    if (!modal || !modal.classList.contains('open')) return;
-    const root = modal.querySelector('.m-body');
-    if (root) root.innerHTML = body;
+    U.deviceFiles=files;
+    const root=$('#modal .m-body');
+    if(root) root.innerHTML=files.length?'<div class="note-device-grid">'+cards+'</div>':'<div class="empty">No files in this folder yet.</div>';
   };
-  openModal('<div class="m-head"><h2>'+esc(title || 'Files on this device')+'</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">'+ico('x')+'</button></div><div class="m-body"><div class="muted">Files stay on this device and are not synced.</div><div class="note-device-files-loading">Loading…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photo</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add file</button><span class="grow"></span><button class="btn" data-a="close-modal">Done</button></div>',{label:'Files on device'});
-  U.deviceFilesFolder = folderPath || '';
-  U.deviceFilesRefresh = renderFiles;
-  await renderFiles();
+  openModal('<div class="m-head"><h2>'+esc(title||'Files')+'</h2><button class="icon-btn" data-a="close-modal">'+ico('x')+'</button></div><div class="m-body"><div class="note-device-files-loading">Loading files…</div></div><div class="m-foot"><button class="btn" data-a="note-device-photo">'+ico('plus')+'Add photos</button><button class="btn" data-a="note-device-file">'+ico('plus')+'Add files</button><span class="grow"></span><button class="btn" data-a="close-modal">Done</button></div>',{label:'Files'});
+  U.deviceFilesFolder=folderPath||''; U.deviceFilesRefresh=renderFiles; await renderFiles();
 }
 function noteDeviceFolderPath(){
   const current = U.noteFolder || null;
@@ -291,9 +275,7 @@ function openNoteForm(id){
         <label class="fld"><span>Folder</span><select class="select" id="note-folder">${folderOptions}</select></label>
       </div>
       <label class="fld"><span>Note</span><textarea class="textarea note-editor" id="note-body" placeholder="Write your note here…">${esc(n.body)}</textarea></label>
-       <div class="note-attachments"><div class="note-attachments-head"><b>Attachments on this device</b><div class="note-attachments-actions"><button class="btn btn-sm" data-a="note-photo">${ico('plus')}Add photo</button><button class="btn btn-sm" data-a="note-file">${ico('plus')}Add file</button></div></div><p class="muted">Photos can be viewed here. PDF, DOC and PPT files stay on this device and open with another app such as Drive or Files. Nothing is uploaded to Supabase.</p><div id="note-attachments-list" class="note-attachments-list">${noteAttachmentsHtml(U.form.attachments)}</div></div>
-    </div>
-    <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
+       <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
 }
 
 /* ================= task form ================= */
