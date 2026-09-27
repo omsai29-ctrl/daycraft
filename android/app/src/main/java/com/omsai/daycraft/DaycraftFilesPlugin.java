@@ -163,6 +163,52 @@ public class DaycraftFilesPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void exportBackup(PluginCall call) {
+        try {
+            String fileName = safe(call.getString("fileName", "planner-backup.json"));
+            if (!fileName.toLowerCase().endsWith(".json")) fileName += ".json";
+            String data = call.getString("data", "");
+            if (data == null) data = "";
+
+            ContentResolver resolver = getContext().getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Downloads.MIME_TYPE, "application/json");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Daycraft");
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
+            }
+
+            Uri target;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                target = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            } else {
+                target = resolver.insert(MediaStore.Files.getContentUri("external"), values);
+            }
+            if (target == null) throw new Exception("Could not create backup file");
+
+            try (OutputStream out = resolver.openOutputStream(target)) {
+                if (out == null) throw new Exception("Could not open backup file");
+                out.write(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues done = new ContentValues();
+                done.put(MediaStore.Downloads.IS_PENDING, 0);
+                resolver.update(target, done, null, null);
+            }
+
+            JSObject ret = new JSObject();
+            ret.put("uri", target.toString());
+            ret.put("fileName", fileName);
+            ret.put("path", "Downloads/Daycraft/" + fileName);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Could not export backup", e);
+        }
+    }
+
+    @PluginMethod
     public void openFile(PluginCall call) {
         try {
             String uriString = call.getString("uri", "");
