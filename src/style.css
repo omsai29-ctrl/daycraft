@@ -1413,9 +1413,30 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 }
 
 .note-attachments-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.note-attachments-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .note-attachments-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
 .note-attachment{position:relative;min-width:0;border:1px solid var(--line);border-radius:var(--r-s);background:var(--surface);overflow:hidden}
 .note-attachment img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--sunken)}
+.note-photo-open{display:block;width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.note-photo-open img{transition:transform .18s var(--ease)}
+.note-photo-open:hover img{transform:scale(1.025)}
+.note-photo-gallery{position:fixed;inset:0;z-index:300;background:rgba(8,8,10,.98);color:#fff;display:flex;flex-direction:column;overscroll-behavior:none}
+.note-photo-gallery-scrim{position:absolute;inset:0}
+.note-photo-gallery-bar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 14px 10px;background:linear-gradient(rgba(0,0,0,.55),transparent);font-size:13px}
+.note-photo-gallery-bar .icon-btn{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.14)}
+.note-photo-gallery-track{position:relative;z-index:1;display:flex;flex:1;min-height:0;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.note-photo-gallery-track::-webkit-scrollbar{display:none}
+.note-photo-gallery-slide{flex:0 0 100%;width:100%;height:100%;display:grid;place-items:center;padding:12px 18px;scroll-snap-align:center}
+.note-photo-gallery-slide img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.note-photo-gallery-nav{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.55));font-size:11px}
+.note-photo-gallery-nav .btn{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.14)}
+.note-gallery-close{flex:none}
+#note-gallery-name{max-width:45vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;opacity:.85}
 .note-attachment span{display:block;padding:6px 7px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.note-attachment .icon-btn{position:absolute;right:4px;top:4px;background:var(--surface);border-radius:50%;width:28px;height:28px}
+.note-attachment .icon-btn{position:absolute;right:4px;top:4px;background:var(--surface);border-radius:50%;width:28px;height:28px;z-index:2}
+.note-attachment-file{min-height:112px}
+.note-file-open{width:100%;min-height:112px;border:0;background:none;padding:16px 10px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.note-file-open strong{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;background:var(--sunken);border:1px solid var(--line);font-size:11px;letter-spacing:.4px}
+.note-file-open span{max-width:100%;padding:0;font-size:10px}
+.note-file-open small{font-size:9px;color:var(--ink-3)}
 @media(max-width:520px){.note-attachments-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
