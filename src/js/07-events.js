@@ -423,14 +423,14 @@ function onClick(e) {
       const title = $('#note-title').value.trim(), body = $('#note-body').value.trim();
       if (!title && !body) { $('#note-title').focus(); break; }
       const subjectId = $('#note-subject').value || null, folderId = $('#note-folder').value || null;
-      const F = U.form, old = F && F.id, attachments = clone((F && F.attachments) || []);
+      const F = U.form, old = F && F.id;
       closeModal();
       mutate(() => {
         if (old) {
           const n = D.notes.find(x => x.id === old);
-          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.attachments = attachments; n.updatedAt = Date.now(); }
+          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.attachments = []; n.updatedAt = Date.now(); }
         } else {
-          D.notes.unshift({ id: F.tempId || uid(), title: title || 'Untitled note', body, subjectId, folderId, attachments, createdAt: Date.now(), updatedAt: Date.now() });
+          D.notes.unshift({ id: F.tempId || uid(), title: title || 'Untitled note', body, subjectId, folderId, attachments: [], createdAt: Date.now(), updatedAt: Date.now() });
         }
       }, old ? 'Note updated' : 'Note saved');
       break;
