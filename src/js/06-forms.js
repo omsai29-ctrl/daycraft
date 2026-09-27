@@ -93,9 +93,9 @@ function daycraftFilesPlugin(){
 async function openNoteDeviceFiles(folderPath, title){
   const plugin = daycraftFilesPlugin();
   if (!plugin || !plugin.listFiles) { toast('Device file manager is available in the Android app.'); return; }
-  const renderFiles = async () => {
-    const res = await plugin.listFiles({ folderPath: folderPath || '' });
-    const files = Array.isArray(res && res.files) ? res.files : [];
+  const renderFiles = async (useCurrent=false) => {
+    const res = useCurrent ? null : await plugin.listFiles({ folderPath: folderPath || '' });
+    const files = useCurrent ? (Array.isArray(U.deviceFiles) ? U.deviceFiles : []) : (Array.isArray(res && res.files) ? res.files : []);
     const fmtSize = n => { n=Number(n||0); if(!n)return ''; if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; };
     const cards = files.map((f,i) => {
       const image = f.kind === 'image', view = image ? noteAttachmentViewUri(f) : '';
