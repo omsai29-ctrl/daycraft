@@ -171,6 +171,33 @@ function onClick(e) {
       render(); break;
     }
     case 'tt-theme': openTimetableTheme(); break;
+    case 'tt-slots': openTimetableSlots(); break;
+    case 'tt-slots-save': {
+      ensureTimetable();
+      const slots = timetableSlots().map(s => ({ id:s.id, label:s.label, time:s.time }));
+      let valid = true;
+      slots.forEach(s => {
+        if (s.id === 5) {
+          const a=$('#tt-lunch-start').value, b=$('#tt-lunch-end').value;
+          if (!a || !b || a >= b) valid=false;
+          else D.timetable.lunch=a+'–'+b;
+          s.time=D.timetable.lunch;
+        } else {
+          const a=$('#tt-s'+s.id+'-start').value, b=$('#tt-s'+s.id+'-end').value;
+          if (!a || !b || a >= b) valid=false;
+          else s.time=a+'–'+b;
+        }
+      });
+      const bs=$('#tt-break-start').value, be=$('#tt-break-end').value;
+      if (!bs || !be || bs >= be) valid=false;
+      if (!valid) { toast('Please check the timing ranges. End time must be after start time.'); break; }
+      D.timetable.slots=slots;
+      D.timetable.break=bs+'–'+be;
+      D.timetable.lunch=D.timetable.slots.find(s=>s.id===5).time;
+      closeModal();
+      mutate(()=>{},'Session timings updated');
+      break;
+    }
     case 'tt-theme-color': {
       const k=d.kind, v=d.color; if(!D.timetable.appearance) ensureTimetable();
       D.timetable.appearance[k]=v; save(); render(); openTimetableTheme(); break;
