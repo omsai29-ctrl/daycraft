@@ -275,7 +275,8 @@ function openNoteForm(id){
         <label class="fld"><span>Folder</span><select class="select" id="note-folder">${folderOptions}</select></label>
       </div>
       <label class="fld"><span>Note</span><textarea class="textarea note-editor" id="note-body" placeholder="Write your note here…">${esc(n.body)}</textarea></label>
-       <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
+       </div>
+    <div class="m-foot"> ${old ? '<button class="btn btn-danger" data-a="note-del">Delete</button>' : ''}<span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-primary" data-a="note-save">${old ? 'Save changes' : 'Save note'}</button></div>`, { label: old ? 'Edit note' : 'New note', focus: old ? '#note-body' : '#note-title' });
 }
 
 /* ================= task form ================= */
