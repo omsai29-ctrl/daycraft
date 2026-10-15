@@ -219,6 +219,12 @@ function viewToday() {
   const nextExam = D.exams.filter(e => e.date >= td).sort((a, b) => a.date.localeCompare(b.date))[0];
   const examDays = nextExam ? diffDays(td, nextExam.date) : null;
   const examLabel = nextExam ? (examDays === 0 ? 'Today' : examDays + ' days') : 'None';
+  const examSubject = nextExam ? subjOf(nextExam.subjectId) : null;
+  const examCountdown = nextExam ? `<section class="exam-countdown dashboard-exam"${examSubject ? ` style="--bc:${examSubject.color}"` : ''}>
+    <div><span class="eyebrow">NEXT EXAM</span><h2>${esc(nextExam.title)}</h2>${examSubject ? `<span class="muted">${esc(examSubject.name)}</span>` : ''}</div>
+    <div class="exam-count-num">${examDays}<small>${examDays === 1 ? 'day' : 'days'}</small></div>
+    <div class="exam-count-meta">${esc(fmtFull(nextExam.date))} · ${esc(examCountdownText(examDays))}<button class="link" style="margin-left:10px" data-a="nav" data-p="exams">View exam</button></div>
+  </section>` : '';
   const glance = `<section class="today-glance" aria-label="Today at a glance">
     <div class="glance-card" data-a="glance" data-p="planner" role="button" tabindex="0"><span class="glance-icon">${ico('planner')}</span><div><b>${checks.length}</b><small>Today's tasks</small></div></div>
     <div class="glance-card" data-a="glance" data-p="plans" role="button" tabindex="0"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div></div>
@@ -226,7 +232,7 @@ function viewToday() {
     <div class="glance-card" data-a="glance" data-p="habits" role="button" tabindex="0"><span class="glance-icon">${ico('habits')}</span><div><b>${habitDone}/${D.habits.length}</b><small>Habits today</small></div></div>
   </section>`;
 
-  return `${notice}${head}${cards}${glance}
+  return `${notice}${head}${cards}${glance}${examCountdown}
   <div class="grid-2">
     <div class="col-stack">
       <div>${nowHtml}${nextHtml}</div>
