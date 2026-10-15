@@ -84,6 +84,7 @@ function dlList(items, td) {
 
 /* ================= TODAY ================= */
 function viewToday() {
+  const widgets = Object.assign({}, DEFAULT_SETTINGS.dashboardWidgets, D.settings.dashboardWidgets || {});
   const td = today(), now = nowMin();
   const items = dayInst(td);
   const timed = items.filter(i => i.start != null).sort((a, b) => a.start - b.start);
@@ -219,7 +220,6 @@ function viewToday() {
   const nextExam = D.exams.filter(e => e.date >= td).sort((a, b) => a.date.localeCompare(b.date))[0];
   const examDays = nextExam ? diffDays(td, nextExam.date) : null;
   const examLabel = nextExam ? (examDays === 0 ? 'Today' : examDays + ' days') : 'None';
-  const widgets = Object.assign({}, DEFAULT_SETTINGS.dashboardWidgets, D.settings.dashboardWidgets || {});
   const examSubject = nextExam ? subjOf(nextExam.subjectId) : null;
   const examCountdown = widgets.examCountdown && nextExam ? `<section class="exam-countdown dashboard-exam"${examSubject ? ` style="--bc:${examSubject.color}"` : ''}>
     <div><span class="eyebrow">NEXT EXAM</span><h2>${esc(nextExam.title)}</h2>${examSubject ? `<span class="muted">${esc(examSubject.name)}</span>` : ''}</div>
