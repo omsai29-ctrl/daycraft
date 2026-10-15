@@ -488,7 +488,7 @@ function onClick(e) {
       mutate(() => {
         if (old) {
           const n = D.notes.find(x => x.id === old);
-          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.attachments = []; n.updatedAt = Date.now(); }
+          if (n) { n.title = title || 'Untitled note'; n.body = body; n.subjectId = subjectId; n.folderId = folderId; n.attachments = clone(F.attachments || n.attachments || []); n.updatedAt = Date.now(); }
         } else {
           D.notes.unshift({ id: F.tempId || uid(), title: title || 'Untitled note', body, subjectId, folderId, attachments: [], createdAt: Date.now(), updatedAt: Date.now() });
         }
