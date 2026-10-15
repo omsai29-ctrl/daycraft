@@ -240,7 +240,7 @@ function viewToday() {
   const savedRight = Array.isArray(D.settings.dashboardRightOrder) ? D.settings.dashboardRightOrder : rightOrder;
   const leftSections = {
     nowNext: widgets.nowNext ? nowHtml + nextHtml : '',
-    tasks: `<section><h2 class="h2">Today's tasks ${wrapLink ? `<span class="aux">${wrapLink}</span>` : ''}</h2>${tasksHtml}</section>`
+    tasks: `<section><h2 class="h2">Today's tasks <span class="aux"><button class="link" data-a="nav" data-p="checklist">Checklist</button>${wrapLink ? ' &nbsp; ' + wrapLink : ''}</span></h2>${tasksHtml}</section>`
   };
   const rightSections = {
     schedule: widgets.schedule ? `<section><h2 class="h2">Schedule</h2>${tl}</section>` : '',
