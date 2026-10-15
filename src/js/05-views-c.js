@@ -323,6 +323,8 @@ function viewSettings() {
       ${dashboardOrderRows('left', ['nowNext','tasks'], D.settings.dashboardLeftOrder || DEFAULT_SETTINGS.dashboardLeftOrder, {nowNext:'Now and next',tasks:"Today's tasks"})}
       <h3 class="h2">Right column order</h3>
       ${dashboardOrderRows('right', ['schedule','upcoming','attention','habits'], D.settings.dashboardRightOrder || DEFAULT_SETTINGS.dashboardRightOrder, {schedule:'Daily schedule',upcoming:'Upcoming deadlines',attention:'Needs attention',habits:'Habits'})}
+      <p class="set-note">Restore the default dashboard cards, visibility and section order without changing tasks, notes, attendance or other settings.</p>
+      <button class="btn" data-a="dashboard-reset">Reset dashboard layout</button>
     </div>
     <div class="set-sec"><h2 class="h2">Sync</h2>
       <p class="set-note" style="color:var(--ink-2);font-weight:550" data-sync>${syncLabel()}</p>
