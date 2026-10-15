@@ -257,7 +257,8 @@ function viewSettings() {
       ${row('Default task length', '', sel('defaultDuration', [[15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours']], s.defaultDuration))}</div>
     <div class="set-sec"><h2 class="h2">Planner</h2>
       ${row('Preferred view', '', sel('view', [['day', 'Day'], ['week', 'Week'], ['month', 'Month']], s.view))}
-      ${row('Week starts on', '', sel('weekStart', [[1, 'Monday'], [0, 'Sunday'], [6, 'Saturday']], s.weekStart))}</div>
+      ${row('Week starts on', '', sel('weekStart', [[1, 'Monday'], [0, 'Sunday'], [6, 'Saturday']], s.weekStart))}
+      ${row('Timetable density', 'Compact uses smaller blocks and narrower day columns, which can reduce horizontal scrolling on mobile.', sel('timetableDensity', [['comfortable', 'Comfortable'], ['compact', 'Compact']], s.timetableDensity || 'comfortable'))}</div>
     <div class="set-sec"><h2 class="h2">Reminders</h2>
       ${row('Default reminder', 'Applies to timed tasks. Reminders show while this page is open.', sel('reminder', [['off', 'None'], [10, '10 min before'], [30, '30 min before'], [60, '1 hour before']], s.reminder))}
       ${row('Browser notifications', 'Task reminders can appear as system notifications while Daycraft is open.', `<button class="btn btn-sm" data-a="notify">${notificationState() === 'granted' ? 'Enabled · Test' : notificationState() === 'denied' ? 'Blocked' : notificationState() === 'unsupported' ? 'Unavailable' : 'Enable'}</button>`)}</div>
