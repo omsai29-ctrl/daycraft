@@ -103,7 +103,7 @@ let store = null;
 try { store = window.localStorage; store.setItem('__pl', '1'); store.removeItem('__pl'); } catch (e) { store = null; }
 const storageOK = !!store;
 
-const DEFAULT_SETTINGS = { dayStart: '07:00', dayEnd: '22:00', defaultDuration: 45, view: 'week', weekStart: 1, reminder: 10, theme: 'system', accentColor: 'blue' };
+const DEFAULT_SETTINGS = { dayStart: '07:00', dayEnd: '22:00', defaultDuration: 45, view: 'week', weekStart: 1, reminder: 10, theme: 'system', accentColor: 'blue', dashboardWidgets: { glanceTasks: true, glancePlans: true, glanceExams: true, glanceHabits: true, examCountdown: true, attention: true, habits: true, schedule: true, upcoming: true, nowNext: true } };
 const SUBJECT_COLORS = ['#2A9D8F', '#C9883A', '#C25B7A', '#3B9AB5', '#7A8B45', '#B0703F', '#7B8794', '#8A6FD6', '#4F8F5B'];
 
 const MIDTERM_EXAMS_B = [
