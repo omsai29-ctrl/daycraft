@@ -101,6 +101,44 @@ function applyTheme() {
   } catch (e) { /* noop */ }
 }
 
+/* Keep Android-only files discoverable: their physical MediaStore path is name-based. */
+async function saveNoteFolderSafely() {
+  const input = $('#note-folder-name');
+  const name = input && input.value.trim();
+  if (!name) { if (input) input.focus(); return; }
+  const form = U.form, oldId = form && form.id;
+  if (oldId) {
+    const folder = noteFolder(oldId);
+    if (folder) {
+      const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles;
+      if (plugin && plugin.listFiles) {
+        const oldPath = noteAttachmentPath({ folderId: folder.id, subjectId: folder.subjectId });
+        try {
+          const result = await plugin.listFiles({ folderPath: oldPath });
+          if (Array.isArray(result && result.files) && result.files.length) {
+            toast('This folder contains device files. Move or remove those files before renaming the folder, so they remain easy to find.');
+            return;
+          }
+        } catch (err) {
+          toast('Could not check this folder for device files. It has not been renamed.');
+          return;
+        }
+      }
+    }
+  }
+  closeModal();
+  mutate(() => {
+    if (oldId) {
+      const folder = noteFolder(oldId);
+      if (folder) folder.name = name;
+    } else {
+      const parent = U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? noteFolder(U.noteFolder) : null;
+      const subjectId = parent ? parent.subjectId : (U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null);
+      D.noteFolders.push({ id: uid(), name, parentId: parent ? parent.id : null, subjectId: subjectId || null, createdAt: Date.now() });
+    }
+  }, oldId ? 'Folder renamed' : 'Folder created');
+}
+
 /* ================= events ================= */
 const ds = el => el.dataset;
 function onClick(e) {
@@ -453,23 +491,7 @@ function onClick(e) {
     case 'note-clear': U.noteQ = ''; U.focus = 'note-q'; render(); break;
     case 'note-folder-new': openNoteFolderForm(); break;
     case 'note-folder-edit': openNoteFolderForm(d.id); break;
-    case 'note-folder-save': {
-      const name = $('#note-folder-name').value.trim();
-      if (!name) { $('#note-folder-name').focus(); break; }
-      const F = U.form, oldFolder = F && F.id;
-      closeModal();
-      mutate(() => {
-        if (oldFolder) {
-          const f = noteFolder(oldFolder);
-          if (f) f.name = name;
-        } else {
-          const parent = U.noteFolder && U.noteFolder.indexOf('subject:') !== 0 ? noteFolder(U.noteFolder) : null;
-          const subjectId = parent ? parent.subjectId : (U.noteFolder && U.noteFolder.indexOf('subject:') === 0 ? U.noteFolder.slice(8) : null);
-          D.noteFolders.push({ id: uid(), name, parentId: parent ? parent.id : null, subjectId: subjectId || null, createdAt: Date.now() });
-        }
-      }, oldFolder ? 'Folder renamed' : 'Folder created');
-      break;
-    }
+    case 'note-folder-save': { saveNoteFolderSafely(); break; }
     case 'note-folder-del': {
       const id = U.form && U.form.id, f = noteFolder(id);
       if (!f) { closeModal(); break; }
