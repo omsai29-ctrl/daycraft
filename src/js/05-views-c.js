@@ -27,7 +27,8 @@ function viewSearch() {
     addGroup('Habits', (D.habits || []).filter(h => String(h.name || '').toLowerCase().includes(q))
       .slice(0, 12).map(h => row('search-habit', h.id, h.name, h.log && h.log[today()] ? 'Completed today' : 'Habit')));
     const attendance = D.attendance && typeof D.attendance === 'object' && !Array.isArray(D.attendance) ? D.attendance : {};
-    addGroup('Attendance', Object.entries(attendance).filter(([id, value]) => {
+    const attendanceEntries = Object.keys(attendance).length ? Object.entries(attendance) : (D.subjects || []).map(s => [s.id, { name: s.name, present: 0, total: 0 }]);
+    addGroup('Attendance', attendanceEntries.filter(([id, value]) => {
       const name = value && typeof value.name === 'string' ? value.name : id;
       return [id, name].some(v => String(v || '').toLowerCase().includes(q));
     }).slice(0, 12).map(([id, value]) => {
