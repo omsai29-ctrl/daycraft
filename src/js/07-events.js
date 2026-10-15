@@ -114,13 +114,35 @@ function onClick(e) {
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
     case 'att-present': {
-      const a=D.attendance&&D.attendance[d.id]; if(a) mutate(()=>{a.present++;a.total++;},'Attendance marked present'); break;
+      const id = d.id, subject = (D.subjects || []).find(s => s.id === id);
+      mutate(() => {
+        if (!D.attendance || typeof D.attendance !== 'object' || Array.isArray(D.attendance)) D.attendance = {};
+        const a = D.attendance[id] || { name: subject ? subject.name : id, present: 0, total: 0 };
+        a.present = Math.max(0, Number(a.present) || 0) + 1;
+        a.total = Math.max(0, Number(a.total) || 0) + 1;
+        D.attendance[id] = a;
+      }, 'Attendance marked present');
+      break;
     }
     case 'att-absent': {
-      const a=D.attendance&&D.attendance[d.id]; if(a) mutate(()=>{a.total++;},'Attendance marked absent'); break;
+      const id = d.id, subject = (D.subjects || []).find(s => s.id === id);
+      mutate(() => {
+        if (!D.attendance || typeof D.attendance !== 'object' || Array.isArray(D.attendance)) D.attendance = {};
+        const a = D.attendance[id] || { name: subject ? subject.name : id, present: 0, total: 0 };
+        a.present = Math.min(Math.max(0, Number(a.present) || 0), Math.max(0, Number(a.total) || 0));
+        a.total = Math.max(0, Number(a.total) || 0) + 1;
+        D.attendance[id] = a;
+      }, 'Attendance marked absent');
+      break;
     }
     case 'att-undo': {
-      const a=D.attendance&&D.attendance[d.id]; if(a&&a.total>0) mutate(()=>{a.total--; if(a.present>a.total)a.present=a.total;},'Attendance entry undone'); break;
+      const id = d.id, current = D.attendance && D.attendance[id];
+      if (current && Number(current.total) > 0) mutate(() => {
+        const a = D.attendance[id];
+        a.total = Math.max(0, Number(a.total) || 0) - 1;
+        a.present = Math.min(a.total, Math.max(0, Number(a.present) || 0));
+      }, 'Attendance entry undone');
+      break;
     }
     case 'focus-length': {
       if (U.focusTimer && U.focusTimer.running) break;
