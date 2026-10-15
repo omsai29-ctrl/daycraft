@@ -164,6 +164,12 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
   border-right:1px solid var(--line);background:var(--surface);
   overflow-y:auto;overscroll-behavior:contain;
 }
+/* Keep the sidebar scrollable without a bright, distracting scrollbar. */
+.side{scrollbar-width:thin;scrollbar-color:var(--line-3) transparent}
+.side::-webkit-scrollbar{width:6px}
+.side::-webkit-scrollbar-track{background:transparent}
+.side::-webkit-scrollbar-thumb{background:var(--line-3);border-radius:999px}
+.side::-webkit-scrollbar-thumb:hover{background:var(--ink-4)}
 .brand{
   font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.015em;
   padding:0 var(--s3) var(--s5);color:var(--ink);display:flex;align-items:center;gap:10px;
