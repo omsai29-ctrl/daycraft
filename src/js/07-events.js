@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['checklist', 'Checklist'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
 const NAV_GROUPS = [
-  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'plans', 'focus', 'attendance']],
+  ['Plan', ['today', 'planner', 'timetable', 'tasks', 'checklist', 'plans', 'focus', 'attendance']],
   ['Track', ['notes', 'subjects', 'goals', 'habits', 'exams']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, checklist: viewChecklist, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','checklist','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -143,6 +143,7 @@ function onClick(e) {
     case 'plan-save': { const title=$('#plan-title').value.trim(); if(!title){$('#plan-title').focus();break;} const F=U.form, old=F&&F.id; closeModal(); mutate(()=>{if(old){const p=D.plans.find(x=>x.id===old); if(p)p.title=title;}else D.plans.unshift({id:uid(),title,done:false});},old?'Plan updated':'Plan added'); break; }
     case 'plan-toggle': { const p=D.plans.find(x=>x.id===d.id); if(p) mutate(()=>{p.done=!p.done;}, p.done?'Plan reopened':'Plan completed'); break; }
     case 'plan-del': { const id=U.form&&U.form.id; closeModal(); mutate(()=>{D.plans=D.plans.filter(x=>x.id!==id);},'Plan deleted'); break; }
+    case 'checklist-add': openAdd({ date: null, start: null, due: null }); break;
     case 'add': {
       const o = {};
       if (d.date) o.date = d.date;
