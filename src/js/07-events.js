@@ -77,12 +77,17 @@ function applyTheme() {
   try {
     const dark = t === 'dark' || (t !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const palettes = {
-      blue:   { light: '#2F6BD8', dark: '#6D9BF2' },
-      teal:   { light: '#0F8A83', dark: '#48C8BC' },
-      purple: { light: '#7756C9', dark: '#A994F4' },
-      rose:   { light: '#C44D78', dark: '#F18AB0' },
-      amber:  { light: '#A96512', dark: '#E7AD59' },
-      green:  { light: '#25804D', dark: '#62C989' }
+      blue:    { light: '#2F6BD8', dark: '#6D9BF2' },
+      teal:    { light: '#0F8A83', dark: '#48C8BC' },
+      purple:  { light: '#7756C9', dark: '#A994F4' },
+      rose:    { light: '#C44D78', dark: '#F18AB0' },
+      amber:   { light: '#A96512', dark: '#E7AD59' },
+      green:   { light: '#25804D', dark: '#62C989' },
+      cosmic:  { light: '#5B5BD6', dark: '#A5A5FF' },
+      cyan:    { light: '#0787A8', dark: '#4CC9E8' },
+      sky:     { light: '#1677C8', dark: '#70B7FF' },
+      midnight:{ light: '#526477', dark: '#B0C4D8' },
+      coral:   { light: '#D65D4A', dark: '#FF9686' }
     };
     const palette = palettes[D.settings.accentColor] || palettes.blue;
     const accent = dark ? palette.dark : palette.light;
@@ -317,7 +322,7 @@ function onClick(e) {
     case 'rv': U.rv = addDays(U.rv, +d.n); render(); break;
     /* settings */
     case 'theme': D.settings.theme = d.v; save(); render(); break;
-    case 'accent-color': if (['blue','teal','purple','rose','amber','green'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
+    case 'accent-color': if (['blue','teal','purple','rose','amber','green','cosmic','cyan','sky','midnight','coral'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
     case 'notify': {
       if (!notificationsSupported()) { toast('This browser does not support notifications. In-page reminders still work.'); break; }
       if (Notification.permission === 'granted') {
