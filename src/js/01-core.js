@@ -64,6 +64,7 @@ const IC = {
   today: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
   planner: '<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/><path d="M7.5 14h4"/><path d="M7.5 17.5h9"/>',
   tasks: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  checklist: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="m7 9 1.5 1.5L11 8M13 10h4M7 15l1.5 1.5L11 14M13 16h4"/>',
   plans: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h8"/>',
   subjects: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
   goals: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
