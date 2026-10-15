@@ -1471,3 +1471,22 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .accent-swatch small{min-width:0;font-size:12px;font-weight:600}
 .accent-swatch b{margin-left:auto;color:var(--accent);font-size:13px}
 @media(max-width:520px){.accent-options{grid-template-columns:repeat(2,minmax(0,1fr))}.accent-swatch{padding:9px 8px}}
+
+/* Dashboard layout refinements for narrow screens */
+@media(max-width:700px){
+  .today-glance{align-items:stretch}
+  .today-glance .glance-card{min-height:68px;gap:8px;overflow:hidden}
+  .today-glance .glance-card>div{min-width:0;flex:1}
+  .today-glance .glance-card small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .grid-2{grid-template-columns:minmax(0,1fr)}
+  .grid-2>.col-stack{min-width:0;width:100%}
+  .col-stack>section{min-width:0}
+}
+@media(max-width:380px){
+  .today-glance{gap:7px}
+  .today-glance .glance-card{padding:10px 8px;gap:7px}
+  .today-glance .glance-icon{width:27px;height:27px;border-radius:8px}
+  .today-glance .glance-card b{font-size:15px}
+  .today-glance .glance-card small{font-size:10.5px}
+}
+
