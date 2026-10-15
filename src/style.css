@@ -187,8 +187,8 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .nav button svg{color:var(--ink-4);transition:color var(--fast) var(--ease)}
 .nav button:hover{background:var(--hover);color:var(--ink)}
 .nav button:hover svg{color:var(--ink-3)}
-.nav button.on{background:var(--hover);color:var(--ink);font-weight:600}
-.nav button.on svg{color:var(--ink)}
+.nav button.on{background:var(--accent-soft,var(--hover));color:var(--accent,var(--ink));font-weight:600}
+.nav button.on svg{color:var(--accent,var(--ink))}
 .nav button.on::before{
   content:"";position:absolute;left:-10px;top:50%;transform:translateY(-50%);
   width:3px;height:16px;border-radius:0 3px 3px 0;background:var(--ink);
@@ -280,7 +280,7 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .input.lg::placeholder{color:var(--ink-4);font-weight:400}
 .input.lg:focus-visible{outline:none;box-shadow:none;border:0}
 .textarea{height:auto;min-height:72px;padding:9px 11px;resize:vertical;line-height:1.5}
-.input:focus-visible,.select:focus-visible,.textarea:focus-visible{outline:none;border-color:var(--blue);box-shadow:var(--ring)}
+.input:focus-visible,.select:focus-visible,.textarea:focus-visible{outline:none;border-color:var(--accent,var(--blue));box-shadow:var(--ring)}
 .select{
   appearance:none;-webkit-appearance:none;padding-right:30px;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A29E' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -1443,3 +1443,19 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 @media(max-width:520px){.note-attachments-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .note-device-folder-wrap{margin-top:18px}.notes-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.notes-section-head b{font-size:16px}.note-device-folder-grid{margin-top:0}
+
+
+/* Personal accent color */
+:root{--accent:#2F6BD8;--accent-soft:#ECF2FD}
+.nav button.on::before{background:var(--accent,var(--ink))}
+.attendance-bar span{background:var(--accent,var(--blue))}
+.accent-setting{margin-top:18px}
+.accent-setting>.hint{margin-top:4px;max-width:520px}
+.accent-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.accent-swatch{position:relative;display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);color:var(--ink-2);font:inherit;text-align:left;cursor:pointer}
+.accent-swatch:hover{border-color:var(--line-3);background:var(--surface-2,var(--sunken))}
+.accent-swatch.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--ink);background:var(--accent-soft)}
+.accent-swatch>span{width:22px;height:22px;flex:none;border-radius:50%;background:var(--swatch);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.accent-swatch small{min-width:0;font-size:12px;font-weight:600}
+.accent-swatch b{margin-left:auto;color:var(--accent);font-size:13px}
+@media(max-width:520px){.accent-options{grid-template-columns:repeat(2,minmax(0,1fr))}.accent-swatch{padding:9px 8px}}
