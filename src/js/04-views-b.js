@@ -236,6 +236,18 @@ function viewPlans(){
   }
   return pageHead('Plans','Things you need to do, without a schedule.', '')+body;
 }
+
+function viewChecklist() {
+  const isChecklist = t => t.kind !== 'event' && !isRec(t) && !t.date && t.start == null && !t.due;
+  const open = D.tasks.filter(t => isChecklist(t) && !t.done).sort((a,b) => PR[a.priority] - PR[b.priority] || (a.order || 0) - (b.order || 0));
+  const done = D.tasks.filter(t => isChecklist(t) && t.done).sort((a,b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
+  const row = t => taskRow(inst(t, ''), { showGoal: true, showDone: t.done });
+  const body = (open.length ? `<section><div class="grp-h">To do <span class="n">${open.length}</span></div><ul class="tlist">${open.map(row).join('')}</ul></section>` : '')
+    + (done.length ? `<section><div class="grp-h">Completed <span class="n">${done.length}</span></div><ul class="tlist">${done.map(row).join('')}</ul></section>` : '');
+  const add = `<button class="btn btn-primary" data-a="checklist-add">${ico('plus')}Add checklist item</button>`;
+  return pageHead('Checklist', 'Unscheduled tasks with no date, start time or deadline.', add)
+    + (body || emptyBox('Your checklist is clear.', 'Add small tasks you want to remember without putting them on the timetable.', add, true));
+}
 function noteFolder(id){ return (D.noteFolders || []).find(f => f.id === id) || null; }
 function noteFolderChildren(parentId, subjectId){
   return (D.noteFolders || []).filter(f => (f.parentId || null) === (parentId || null) && (f.subjectId || null) === (subjectId || null))
