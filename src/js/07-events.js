@@ -6,7 +6,7 @@ const NAV_GROUPS = [
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, checklist: viewChecklist, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, checklist: viewChecklist, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, search: viewSearch, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','checklist','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'settings'].includes(U.page);
+  const moreOn = ['timetable','checklist','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'search', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
@@ -113,6 +113,7 @@ function onClick(e) {
     case 'nav': if (modalOpen()) closeModal(); go(d.p); break;
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
+    case 'search-clear': U.searchQ = ''; U.focus = 'global-search'; render(); break;
     case 'att-present': {
       const id = d.id, subject = (D.subjects || []).find(s => s.id === id);
       mutate(() => {
@@ -532,6 +533,7 @@ function addTopic(eid) {
 
 function onInput(e) {
   const el = e.target;
+  if (el.dataset.searchInput) { U.searchQ = el.value; U.focus = 'global-search'; U.focusEnd = true; render(); return; }
   if (el.dataset.set === 'tf-q') { U.tf.q = el.value; U.focus = 'tq'; U.focusEnd = true; render(); return; }
   if (el.dataset.set === 'note-q') { U.noteQ = el.value; U.focus = 'note-q'; U.focusEnd = true; render(); return; }
   if (el.dataset.f && U.form && U.form.f) onFormField(el.dataset.f, el);
