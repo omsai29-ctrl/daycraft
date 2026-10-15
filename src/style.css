@@ -1193,11 +1193,11 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
    COLLEGE TIMETABLE
    ========================================================================= */
 .tt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r-l);background:var(--surface);box-shadow:var(--sh-1)}
-.tt-grid{display:grid;grid-template-columns:72px repeat(2,minmax(104px,1fr)) 74px repeat(2,minmax(104px,1fr)) 86px repeat(3,minmax(104px,1fr));grid-template-rows:54px repeat(5,minmax(72px,auto));min-width:1080px}
+.tt-grid{display:grid;width:100%;min-width:0;grid-template-columns:56px repeat(2,minmax(0,1fr)) 48px repeat(2,minmax(0,1fr)) 52px repeat(3,minmax(0,1fr));grid-template-rows:54px repeat(5,minmax(72px,auto))}
 .tt-day-head,.tt-day,.tt-slot,.tt-break,.tt-lunch{border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center}
 .tt-day-head,.tt-day{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken)}
-.tt-slot{flex-direction:column;gap:3px;background:var(--surface)}
-.tt-slot b{font-size:12px}.tt-slot small{font-size:10px;color:var(--ink-4);white-space:nowrap}
+.tt-slot{flex-direction:column;gap:3px;background:var(--surface);min-width:0;padding:3px 1px}
+.tt-slot b{font-size:12px}.tt-slot small{font-size:10px;line-height:1.15;color:var(--ink-4);white-space:normal;overflow-wrap:anywhere}
 .tt-break,.tt-lunch{z-index:3;font-size:11px;font-weight:700;line-height:1.35;writing-mode:vertical-rl;transform:none;background:var(--sunken);color:var(--ink-3)}
 .tt-header-break{writing-mode:horizontal-tb;transform:none;font-size:11px;line-height:1.2}
 .tt-lunch{background:var(--orange-bg);color:var(--orange-ink)}
