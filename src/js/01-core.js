@@ -267,7 +267,7 @@ if (midtermsAdded || attendanceAdded) save();
 
 /* ================= transient UI state ================= */
 const U = {
-  page: 'today', pv: null, pd: today(), noteQ: '', noteFolder: null, tf: { status: 'all', subject: '', priority: '', q: '', sort: 'smart' },
+  page: 'today', pv: null, pd: today(), noteQ: '', searchQ: '', noteFolder: null, tf: { status: 'all', subject: '', priority: '', q: '', sort: 'smart' },
   subj: null, expanded: {}, goalOpen: {}, hv: 'week', hMonth: null, hSel: null, rv: today(), form: null, focus: null,
   focusEnd: false, plannerScrolled: false, doneOpen: true, wrap: false, pulse: null, lastTrigger: null
 };
