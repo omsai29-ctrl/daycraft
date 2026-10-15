@@ -323,6 +323,7 @@ function onClick(e) {
     /* settings */
     case 'theme': D.settings.theme = d.v; save(); render(); break;
     case 'accent-color': if (['blue','teal','purple','rose','amber','green','cosmic','cyan','sky','midnight','coral'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
+    case 'dashboard-widget': { const defaults = DEFAULT_SETTINGS.dashboardWidgets; D.settings.dashboardWidgets = Object.assign({}, defaults, D.settings.dashboardWidgets || {}); if (Object.prototype.hasOwnProperty.call(defaults, d.v)) D.settings.dashboardWidgets[d.v] = D.settings.dashboardWidgets[d.v] === false; save(); render(); break; }
     case 'notify': {
       if (!notificationsSupported()) { toast('This browser does not support notifications. In-page reminders still work.'); break; }
       if (Notification.permission === 'granted') {
