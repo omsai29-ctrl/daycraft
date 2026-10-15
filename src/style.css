@@ -681,6 +681,18 @@ section.now-idle .now-actions{margin-top:var(--s4)}
   transition:box-shadow var(--fast) var(--ease),filter var(--fast) var(--ease);
 }
 .blk:hover{box-shadow:var(--sh-2);filter:brightness(.98);z-index:3}
+
+/* Compact timetable: fit more of each day on smaller screens without changing drag geometry. */
+.wk.compact .wk-in{min-width:calc(var(--n) * 96px + 52px)}
+.wk.compact .wk-row{grid-template-columns:52px repeat(var(--n),minmax(0,1fr))}
+.wk.compact .wk-head .dh{padding:8px 3px 7px}
+.wk.compact .wk-head .dn{font-size:15px;width:26px;height:26px}
+.wk.compact .lane{padding:3px 2px;gap:2px}
+.wk.compact .lchip{gap:4px;padding:2px 3px;font-size:11px}
+.wk.compact .blk{padding-left:5px;padding-right:4px;font-size:11px}
+.wk.compact .blk .b-t{font-size:11px}
+.wk.compact .blk.lg .b-t{font-size:11.5px}
+.wk.compact .blk .b-m{font-size:9.5px}
 .blk:active{cursor:grabbing}
 .blk .b-t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.005em}
 .blk .b-m{color:var(--ink-3);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;margin-top:1px}
