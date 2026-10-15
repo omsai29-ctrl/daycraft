@@ -324,6 +324,16 @@ function onClick(e) {
     case 'theme': D.settings.theme = d.v; save(); render(); break;
     case 'accent-color': if (['blue','teal','purple','rose','amber','green','cosmic','cyan','sky','midnight','coral'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
     case 'dashboard-widget': { const defaults = DEFAULT_SETTINGS.dashboardWidgets; D.settings.dashboardWidgets = Object.assign({}, defaults, D.settings.dashboardWidgets || {}); if (Object.prototype.hasOwnProperty.call(defaults, d.v)) D.settings.dashboardWidgets[d.v] = D.settings.dashboardWidgets[d.v] === false; save(); render(); break; }
+    case 'dashboard-move': {
+      const group = d.g === 'right' ? 'right' : 'left';
+      const key = group === 'right' ? 'dashboardRightOrder' : 'dashboardLeftOrder';
+      const allowed = group === 'right' ? ['schedule','upcoming','attention','habits'] : ['nowNext','tasks'];
+      const order = Array.isArray(D.settings[key]) ? D.settings[key].filter((x,i,a) => allowed.includes(x) && a.indexOf(x) === i) : [];
+      allowed.forEach(x => { if (!order.includes(x)) order.push(x); });
+      const from = order.indexOf(d.v), to = from + Number(d.n || 0);
+      if (from >= 0 && to >= 0 && to < order.length) { const moved = order.splice(from, 1)[0]; order.splice(to, 0, moved); D.settings[key] = order; save(); render(); }
+      break;
+    }
     case 'notify': {
       if (!notificationsSupported()) { toast('This browser does not support notifications. In-page reminders still work.'); break; }
       if (Notification.permission === 'granted') {
