@@ -74,9 +74,23 @@ function applyTheme() {
   const t = D.settings.theme, h = document.documentElement;
   if (t === 'light' || t === 'dark') h.setAttribute('data-theme', t);
   else if (initialTheme) h.setAttribute('data-theme', initialTheme); else h.removeAttribute('data-theme');
-  /* match the browser/status bar to the theme actually showing */
   try {
     const dark = t === 'dark' || (t !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const palettes = {
+      blue:   { light: '#2F6BD8', dark: '#6D9BF2' },
+      teal:   { light: '#0F8A83', dark: '#48C8BC' },
+      purple: { light: '#7756C9', dark: '#A994F4' },
+      rose:   { light: '#C44D78', dark: '#F18AB0' },
+      amber:  { light: '#A96512', dark: '#E7AD59' },
+      green:  { light: '#25804D', dark: '#62C989' }
+    };
+    const palette = palettes[D.settings.accentColor] || palettes.blue;
+    const accent = dark ? palette.dark : palette.light;
+    h.style.setProperty('--accent', accent);
+    h.style.setProperty('--accent-soft', 'color-mix(in srgb, ' + accent + ' 12%, var(--surface))');
+    h.style.setProperty('--primary', accent);
+    h.style.setProperty('--on-primary', '#FFFFFF');
+    h.style.setProperty('--ring', '0 0 0 3px color-mix(in srgb, ' + accent + ' 24%, transparent)');
     const m = document.querySelector('meta[name=theme-color]');
     if (m) m.setAttribute('content', dark ? '#0E0E10' : '#F7F6F4');
   } catch (e) { /* noop */ }
@@ -303,6 +317,7 @@ function onClick(e) {
     case 'rv': U.rv = addDays(U.rv, +d.n); render(); break;
     /* settings */
     case 'theme': D.settings.theme = d.v; save(); render(); break;
+    case 'accent-color': if (['blue','teal','purple','rose','amber','green'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
     case 'notify': {
       if (!notificationsSupported()) { toast('This browser does not support notifications. In-page reminders still work.'); break; }
       if (Notification.permission === 'granted') {
