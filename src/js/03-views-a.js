@@ -234,17 +234,29 @@ function viewToday() {
   ].filter(Boolean);
   const glance = glanceCards.length ? `<section class="today-glance" aria-label="Today at a glance">${glanceCards.join('')}</section>` : '';
 
+  const leftOrder = ['nowNext', 'tasks'];
+  const rightOrder = ['schedule', 'upcoming', 'attention', 'habits'];
+  const savedLeft = Array.isArray(D.settings.dashboardLeftOrder) ? D.settings.dashboardLeftOrder : leftOrder;
+  const savedRight = Array.isArray(D.settings.dashboardRightOrder) ? D.settings.dashboardRightOrder : rightOrder;
+  const leftSections = {
+    nowNext: widgets.nowNext ? nowHtml + nextHtml : '',
+    tasks: `<section><h2 class="h2">Today's tasks ${wrapLink ? `<span class="aux">${wrapLink}</span>` : ''}</h2>${tasksHtml}</section>`
+  };
+  const rightSections = {
+    schedule: widgets.schedule ? `<section><h2 class="h2">Schedule</h2>${tl}</section>` : '',
+    upcoming: widgets.upcoming ? `<section><h2 class="h2">Upcoming<button class="link aux" data-a="tf" data-s="upcoming">See all</button></h2>${dlHtml}</section>` : '',
+    attention: remHtml,
+    habits: hab
+  };
+  const renderOrdered = (order, allowed, sections) => {
+    const valid = order.filter((key, i) => allowed.includes(key) && order.indexOf(key) === i);
+    allowed.forEach(key => { if (!valid.includes(key)) valid.push(key); });
+    return valid.map(key => sections[key] || '').join('');
+  };
+
   return `${notice}${head}${cards}${glance}${examCountdown}
   <div class="grid-2">
-    <div class="col-stack">
-      <div>${widgets.nowNext ? nowHtml + nextHtml : ''}</div>
-      <section><h2 class="h2">Today's tasks ${wrapLink ? `<span class="aux">${wrapLink}</span>` : ''}</h2>${tasksHtml}</section>
-    </div>
-    <div class="col-stack">
-      ${widgets.schedule ? `<section><h2 class="h2">Schedule</h2>${tl}</section>` : ''}
-      ${widgets.upcoming ? `<section><h2 class="h2">Upcoming<button class="link aux" data-a="tf" data-s="upcoming">See all</button></h2>${dlHtml}</section>` : ''}
-      ${remHtml}
-      ${hab}
-    </div>
+    <div class="col-stack">${renderOrdered(savedLeft, leftOrder, leftSections)}</div>
+    <div class="col-stack">${renderOrdered(savedRight, rightOrder, rightSections)}</div>
   </div>`;
 }
