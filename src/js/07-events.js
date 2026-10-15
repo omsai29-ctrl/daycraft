@@ -322,7 +322,7 @@ function onClick(e) {
       } catch (err) { toast('Notifications aren\'t available here. In-page reminders still work.'); }
       break;
     }
-    case 'sync-now': if (AUTH.user) push(); else openAuthModal(); break;
+    case 'sync-now': if (AUTH.user) reconcile(); else openAuthModal(); break;
     case 'auth-open': openAuthModal(); break;
     case 'auth-signin': authEmail('signin'); break;
     case 'auth-signup': authEmail('signup'); break;
