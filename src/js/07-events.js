@@ -152,7 +152,7 @@ function onClick(e) {
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
     case 'search-clear': U.searchQ = ''; U.focus = 'global-search'; render(); break;
-    case 'search-habit': go('habits'); break;
+    case 'search-habit': U.hSel = el.dataset.id || null; U.hv = 'month'; U.hMonth = today().slice(0, 7) + '-01'; go('habits'); break;
     case 'search-attendance': go('attendance'); break;
     case 'att-present': {
       const id = d.id, subject = (D.subjects || []).find(s => s.id === id);
