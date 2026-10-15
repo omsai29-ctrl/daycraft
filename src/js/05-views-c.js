@@ -257,7 +257,15 @@ function viewSettings() {
       ${row('Default reminder', 'Applies to timed tasks. Reminders show while this page is open.', sel('reminder', [['off', 'None'], [10, '10 min before'], [30, '30 min before'], [60, '1 hour before']], s.reminder))}
       ${row('Browser notifications', 'Task reminders can appear as system notifications while Daycraft is open.', `<button class="btn btn-sm" data-a="notify">${notificationState() === 'granted' ? 'Enabled · Test' : notificationState() === 'denied' ? 'Blocked' : notificationState() === 'unsupported' ? 'Unavailable' : 'Enable'}</button>`)}</div>
     <div class="set-sec"><h2 class="h2">Appearance</h2>
-      ${row('Theme', '', `<div class="seg">${[['light', 'Light'], ['dark', 'Dark'], ['system', 'System']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`)}</div>
+      ${row('Theme', '', `<div class="seg">${[['light', 'Light'], ['dark', 'Dark'], ['system', 'System']].map(([v, l]) => `<button class="${s.theme === v ? 'on' : ''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`)}
+      <div class="accent-setting">
+        <div class="lbl">Accent color</div>
+        <div class="hint">Choose a color for highlights, selected navigation, focus rings and progress indicators.</div>
+        <div class="accent-options" role="group" aria-label="Accent color">
+          ${[['blue','Blue','#2F6BD8'],['teal','Teal','#0F8A83'],['purple','Purple','#7756C9'],['rose','Rose','#C44D78'],['amber','Amber','#A96512'],['green','Green','#25804D']].map(([id,label,color]) => `<button type="button" class="accent-swatch ${(s.accentColor || 'blue') === id ? 'on' : ''}" data-a="accent-color" data-v="${id}" aria-label="${label}" aria-pressed="${(s.accentColor || 'blue') === id}" title="${label}"><span style="--swatch:${color}"></span><small>${label}</small>${(s.accentColor || 'blue') === id ? '<b aria-hidden="true">✓</b>' : ''}</button>`).join('')}
+        </div>
+      </div>
+    </div>
     <div class="set-sec"><h2 class="h2">Sync</h2>
       <p class="set-note" style="color:var(--ink-2);font-weight:550" data-sync>${syncLabel()}</p>
       ${AUTH.user ? `<p class="set-note">Signed in as <strong data-auth-user>${esc(AUTH.user.email || 'your account')}</strong>. Your planner syncs between devices when you use the same account.</p><div class="chips"><button class="btn btn-sm" data-a="sync-now">Sync now</button><button class="btn btn-sm" data-a="auth-signout">Sign out</button></div>` : `<p class="set-note">Sign in once on your phone and laptop to keep the same planner data everywhere. Local data remains available offline.</p><button class="btn btn-primary" data-a="auth-open">Sign in to sync</button>`}</div>
