@@ -130,7 +130,7 @@ async function pull(remote) {
     save();
   }
   D.notes = (D.notes || []).map(n => { const x = localAttachments.find(a => a.id === n.id); return x && x.attachments.length ? Object.assign({}, n, { attachments: x.attachments }) : n; });
-  D.updatedAt = D.updatedAt || remote.updated_at || Date.now();
+  D.updatedAt = Math.max(Number(D.updatedAt) || 0, Number(remote.updated_at) || 0, Date.now());
   SYNC.lastAt = remote.updated_at || D.updatedAt;
   try { store && store.setItem(KEY, JSON.stringify(D)); } catch (e) { /* ignore */ }
   render();
