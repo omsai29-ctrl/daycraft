@@ -13,7 +13,7 @@ function shell(content) {
   const od = overdueList().length;
   const openToday = dayInst(td).filter(i => i.kind !== 'event' && !i.done).length;
   const cnt = p => p === 'today' && openToday ? `<span class="cnt">${openToday}</span>` : (p === 'tasks' && od ? `<span class="cnt red">${od}</span>` : '');
-  const item = p => `<button class="${U.page === p ? 'on' : ''}" data-a="nav" data-p="${p}" ${U.page === p ? 'aria-current="page"' : ''}>${ico(p)}${NAV_LABEL[p]}${cnt(p)}</button>`;
+  const item = p => `<button class="${U.page === p ? 'on' : ''}" data-a="nav" data-p="${p}" ${U.page === p ? 'aria-current="page"' : ''}>${ico(p === 'flashcards' ? 'review' : p)}${NAV_LABEL[p]}${cnt(p)}</button>`;
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
