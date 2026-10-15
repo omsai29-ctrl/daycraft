@@ -1,3 +1,36 @@
+/* ================= UNIVERSAL SEARCH ================= */
+function viewSearch() {
+  const q = String(U.searchQ || '').trim().toLowerCase();
+  const groups = [];
+  let total = 0;
+  const addGroup = (label, rows) => {
+    if (!rows.length) return;
+    total += rows.length;
+    groups.push(`<section><h2 class="h2">${label} <span class="muted">(${rows.length})</span></h2><ul class="rows">${rows.join('')}</ul></section>`);
+  };
+  const row = (action, id, title, detail) =>
+    `<li class="row" data-a="${action}" data-id="${esc(id)}" role="button" tabindex="0"><div class="grow"><div class="r-t">${esc(title || 'Untitled')}</div><div class="r-m">${esc(detail || '')}</div></div><span class="muted">${ico('right')}</span></li>`;
+
+  if (q) {
+    addGroup('Tasks', D.tasks.filter(t => [t.title, t.notes].some(v => String(v || '').toLowerCase().includes(q)))
+      .slice(0, 12).map(t => row('edit', t.id, t.title, [t.date ? relLabel(t.date) : 'No date', t.due ? 'Due ' + relLabel(t.due) : '', t.done ? 'Completed' : 'Open'].filter(Boolean).join(' · '))));
+    addGroup('Plans', D.plans.filter(p => String(p.title || '').toLowerCase().includes(q))
+      .slice(0, 12).map(p => row('plan-edit', p.id, p.title, p.done ? 'Completed plan' : 'Plan')));
+    addGroup('Notes', D.notes.filter(n => [n.title, n.body].some(v => String(v || '').toLowerCase().includes(q)))
+      .slice(0, 12).map(n => row('note-edit', n.id, n.title || 'Untitled note', String(n.body || '').replace(/\s+/g, ' ').slice(0, 100))));
+    addGroup('Subjects', D.subjects.filter(s => String(s.name || '').toLowerCase().includes(q))
+      .slice(0, 12).map(s => row('subj-open', s.id, s.name, 'Subject')));
+    addGroup('Goals', D.goals.filter(g => [g.title, ...(g.milestones || []).map(m => m.text)].some(v => String(v || '').toLowerCase().includes(q)))
+      .slice(0, 12).map(g => row('goal-edit', g.id, g.title, g.deadline ? 'Deadline ' + relLabel(g.deadline) : 'Goal')));
+    addGroup('Exams', D.exams.filter(x => [x.title, x.courseCode, ...(x.topics || []).map(t => t.text)].some(v => String(v || '').toLowerCase().includes(q)))
+      .slice(0, 12).map(x => row('exam-edit', x.id, x.title, x.date ? relLabel(x.date) : 'Exam')));
+  }
+
+  return pageHead('Search', 'Find tasks, plans, notes, subjects, goals and exams.', `<button class="btn btn-sm" data-a="search-clear">Clear</button>`) +
+    `<section class="search-panel"><label class="fld"><span>Search everything</span><input class="input lg" id="global-search" data-search-input="1" value="${esc(U.searchQ || '')}" placeholder="Try a subject, assignment or exam…" autocomplete="off"></label></section>` +
+    (q ? (total ? `<p class="muted" style="margin:14px 0">${total} matching result(s) shown, up to 12 per category.</p>${groups.join('')}` : emptyBox('No matches found.', 'Try a shorter or different search term.', '', true)) : emptyBox('Search your planner.', 'Search across tasks, plans, notes, subjects, goals, exam names and exam topics.', '', true));
+}
+
 /* ================= SUBJECTS ================= */
 function viewSubjects() {
   if (U.subj && subjOf(U.subj)) return viewSubjectDetail(subjOf(U.subj));
