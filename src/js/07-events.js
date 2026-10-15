@@ -1,12 +1,12 @@
 /* ================= shell + render ================= */
-const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['checklist', 'Checklist'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review']];
+const NAV = [['today', 'Today'], ['planner', 'Planner'], ['timetable', 'Timetable'], ['tasks', 'Tasks'], ['checklist', 'Checklist'], ['plans', 'Plans'], ['notes', 'Notes'], ['focus', 'Focus'], ['attendance', 'Attendance'], ['subjects', 'Subjects'], ['goals', 'Goals'], ['habits', 'Habits'], ['exams', 'Exams'], ['review', 'Review'], ['flashcards', 'Flashcards']];
 const NAV_GROUPS = [
   ['Plan', ['today', 'planner', 'timetable', 'tasks', 'checklist', 'plans', 'focus', 'attendance']],
-  ['Track', ['notes', 'subjects', 'goals', 'habits', 'exams']],
+  ['Track', ['notes', 'subjects', 'goals', 'habits', 'exams', 'flashcards']],
   ['Reflect', ['review']]
 ];
 const NAV_LABEL = NAV.reduce((o, [p, l]) => (o[p] = l, o), {});
-const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, checklist: viewChecklist, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, search: viewSearch, settings: viewSettings };
+const PAGES = { today: viewToday, planner: viewPlanner, timetable: viewTimetable, tasks: viewTasks, checklist: viewChecklist, plans: viewPlans, notes: viewNotes, focus: viewFocus, attendance: viewAttendance, subjects: viewSubjects, goals: viewGoals, habits: viewHabits, exams: viewExams, review: viewReview, flashcards: viewFlashcards, search: viewSearch, settings: viewSettings };
 
 function shell(content) {
   const td = today();
@@ -384,6 +384,11 @@ function onClick(e) {
     }
     case 'ex-del': { const id = U.form.id; closeModal(); mutate(() => { D.exams = D.exams.filter(x => x.id !== id); D.tasks.forEach(t => { if (t.examId === id) t.examId = null; }); }, 'Exam deleted'); break; }
     case 'rv': U.rv = addDays(U.rv, +d.n); render(); break;
+    case 'fc-import-open': { const input = document.getElementById('fc-import-file'); if (input) input.click(); break; }
+    case 'fc-deck': FC.deckId = d.id; FC.cardId = null; FC.showAnswer = false; render(); break;
+    case 'fc-back': FC.deckId = null; FC.cardId = null; FC.showAnswer = false; render(); break;
+    case 'fc-reveal': FC.showAnswer = true; render(); break;
+    case 'fc-rate': rateFlashcard(d.rating); break;
     /* settings */
     case 'theme': D.settings.theme = d.v; save(); render(); break;
     case 'accent-color': if (['blue','teal','purple','rose','amber','green','cosmic','cyan','sky','midnight','coral'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
@@ -574,7 +579,7 @@ function onChange(e) {
   if (el.dataset.f) { if (U.form && U.form.f && el.tagName === 'SELECT') onFormField(el.dataset.f, el); return; }
   if (el.dataset.gf) { if (U.form && U.form.g && el.tagName === 'SELECT') U.form.g[el.dataset.gf] = el.value || null; return; }
   const k = el.dataset.set;
-  if (!k) { if (el.id === 'imp') importData(el.files[0]); return; }
+  if (!k) { if (el.id === 'imp') importData(el.files[0]); else if (el.id === 'fc-import-file') { importFlashcardsFile(el.files[0]); el.value = ''; } return; }
   if (k === 'tf-subject') { U.tf.subject = el.value; render(); return; }
   if (k === 'tf-priority') { U.tf.priority = el.value; render(); return; }
   if (k === 'tf-sort') { U.tf.sort = el.value; render(); return; }
