@@ -637,7 +637,7 @@ function importData(file) {
     if (!hasOwn) { applyImport(o); return; }
     U.form = { kind: 'confirm', pending: o };
     openModal(`<div class="m-head"><h2>Replace your data?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
-      <div class="m-body"><p>This backup holds <b>${o.tasks.length}</b> ${o.tasks.length === 1 ? 'task' : 'tasks'}. Importing replaces everything currently on this device — tasks, goals, exams, habits and settings.</p>
+      <div class="m-body"><p>This backup holds <b>${o.tasks.length}</b> ${o.tasks.length === 1 ? 'task' : 'tasks'}. Importing replaces everything currently on this device — tasks, plans, notes, attendance, goals, exams, habits and settings.</p>
       <p class="muted">Export a backup of what you have now if you might want it back.</p></div>
       <div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Replace everything</button></div>`,
       { cls: 'sm', autofocus: false, label: 'Confirm import' });
