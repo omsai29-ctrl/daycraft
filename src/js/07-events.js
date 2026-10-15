@@ -17,7 +17,7 @@ function shell(content) {
   const nav = NAV_GROUPS.map(([label, pages], k) =>
     `${k ? `<div class="nav-label">${label}</div>` : ''}<nav class="nav" aria-label="${label}">${pages.map(item).join('')}</nav>`
   ).join('');
-  const moreOn = ['timetable','checklist','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'search', 'settings'].includes(U.page);
+  const moreOn = ['timetable','checklist','plans','focus','attendance','notes', 'subjects', 'goals', 'habits', 'exams', 'review', 'flashcards', 'search', 'settings'].includes(U.page);
   return `<div class="shell">
     <aside class="side"><div class="brand">My Planner</div>
       <button class="btn btn-primary" data-a="add">${ico('plus')}Add task</button>
