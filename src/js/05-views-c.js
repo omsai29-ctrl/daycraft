@@ -24,11 +24,13 @@ function viewSearch() {
       .slice(0, 12).map(g => row('goal-edit', g.id, g.title, g.deadline ? 'Deadline ' + relLabel(g.deadline) : 'Goal')));
     addGroup('Exams', D.exams.filter(x => [x.title, x.courseCode, ...(x.topics || []).map(t => t.text)].some(v => String(v || '').toLowerCase().includes(q)))
       .slice(0, 12).map(x => row('exam-edit', x.id, x.title, x.date ? relLabel(x.date) : 'Exam')));
+    addGroup('Habits', (D.habits || []).filter(h => String(h.name || '').toLowerCase().includes(q))
+      .slice(0, 12).map(h => row('search-habit', h.id, h.name, h.log && h.log[today()] ? 'Completed today' : 'Habit')));
   }
 
-  return pageHead('Search', 'Find tasks, plans, notes, subjects, goals and exams.', `<button class="btn btn-sm" data-a="search-clear">Clear</button>`) +
-    `<section class="search-panel"><label class="fld"><span>Search everything</span><input class="input lg" id="global-search" data-search-input="1" value="${esc(U.searchQ || '')}" placeholder="Try a subject, assignment or exam…" autocomplete="off"></label></section>` +
-    (q ? (total ? `<p class="muted" style="margin:14px 0">${total} matching result(s) shown, up to 12 per category.</p>${groups.join('')}` : emptyBox('No matches found.', 'Try a shorter or different search term.', '', true)) : emptyBox('Search your planner.', 'Search across tasks, plans, notes, subjects, goals, exam names and exam topics.', '', true));
+  return pageHead('Search', 'Find tasks, plans, notes, subjects, goals, exams and habits.', `<button class="btn btn-sm" data-a="search-clear">Clear</button>`) +
+    `<section class="search-panel"><label class="fld"><span>Search everything</span><input class="input lg" id="global-search" data-search-input="1" value="${esc(U.searchQ || '')}" placeholder="Try a task, note, subject, exam or habit…" autocomplete="off"></label></section>` +
+    (q ? (total ? `<p class="muted" style="margin:14px 0">${total} matching result(s) shown, up to 12 per category.</p>${groups.join('')}` : emptyBox('No matches found.', 'Try a shorter or different search term.', '', true)) : emptyBox('Search your planner.', 'Search across tasks, plans, notes, subjects, goals, exam names, exam topics and habits.', '', true));
 }
 
 /* ================= SUBJECTS ================= */
