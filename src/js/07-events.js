@@ -633,7 +633,7 @@ function importData(file) {
     let o;
     try { o = JSON.parse(r.result); if (!o || !Array.isArray(o.tasks)) throw new Error('bad'); }
     catch (err) { toast('That file doesn\'t look like a planner backup.'); return; }
-    const hasOwn = !D.sample && (D.tasks.length || D.goals.length || D.exams.length);
+    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || Object.keys(D.attendance || {}).length);
     if (!hasOwn) { applyImport(o); return; }
     U.form = { kind: 'confirm', pending: o };
     openModal(`<div class="m-head"><h2>Replace your data?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
