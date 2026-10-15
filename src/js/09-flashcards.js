@@ -108,9 +108,10 @@ function rateFlashcard(rating) {
   if (!card) return;
   const now = Date.now();
   card.lastRating = rating; card.lastReviewedAt = now; card.reviews = (card.reviews || 0) + 1;
-  const interval = rating === 'easy' ? Math.max(7, (card.intervalDays || 0) * 2 || 7) : rating === 'difficult' ? 1 : 0;
+  const interval = rating === 'easy' ? Math.min(60, Math.max(7, (card.intervalDays || 0) * 2 || 7)) : rating === 'difficult' ? 1 : 0;
   card.intervalDays = interval;
-  card.dueAt = now + interval * 86400000;
+  /* Forgot cards return soon, without immediately looping in the same review. */
+  card.dueAt = rating === 'forgot' ? now + 10 * 60 * 1000 : now + interval * 86400000;
   if (!saveFlashcardStore(decks)) return;
   const next = deck.cards.find(c => c.id !== card.id && flashcardDue(c));
   FC.cardId = next ? next.id : null; FC.showAnswer = false;
