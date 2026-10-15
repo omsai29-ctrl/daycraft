@@ -209,38 +209,40 @@ function viewToday() {
 
   /* ---- needs attention ---- */
   const att = attention().filter(a => a.kind !== 'overdue').slice(0, 3);
-  const remHtml = att.length ? `<section><h2 class="h2">Needs attention</h2><ul class="rem">${att.map(a => `<li class="k-${a.kind}">${ico('alert')}<div class="grow"><div>${esc(a.text)}</div><div class="rs">${esc(a.sub)}</div></div><button class="btn btn-sm btn-quiet" data-a="${a.a}" data-id="${a.id || ''}" data-d="${a.d || ''}" data-p="${a.p || ''}">${a.label}</button></li>`).join('')}</ul></section>` : '';
+  const remHtml = widgets.attention && att.length ? `<section><h2 class="h2">Needs attention</h2><ul class="rem">${att.map(a => `<li class="k-${a.kind}">${ico('alert')}<div class="grow"><div>${esc(a.text)}</div><div class="rs">${esc(a.sub)}</div></div><button class="btn btn-sm btn-quiet" data-a="${a.a}" data-id="${a.id || ''}" data-d="${a.d || ''}" data-p="${a.p || ''}">${a.label}</button></li>`).join('')}</ul></section>` : '';
 
   /* ---- habits ---- */
-  const hab = D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="nav" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
+  const hab = widgets.habits && D.habits.length ? `<section><h2 class="h2">Habits<button class="link aux" data-a="nav" data-p="habits">Open</button></h2><div class="hab-mini">${D.habits.map(h => `<button class="${h.log[td] ? 'on' : ''}" data-a="habit" data-id="${h.id}" data-d="${td}" aria-pressed="${!!h.log[td]}"><span class="chk sm ${h.log[td] ? 'on' : ''}">${ico('check')}</span>${esc(h.name)}</button>`).join('')}</div></section>` : '';
 
   const planOpen = Array.isArray(D.plans) ? D.plans.filter(p => !p.done).length : 0;
   const habitDone = D.habits.filter(h => h.log[td]).length;
   const nextExam = D.exams.filter(e => e.date >= td).sort((a, b) => a.date.localeCompare(b.date))[0];
   const examDays = nextExam ? diffDays(td, nextExam.date) : null;
   const examLabel = nextExam ? (examDays === 0 ? 'Today' : examDays + ' days') : 'None';
+  const widgets = Object.assign({}, DEFAULT_SETTINGS.dashboardWidgets, D.settings.dashboardWidgets || {});
   const examSubject = nextExam ? subjOf(nextExam.subjectId) : null;
-  const examCountdown = nextExam ? `<section class="exam-countdown dashboard-exam"${examSubject ? ` style="--bc:${examSubject.color}"` : ''}>
+  const examCountdown = widgets.examCountdown && nextExam ? `<section class="exam-countdown dashboard-exam"${examSubject ? ` style="--bc:${examSubject.color}"` : ''}>
     <div><span class="eyebrow">NEXT EXAM</span><h2>${esc(nextExam.title)}</h2>${examSubject ? `<span class="muted">${esc(examSubject.name)}</span>` : ''}</div>
     <div class="exam-count-num">${examDays}<small>${examDays === 1 ? 'day' : 'days'}</small></div>
     <div class="exam-count-meta">${esc(fmtFull(nextExam.date))} · ${esc(examCountdownText(examDays))}<button class="link" style="margin-left:10px" data-a="nav" data-p="exams">View exam</button></div>
   </section>` : '';
-  const glance = `<section class="today-glance" aria-label="Today at a glance">
-    <div class="glance-card" data-a="glance" data-p="planner" role="button" tabindex="0"><span class="glance-icon">${ico('planner')}</span><div><b>${checks.length}</b><small>Today's tasks</small></div></div>
-    <div class="glance-card" data-a="glance" data-p="plans" role="button" tabindex="0"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div></div>
-    <div class="glance-card" data-a="glance" data-p="exams" role="button" tabindex="0"><span class="glance-icon">${ico('exams')}</span><div><b>${esc(examLabel)}</b><small>${nextExam ? esc(nextExam.title) : 'Upcoming exam'}</small></div></div>
-    <div class="glance-card" data-a="glance" data-p="habits" role="button" tabindex="0"><span class="glance-icon">${ico('habits')}</span><div><b>${habitDone}/${D.habits.length}</b><small>Habits today</small></div></div>
-  </section>`;
+  const glanceCards = [
+    widgets.glanceTasks ? `<div class="glance-card" data-a="glance" data-p="planner" role="button" tabindex="0"><span class="glance-icon">${ico('planner')}</span><div><b>${checks.length}</b><small>Today's tasks</small></div></div>` : '',
+    widgets.glancePlans ? `<div class="glance-card" data-a="glance" data-p="plans" role="button" tabindex="0"><span class="glance-icon">${ico('plans')}</span><div><b>${planOpen}</b><small>Open plans</small></div></div>` : '',
+    widgets.glanceExams ? `<div class="glance-card" data-a="glance" data-p="exams" role="button" tabindex="0"><span class="glance-icon">${ico('exams')}</span><div><b>${esc(examLabel)}</b><small>${nextExam ? esc(nextExam.title) : 'Upcoming exam'}</small></div></div>` : '',
+    widgets.glanceHabits ? `<div class="glance-card" data-a="glance" data-p="habits" role="button" tabindex="0"><span class="glance-icon">${ico('habits')}</span><div><b>${habitDone}/${D.habits.length}</b><small>Habits today</small></div></div>` : ''
+  ].filter(Boolean);
+  const glance = glanceCards.length ? `<section class="today-glance" aria-label="Today at a glance">${glanceCards.join('')}</section>` : '';
 
   return `${notice}${head}${cards}${glance}${examCountdown}
   <div class="grid-2">
     <div class="col-stack">
-      <div>${nowHtml}${nextHtml}</div>
+      <div>${widgets.nowNext ? nowHtml + nextHtml : ''}</div>
       <section><h2 class="h2">Today's tasks ${wrapLink ? `<span class="aux">${wrapLink}</span>` : ''}</h2>${tasksHtml}</section>
     </div>
     <div class="col-stack">
-      <section><h2 class="h2">Schedule</h2>${tl}</section>
-      <section><h2 class="h2">Upcoming<button class="link aux" data-a="tf" data-s="upcoming">See all</button></h2>${dlHtml}</section>
+      ${widgets.schedule ? `<section><h2 class="h2">Schedule</h2>${tl}</section>` : ''}
+      ${widgets.upcoming ? `<section><h2 class="h2">Upcoming<button class="link aux" data-a="tf" data-s="upcoming">See all</button></h2>${dlHtml}</section>` : ''}
       ${remHtml}
       ${hab}
     </div>
