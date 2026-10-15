@@ -245,6 +245,11 @@ function viewSettings() {
   const s = D.settings;
   const sel = (key, opts, val) => `<select class="select" data-set="${key}">${opts.map(([v, l]) => `<option value="${v}" ${String(v) === String(val) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
   const row = (l, hint, ctl) => `<div class="set-row"><div><div class="lbl">${l}</div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>${ctl}</div>`;
+  const dashboardOrderRows = (group, allowed, order, labels) => {
+    const clean = Array.isArray(order) ? order.filter((key, i, a) => allowed.includes(key) && a.indexOf(key) === i) : [];
+    allowed.forEach(key => { if (!clean.includes(key)) clean.push(key); });
+    return clean.map((key, i) => row(labels[key], '', `<div class="chips"><button class="btn btn-sm" data-a="dashboard-move" data-g="${group}" data-v="${key}" data-n="-1" aria-label="Move ${labels[key]} up" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn btn-sm" data-a="dashboard-move" data-g="${group}" data-v="${key}" data-n="1" aria-label="Move ${labels[key]} down" ${i === clean.length - 1 ? 'disabled' : ''}>↓</button></div>`)).join('');
+  };
   return pageHead('Settings', 'Make it fit your day.', '') +
     `<div class="set-sec"><h2 class="h2">Your day</h2>
       ${row('Start of day', 'Where the planner grid begins', `<input class="input" type="time" data-set="dayStart" value="${s.dayStart}">`)}
@@ -269,6 +274,11 @@ function viewSettings() {
     <div class="set-sec"><h2 class="h2">Dashboard</h2>
       <p class="set-note">Choose which cards and sections appear on your Today dashboard. Your main task list stays visible.</p>
       ${[ ['glanceTasks','Tasks at a glance'],['glancePlans','Plans at a glance'],['glanceExams','Exams at a glance'],['glanceHabits','Habits at a glance'],['examCountdown','Next exam countdown'],['nowNext','Now and next cards'],['schedule','Daily schedule'],['upcoming','Upcoming deadlines'],['attention','Needs attention section'],['habits','Habits section'] ].map(([key,label]) => row(label, '', `<button class="btn btn-sm" data-a="dashboard-widget" data-v="${key}" aria-pressed="${(s.dashboardWidgets || DEFAULT_SETTINGS.dashboardWidgets)[key] !== false}">${(s.dashboardWidgets || DEFAULT_SETTINGS.dashboardWidgets)[key] !== false ? 'Shown' : 'Hidden'}</button>`)).join('')}
+      <h3 class="h2">Left column order</h3>
+      <p class="set-note">Use the arrows to move sections up or down. The task list always stays visible.</p>
+      ${dashboardOrderRows('left', ['nowNext','tasks'], D.settings.dashboardLeftOrder || DEFAULT_SETTINGS.dashboardLeftOrder, {nowNext:'Now and next',tasks:"Today's tasks"})}
+      <h3 class="h2">Right column order</h3>
+      ${dashboardOrderRows('right', ['schedule','upcoming','attention','habits'], D.settings.dashboardRightOrder || DEFAULT_SETTINGS.dashboardRightOrder, {schedule:'Daily schedule',upcoming:'Upcoming deadlines',attention:'Needs attention',habits:'Habits'})}
     </div>
     <div class="set-sec"><h2 class="h2">Sync</h2>
       <p class="set-note" style="color:var(--ink-2);font-weight:550" data-sync>${syncLabel()}</p>
