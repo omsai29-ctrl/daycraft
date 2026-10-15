@@ -386,6 +386,7 @@ function onClick(e) {
     case 'theme': D.settings.theme = d.v; save(); render(); break;
     case 'accent-color': if (['blue','teal','purple','rose','amber','green','cosmic','cyan','sky','midnight','coral'].includes(d.v)) { D.settings.accentColor = d.v; save(); render(); } break;
     case 'dashboard-widget': { const defaults = DEFAULT_SETTINGS.dashboardWidgets; D.settings.dashboardWidgets = Object.assign({}, defaults, D.settings.dashboardWidgets || {}); if (Object.prototype.hasOwnProperty.call(defaults, d.v)) D.settings.dashboardWidgets[d.v] = D.settings.dashboardWidgets[d.v] === false; save(); render(); break; }
+    case 'dashboard-reset': { D.settings.dashboardWidgets = Object.assign({}, DEFAULT_SETTINGS.dashboardWidgets); D.settings.dashboardLeftOrder = DEFAULT_SETTINGS.dashboardLeftOrder.slice(); D.settings.dashboardRightOrder = DEFAULT_SETTINGS.dashboardRightOrder.slice(); save(); render(); toast('Dashboard layout restored to defaults'); break; }
     case 'dashboard-move': {
       const group = d.g === 'right' ? 'right' : 'left';
       const key = group === 'right' ? 'dashboardRightOrder' : 'dashboardLeftOrder';
