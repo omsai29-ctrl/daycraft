@@ -152,6 +152,7 @@ function onClick(e) {
     case 'glance': go(d.p); break;
     case 'more': openMore(); break;
     case 'search-clear': U.searchQ = ''; U.focus = 'global-search'; render(); break;
+    case 'search-habit': go('habits'); break;
     case 'att-present': {
       const id = d.id, subject = (D.subjects || []).find(s => s.id === id);
       mutate(() => {
