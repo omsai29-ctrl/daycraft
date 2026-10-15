@@ -154,12 +154,22 @@ function viewExams() {
 
 /* ================= REVIEW ================= */
 function attendancePct(a) {
-  return a.total ? Math.round((a.present / a.total) * 100) : 0;
+  const total = Math.max(0, Number(a && a.total) || 0);
+  const present = Math.min(total, Math.max(0, Number(a && a.present) || 0));
+  return total ? Math.round((present / total) * 100) : 0;
 }
 function viewAttendance() {
-  const items = Object.entries(D.attendance || {});
-  const totalPresent = items.reduce((n,[,a]) => n + (a.present || 0), 0);
-  const totalHeld = items.reduce((n,[,a]) => n + (a.total || 0), 0);
+  const raw = D.attendance && typeof D.attendance === 'object' && !Array.isArray(D.attendance) ? D.attendance : {};
+  const keys = Object.keys(raw);
+  const items = (keys.length ? keys.map(id => [id, raw[id]]) : (D.subjects || []).map(s => [s.id, { name: s.name, present: 0, total: 0 }]))
+    .map(([id, value]) => {
+      const a = value && typeof value === 'object' ? value : {};
+      const total = Math.max(0, Number(a.total) || 0);
+      const present = Math.min(total, Math.max(0, Number(a.present) || 0));
+      return [String(id), { name: typeof a.name === 'string' && a.name.trim() ? a.name : String(id), present, total }];
+    });
+  const totalPresent = items.reduce((n,[,a]) => n + a.present, 0);
+  const totalHeld = items.reduce((n,[,a]) => n + a.total, 0);
   const overall = totalHeld ? Math.round(totalPresent / totalHeld * 100) : 0;
   return pageHead('Attendance', 'Track your CSE (AI & DS) · Section B attendance.', '') +
     '<section class="attendance-overview"><div><b>'+overall+'%</b><span>Overall attendance</span></div><div><b>'+totalPresent+'/'+totalHeld+'</b><span>Classes attended</span></div></section>' +
