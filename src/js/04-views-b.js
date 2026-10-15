@@ -116,7 +116,7 @@ function gridHtml(days) {
     return `<div class="col ${d === td ? 'today' : ''}" data-col="${d}" style="height:${H}px">${off}${blocks}${nl}</div>`;
   }).join('');
 
-  return `<div class="wk ${n === 1 ? 'one' : ''}" style="--n:${n};--hh:${HH}px"><div class="wk-scroll" id="wkscroll" data-gs="${gs}"><div class="wk-in">
+  return `<div class="wk ${n === 1 ? 'one' : ''} ${s.timetableDensity === 'compact' ? 'compact' : ''}" style="--n:${n};--hh:${HH}px"><div class="wk-scroll" id="wkscroll" data-gs="${gs}"><div class="wk-in">
     <div class="wk-sticky"><div class="wk-row wk-head"><div class="gut"></div>${heads}</div>
     <div class="wk-row wk-lane"><div class="gut">To do</div>${lanes}</div></div>
     <div class="wk-row wk-body"><div class="gut" style="height:${H}px">${hours.join('')}</div>${cols}</div>
