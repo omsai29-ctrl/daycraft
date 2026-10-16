@@ -654,6 +654,9 @@ function validateBackup(value) {
   }
   if (planner.tasks.some(t => !t || typeof t !== 'object' || Array.isArray(t))) throw new Error('task');
   if (planner.attendance != null && (typeof planner.attendance !== 'object' || Array.isArray(planner.attendance))) throw new Error('attendance');
+  if (planner.settings != null && (typeof planner.settings !== 'object' || Array.isArray(planner.settings))) throw new Error('settings');
+  if (planner.timetable != null && (typeof planner.timetable !== 'object' || Array.isArray(planner.timetable))) throw new Error('timetable');
+  if (planner.timetable && planner.timetable.entries != null && !Array.isArray(planner.timetable.entries)) throw new Error('timetable entries');
   let flashcards = null;
   if (bundled) {
     if (!Array.isArray(value.flashcards) || value.flashcards.length > 500) throw new Error('flashcards');
