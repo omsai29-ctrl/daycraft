@@ -77,6 +77,7 @@ function applyTheme() {
   try {
     const dark = t === 'dark' || (t !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const palettes = {
+      monochrome: { light: '#1C1917', dark: '#EDEBE8' },
       blue:    { light: '#2F6BD8', dark: '#6D9BF2' },
       teal:    { light: '#0F8A83', dark: '#48C8BC' },
       purple:  { light: '#7756C9', dark: '#A994F4' },
@@ -91,10 +92,11 @@ function applyTheme() {
     };
     const palette = palettes[D.settings.accentColor] || palettes.blue;
     const accent = dark ? palette.dark : palette.light;
+    const onAccent = D.settings.accentColor === 'monochrome' && dark ? '#16161A' : '#FFFFFF';
     h.style.setProperty('--accent', accent);
     h.style.setProperty('--accent-soft', 'color-mix(in srgb, ' + accent + ' 12%, var(--surface))');
     h.style.setProperty('--primary', accent);
-    h.style.setProperty('--on-primary', '#FFFFFF');
+    h.style.setProperty('--on-primary', onAccent);
     h.style.setProperty('--ring', '0 0 0 3px color-mix(in srgb, ' + accent + ' 24%, transparent)');
     const m = document.querySelector('meta[name=theme-color]');
     if (m) m.setAttribute('content', dark ? '#0E0E10' : '#F7F6F4');
