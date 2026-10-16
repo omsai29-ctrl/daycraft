@@ -647,15 +647,23 @@ function validateBackup(value) {
   const bundled = value.format === 'daycraft-backup';
   if (bundled && (!Number.isInteger(value.version) || value.version !== 2)) throw new Error('version');
   const planner = bundled ? value.planner : value;
-  if (!planner || typeof planner !== 'object' || !Array.isArray(planner.tasks)) throw new Error('planner');
+  if (!planner || typeof planner !== 'object' || Array.isArray(planner) || !Array.isArray(planner.tasks)) throw new Error('planner');
+  const collections = ['tasks', 'subjects', 'plans', 'notes', 'noteFolders', 'goals', 'exams', 'habits', 'focusSessions'];
+  for (const key of collections) {
+    if (planner[key] != null && !Array.isArray(planner[key])) throw new Error('collection');
+  }
+  if (planner.tasks.some(t => !t || typeof t !== 'object' || Array.isArray(t))) throw new Error('task');
+  if (planner.attendance != null && (typeof planner.attendance !== 'object' || Array.isArray(planner.attendance))) throw new Error('attendance');
   let flashcards = null;
   if (bundled) {
-    if (!Array.isArray(value.flashcards)) throw new Error('flashcards');
+    if (!Array.isArray(value.flashcards) || value.flashcards.length > 500) throw new Error('flashcards');
     flashcards = value.flashcards;
+    let cardCount = 0;
     for (const deck of flashcards) {
-      if (!deck || typeof deck !== 'object' || typeof deck.title !== 'string' || !Array.isArray(deck.cards)) throw new Error('deck');
+      if (!deck || typeof deck !== 'object' || Array.isArray(deck) || typeof deck.title !== 'string' || !Array.isArray(deck.cards)) throw new Error('deck');
+      if (deck.title.length > 500 || deck.cards.length > 10000 || (cardCount += deck.cards.length) > 20000) throw new Error('card limit');
       for (const card of deck.cards) {
-        if (!card || typeof card !== 'object' || typeof card.front !== 'string' || typeof card.back !== 'string') throw new Error('card');
+        if (!card || typeof card !== 'object' || Array.isArray(card) || typeof card.front !== 'string' || typeof card.back !== 'string' || card.front.length > 20000 || card.back.length > 20000) throw new Error('card');
       }
     }
   }
@@ -696,10 +704,11 @@ async function exportData() {
 }
 function importData(file) {
   if (!file) return;
+  if (file.size > 25 * 1024 * 1024) { toast('Backup is larger than 25 MB. Nothing was changed.'); return; }
   const r = new FileReader();
   r.onload = () => {
     let backup;
-    try { backup = validateBackup(JSON.parse(r.result)); }
+    try { backup = validateBackup(JSON.parse(String(r.result || ''))); }
     catch (err) { toast('Invalid or unsupported backup. Nothing was changed.'); return; }
     const p = backup.planner;
     const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.subjects.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || (D.timetable && Array.isArray(D.timetable.entries) && D.timetable.entries.length) || Object.keys(D.attendance || {}).length || (typeof flashcardStore === 'function' && flashcardStore().length));
@@ -717,6 +726,7 @@ function importData(file) {
       '<div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Restore backup</button></div>',
       { cls: 'sm', autofocus: false, label: 'Confirm backup restore' });
   };
+  r.onerror = () => toast('Could not read that backup file. Nothing was changed.');
   r.readAsText(file);
 }
 function applyImport(backup) {
