@@ -631,15 +631,47 @@ function onKey(e) {
 }
 
 /* ================= export / import ================= */
+function makeBackupBundle() {
+  return {
+    format: 'daycraft-backup',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    planner: clone(D),
+    flashcards: typeof flashcardStore === 'function' ? clone(flashcardStore()) : [],
+    attachmentsIncluded: false,
+    attachmentNote: 'Note attachment references may be present in planner data, but the attached files themselves are not embedded in this JSON backup.'
+  };
+}
+function validateBackup(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid');
+  const bundled = value.format === 'daycraft-backup';
+  if (bundled && (!Number.isInteger(value.version) || value.version !== 2)) throw new Error('version');
+  const planner = bundled ? value.planner : value;
+  if (!planner || typeof planner !== 'object' || !Array.isArray(planner.tasks)) throw new Error('planner');
+  let flashcards = null;
+  if (bundled) {
+    if (!Array.isArray(value.flashcards)) throw new Error('flashcards');
+    flashcards = value.flashcards;
+    for (const deck of flashcards) {
+      if (!deck || typeof deck !== 'object' || typeof deck.title !== 'string' || !Array.isArray(deck.cards)) throw new Error('deck');
+      for (const card of deck.cards) {
+        if (!card || typeof card !== 'object' || typeof card.front !== 'string' || typeof card.back !== 'string') throw new Error('card');
+      }
+    }
+  }
+  return { planner, flashcards, bundled, exportedAt: bundled ? value.exportedAt : null };
+}
 async function exportData() {
-  const json = JSON.stringify(D, null, 2);
-  const fileName = 'planner-backup-' + today() + '.json';
+  let json;
+  try { json = JSON.stringify(makeBackupBundle(), null, 2); }
+  catch (err) { toast('Could not prepare the backup.'); return; }
+  const fileName = 'daycraft-backup-' + today() + '.json';
 
   try {
     const native = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles;
     if (native && native.exportBackup) {
       await native.exportBackup({ fileName, data: json });
-      toast('Backup saved to Downloads/Daycraft.');
+      toast('Backup saved to Downloads/Daycraft. Note attachment files are not embedded.');
       return;
     }
   } catch (err) {
@@ -648,7 +680,7 @@ async function exportData() {
 
   try {
     const dl = window.claude && await window.claude.use('downloads');
-    if (dl) { await dl.save({ filename: fileName, data: json }); toast('Backup ready.'); return; }
+    if (dl) { await dl.save({ filename: fileName, data: json }); toast('Backup ready. Note attachment files are not embedded.'); return; }
   } catch (err) { if (err && err.code === 'declined') return; }
 
   try {
@@ -659,33 +691,55 @@ async function exportData() {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('Backup downloaded. Note attachment files are not embedded.');
   } catch (err) { toast('Couldn\'t export from here.'); }
 }
 function importData(file) {
   if (!file) return;
   const r = new FileReader();
   r.onload = () => {
-    let o;
-    try { o = JSON.parse(r.result); if (!o || !Array.isArray(o.tasks)) throw new Error('bad'); }
-    catch (err) { toast('That file doesn\'t look like a planner backup.'); return; }
-    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || Object.keys(D.attendance || {}).length);
-    if (!hasOwn) { applyImport(o); return; }
-    U.form = { kind: 'confirm', pending: o };
-    openModal(`<div class="m-head"><h2>Replace your data?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
-      <div class="m-body"><p>This backup holds <b>${o.tasks.length}</b> ${o.tasks.length === 1 ? 'task' : 'tasks'}. Importing replaces everything currently on this device — tasks, plans, notes, attendance, goals, exams, habits and settings.</p>
-      <p class="muted">Export a backup of what you have now if you might want it back.</p></div>
-      <div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Replace everything</button></div>`,
-      { cls: 'sm', autofocus: false, label: 'Confirm import' });
+    let backup;
+    try { backup = validateBackup(JSON.parse(r.result)); }
+    catch (err) { toast('Invalid or unsupported backup. Nothing was changed.'); return; }
+    const p = backup.planner;
+    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || Object.keys(D.attendance || {}).length || (typeof flashcardStore === 'function' && flashcardStore().length));
+    if (!hasOwn) { applyImport(backup); return; }
+    U.form = { kind: 'confirm', pending: backup };
+    const flashcardCount = backup.bundled ? backup.flashcards.reduce((n, d) => n + d.cards.length, 0) : 0;
+    const flashcardSummary = backup.bundled ? ' and <b>' + flashcardCount + '</b> flashcards across ' + backup.flashcards.length + ' decks' : '';
+    const flashcardReplace = backup.bundled ? ' and its flashcard decks' : '';
+    const attachmentMessage = backup.bundled
+      ? '<p class="muted">The JSON includes note attachment references, not the actual attached files. Existing local attachment files are not deleted by this import.</p>'
+      : '<p class="muted">This is an older planner-only backup. Existing flashcard decks will be kept.</p>';
+    openModal('<div class="m-head"><h2>Restore backup?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">' + ico('x') + '</button></div>' +
+      '<div class="m-body"><p>This backup contains <b>' + p.tasks.length + '</b> ' + (p.tasks.length === 1 ? 'task' : 'tasks') + flashcardSummary + '. Restoring replaces the planner data on this device' + flashcardReplace + '.</p>' +
+      '<p class="muted">Export a backup of your current data first if you may need it later.</p>' + attachmentMessage + '</div>' +
+      '<div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Restore backup</button></div>',
+      { cls: 'sm', autofocus: false, label: 'Confirm backup restore' });
   };
   r.readAsText(file);
 }
-function applyImport(o) {
-  D = migrate(o);
+function applyImport(backup) {
+  let normalized;
+  try { normalized = backup && backup.planner ? backup : validateBackup(backup); }
+  catch (err) { toast('Invalid backup. Nothing was changed.'); return; }
+
+  let imported;
+  try { imported = migrate(clone(normalized.planner)); }
+  catch (err) { toast('Could not read that backup. Nothing was changed.'); return; }
+
+  if (normalized.bundled && typeof saveFlashcardStore === 'function') {
+    if (!saveFlashcardStore(clone(normalized.flashcards))) {
+      toast('Flashcards could not be restored. Planner data was left unchanged.');
+      return;
+    }
+  }
+  D = imported;
   const attendanceAdded = ensureAttendance();
   D.sample = false;
   save();
   render();
-  toast(attendanceAdded ? 'Backup imported. Attendance restored.' : 'Backup imported.');
+  toast(attendanceAdded ? 'Backup restored. Attendance restored too.' : 'Backup restored successfully.');
 }
 
 /* ================= drag & drop (planner) ================= */
