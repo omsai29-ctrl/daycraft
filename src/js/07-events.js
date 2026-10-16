@@ -432,6 +432,7 @@ function onClick(e) {
     case 'auth-google': signInGoogle(); break;
     case 'auth-signout': signOutPlanner(); break;
     case 'export': exportData(); break;
+    case 'load-demo-data': loadDemoData(); break;
     case 'import': $('#imp').click(); break;
     case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
