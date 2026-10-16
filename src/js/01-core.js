@@ -252,13 +252,22 @@ function removeDemoData() {
       counts.flashcards = decks.length - next.length;
       localStorage.setItem(key, JSON.stringify(next));
     }
-  } catch (err) { toast('Planner sample data was removed, but sample flashcards could not be updated.'); }
+  } catch (err) { counts.flashcards = 0; }
+  let flashcardsFailed = false;
+  try {
+    const raw = localStorage.getItem('daycraft_flashcards_v1');
+    if (raw != null && !Array.isArray(JSON.parse(raw))) flashcardsFailed = true;
+  } catch (err) { flashcardsFailed = true; }
   D.demoLoaded = false;
   D.sample = false;
   save();
   render();
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
-  toast(total ? 'Sample data removed. Your unmarked planner data and attendance were kept.' : 'No removable sample data found. Existing planner data was kept.');
+  if (flashcardsFailed) {
+    toast(total ? 'Planner sample data was removed, but flashcards could not be checked. Please review Flashcards.' : 'Could not check sample flashcards. Your planner data was kept.');
+  } else {
+    toast(total ? 'Sample data removed. Your unmarked planner data and attendance were kept.' : 'No removable sample data found. Existing planner data was kept.');
+  }
 }
 
 function migrate(o) {
