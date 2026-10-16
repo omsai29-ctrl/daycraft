@@ -341,6 +341,10 @@ function viewSettings() {
     <div class="set-sec"><h2 class="h2">Sync</h2>
       <p class="set-note" style="color:var(--ink-2);font-weight:550" data-sync>${syncLabel()}</p>
       ${AUTH.user ? `<p class="set-note">Signed in as <strong data-auth-user>${esc(AUTH.user.email || 'your account')}</strong>. Your planner syncs between devices when you use the same account.</p><div class="chips"><button class="btn btn-sm" data-a="sync-now">Sync now</button><button class="btn btn-sm" data-a="auth-signout">Sign out</button></div>` : `<p class="set-note">Sign in once on your phone and laptop to keep the same planner data everywhere. Local data remains available offline.</p><button class="btn btn-primary" data-a="auth-open">Sign in to sync</button>`}</div>
+    <div class="set-sec"><h2 class="h2">Demo data</h2>
+      <p class="set-note">Add sample tasks, plans, notes, subjects, goals, exams, habits and revision flashcards to test the app. Existing planner data is kept; sample items can be edited or deleted.</p>
+      <button class="btn" data-a="load-demo-data">Load sample data</button>
+    </div>
     <div class="set-sec"><h2 class="h2">Your data</h2>
       <p class="set-note">${storageOK ? 'Planner records are saved on this device. Export a backup now and then for safekeeping. Local Notes files/photos are stored separately on this device and are not included in the JSON backup or cloud sync.' : 'This browser is not saving changes. Export a backup to keep your planner records. Local Notes files/photos are stored separately and are not included in the JSON backup or cloud sync.'}</p>
       <div class="chips"><button class="btn" data-a="export">Export backup</button><button class="btn" data-a="import">Import backup</button><input type="file" id="imp" accept="application/json,.json" class="sr" tabindex="-1">
