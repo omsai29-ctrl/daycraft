@@ -244,6 +244,7 @@ function removeDemoData() {
     counts[key] = before - D[key].length;
   });
   // Remove only the dedicated sample flashcard deck; preserve all other decks.
+  let flashcardsFailed = false;
   try {
     const key = 'daycraft_flashcards_v1';
     const decks = JSON.parse(localStorage.getItem(key) || '[]');
@@ -252,8 +253,7 @@ function removeDemoData() {
       counts.flashcards = decks.length - next.length;
       localStorage.setItem(key, JSON.stringify(next));
     }
-  } catch (err) { counts.flashcards = 0; }
-  let flashcardsFailed = false;
+  } catch (err) { flashcardsFailed = true; }
   try {
     const raw = localStorage.getItem('daycraft_flashcards_v1');
     if (raw != null && !Array.isArray(JSON.parse(raw))) flashcardsFailed = true;
