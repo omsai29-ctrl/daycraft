@@ -157,6 +157,16 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
    ========================================================================= */
 .shell{display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100vh}
 
+/* Keep desktop inside the viewport and hide only the outer scrollbar.
+   The main pane remains scrollable with the mouse wheel/trackpad. */
+@media (min-width:901px){
+  html,body{height:100%;overflow:hidden}
+  .shell{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+  .main{height:100vh;height:100dvh;min-height:0;overflow-y:auto;scrollbar-width:none}
+  .main::-webkit-scrollbar{display:none;width:0}
+}
+
+
 .side{
   position:sticky;top:0;height:100vh;
   padding:var(--s6) var(--s3) var(--s4);
@@ -1080,6 +1090,10 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .goal-b{grid-template-columns:1fr;gap:var(--s5)}
 }
 @media (max-width:900px){
+  html,body{height:auto;overflow:auto}
+  .shell{height:auto;min-height:100vh;overflow:visible}
+  .main{height:auto;overflow:visible;scrollbar-width:auto}
+
   :root{--fs-display:36px;--fs-title:26px}
   .shell{grid-template-columns:1fr}
   .side{display:none}
