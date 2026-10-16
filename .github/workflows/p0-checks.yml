@@ -1,0 +1,30 @@
+name: Daycraft P0 checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - p0/complete-backup-bundle
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run backup validation tests
+        run: npm test
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Build Daycraft
+        run: python build.py
