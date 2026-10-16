@@ -189,23 +189,23 @@ function loadDemoData() {
   if (D.demoLoaded) { toast('Sample data is already loaded.'); return; }
   const sample = seed();
   const subjectIds = new Set(D.subjects.map(s => s.id));
-  sample.subjects.forEach(s => { if (!subjectIds.has(s.id)) D.subjects.push(s); });
+  sample.subjects.forEach(s => { if (!subjectIds.has(s.id)) D.subjects.push(Object.assign({}, s, { _demoSample: true })); });
   const taskTitles = new Set(D.tasks.map(t => String(t.title).toLowerCase()));
-  sample.tasks.forEach(t => { if (!taskTitles.has(String(t.title).toLowerCase())) D.tasks.push(t); });
-  sample.goals.forEach(g => { if (!D.goals.some(x => x.title === g.title)) D.goals.push(g); });
-  sample.exams.forEach(x => { if (!D.exams.some(y => y.title === x.title && y.date === x.date)) D.exams.push(x); });
-  sample.habits.forEach(h => { if (!D.habits.some(x => x.name === h.name)) D.habits.push(h); });
+  sample.tasks.forEach(t => { if (!taskTitles.has(String(t.title).toLowerCase())) D.tasks.push(Object.assign({}, t, { _demoSample: true })); });
+  sample.goals.forEach(g => { if (!D.goals.some(x => x.title === g.title)) D.goals.push(Object.assign({}, g, { _demoSample: true })); });
+  sample.exams.forEach(x => { if (!D.exams.some(y => y.title === x.title && y.date === x.date)) D.exams.push(Object.assign({}, x, { _demoSample: true })); });
+  sample.habits.forEach(h => { if (!D.habits.some(x => x.name === h.name)) D.habits.push(Object.assign({}, h, { _demoSample: true })); });
   const folderId = 'demo_subject_notes';
-  if (!(D.noteFolders || []).some(f => f.id === folderId)) D.noteFolders.push({ id:folderId, name:'Sample Notes' });
+  if (!(D.noteFolders || []).some(f => f.id === folderId)) D.noteFolders.push({ id:folderId, name:'Sample Notes', _demoSample:true });
   [
-    { id:'demo_note_1', title:'C Programming — Quick Reference', body:'Sample note: variables, data types, operators, conditionals, loops, functions, arrays and pointers. Edit or delete this note whenever you like.', folderId, subjectId:null },
-    { id:'demo_note_2', title:'Physics Lab Checklist', body:'Sample note: review the experiment objective, apparatus, procedure, observation table, calculations, graph and result.', folderId, subjectId:null },
-    { id:'demo_note_3', title:'Weekly Study Review', body:'Sample note: list wins from this week, topics to revise, unfinished assignments and the next three priorities.', folderId, subjectId:null }
+    { id:'demo_note_1', _demoSample:true, title:'C Programming — Quick Reference', body:'Sample note: variables, data types, operators, conditionals, loops, functions, arrays and pointers. Edit or delete this note whenever you like.', folderId, subjectId:null, _demoSample:true },
+    { id:'demo_note_2', _demoSample:true, title:'Physics Lab Checklist', body:'Sample note: review the experiment objective, apparatus, procedure, observation table, calculations, graph and result.', folderId, subjectId:null },
+    { id:'demo_note_3', _demoSample:true, title:'Weekly Study Review', body:'Sample note: list wins from this week, topics to revise, unfinished assignments and the next three priorities.', folderId, subjectId:null }
   ].forEach(n => { if (!D.notes.some(x => x.id === n.id)) D.notes.push(n); });
   [
-    { id:'demo_plan_1', title:'Organize study materials', done:false },
-    { id:'demo_plan_2', title:'Review this week and plan next week', done:false },
-    { id:'demo_plan_3', title:'Clean up project files', done:true }
+    { id:'demo_plan_1', title:'Organize study materials', done:false, _demoSample:true },
+    { id:'demo_plan_2', title:'Review this week and plan next week', done:false, _demoSample:true },
+    { id:'demo_plan_3', title:'Clean up project files', done:true, _demoSample:true }
   ].forEach(p => { if (!D.plans.some(x => x.id === p.id)) D.plans.push(p); });
   D.demoLoaded = true;
   save();
@@ -222,6 +222,36 @@ function loadDemoData() {
   } catch (err) {}
   render();
   toast('Sample data added. Your existing planner data was kept.');
+}
+
+
+function removeDemoData() {
+  const counts = {};
+  ['tasks','plans','notes','noteFolders','goals','exams','habits','subjects'].forEach(key => {
+    const list = Array.isArray(D[key]) ? D[key] : [];
+    const before = list.length;
+    D[key] = list.filter(item => !item._demoSample &&
+      !(key === 'notes' && /^demo_note_/.test(String(item.id || ''))) &&
+      !(key === 'plans' && /^demo_plan_/.test(String(item.id || ''))) &&
+      !(key === 'noteFolders' && item.id === 'demo_subject_notes'));
+    counts[key] = before - D[key].length;
+  });
+  // Remove only the dedicated sample flashcard deck; preserve all other decks.
+  try {
+    const key = 'daycraft_flashcards_v1';
+    const decks = JSON.parse(localStorage.getItem(key) || '[]');
+    if (Array.isArray(decks)) {
+      const next = decks.filter(deck => deck.id !== 'demo_flashcards');
+      counts.flashcards = decks.length - next.length;
+      localStorage.setItem(key, JSON.stringify(next));
+    }
+  } catch (err) { toast('Planner sample data was removed, but sample flashcards could not be updated.'); }
+  D.demoLoaded = false;
+  D.sample = false;
+  save();
+  render();
+  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  toast(total ? 'Sample data removed. Your unmarked planner data and attendance were kept.' : 'No removable sample data found. Existing planner data was kept.');
 }
 
 function migrate(o) {
