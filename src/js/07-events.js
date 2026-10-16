@@ -434,7 +434,8 @@ function onClick(e) {
     case 'export': exportData(); break;
     case 'load-demo-data': loadDemoData(); break;
     case 'import': $('#imp').click(); break;
-    case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
+    case 'remove-sample-data': openModal('<div class="m-head"><h2>Remove sample data?</h2></div><div class="m-body"><p>This removes records marked as sample data and the dedicated sample notes, plans and flashcard deck. Your other tasks, notes, attendance, timetable and settings will be kept.</p><p class="muted">Sample records created by older versions without a sample marker may be left behind to avoid accidentally deleting your own data.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="remove-sample-data-yes">Remove sample data</button></div>', { cls: 'sm', autofocus: false }); break;
+    case 'remove-sample-data-yes': closeModal(); removeDemoData(); break;
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
     case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.noteFolders = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
     /* modal + forms */
