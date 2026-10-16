@@ -175,11 +175,9 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
   overflow-y:auto;overscroll-behavior:contain;
 }
 /* Keep the sidebar scrollable without a bright, distracting scrollbar. */
-.side{scrollbar-width:thin;scrollbar-color:var(--line-3) transparent}
-.side::-webkit-scrollbar{width:6px}
-.side::-webkit-scrollbar-track{background:transparent}
-.side::-webkit-scrollbar-thumb{background:var(--line-3);border-radius:999px}
-.side::-webkit-scrollbar-thumb:hover{background:var(--ink-4)}
+.side{scrollbar-width:none;-ms-overflow-style:none}
+.side::-webkit-scrollbar{display:none;width:0;height:0}
+.side::-webkit-scrollbar-track,.side::-webkit-scrollbar-thumb{background:transparent}
 .brand{
   font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.015em;
   padding:0 var(--s3) var(--s5);color:var(--ink);display:flex;align-items:center;gap:10px;
