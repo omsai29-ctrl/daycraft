@@ -652,6 +652,7 @@ function validateBackup(value) {
   const collections = ['tasks', 'subjects', 'plans', 'notes', 'noteFolders', 'goals', 'exams', 'habits', 'focusSessions'];
   for (const key of collections) {
     if (planner[key] != null && !Array.isArray(planner[key])) throw new Error('collection');
+    if (Array.isArray(planner[key]) && planner[key].some(item => !item || typeof item !== 'object' || Array.isArray(item))) throw new Error('collection item');
   }
   if (planner.tasks.some(t => !t || typeof t !== 'object' || Array.isArray(t))) throw new Error('task');
   if (planner.attendance != null && (typeof planner.attendance !== 'object' || Array.isArray(planner.attendance))) throw new Error('attendance');
@@ -675,8 +676,13 @@ function validateBackup(value) {
 }
 async function exportData() {
   let json;
-  try { json = JSON.stringify(makeBackupBundle(), null, 2); }
-  catch (err) { toast('Could not prepare the backup.'); return; }
+  try {
+    json = JSON.stringify(makeBackupBundle(), null, 2);
+    if (new Blob([json]).size > 25 * 1024 * 1024) {
+      toast('Backup exceeds 25 MB and cannot be restored by Daycraft. Reduce the backup size before exporting.');
+      return;
+    }
+  } catch (err) { toast('Could not prepare the backup.'); return; }
   const fileName = 'daycraft-backup-' + today() + '.json';
 
   try {
