@@ -185,6 +185,45 @@ function seed() {
   return { v: 2, sample: true, updatedAt: 0, settings: clone(DEFAULT_SETTINGS), subjects: subj, tasks, plans: [], notes: [], noteFolders: [], goals, exams, habits };
 }
 
+function loadDemoData() {
+  if (D.demoLoaded) { toast('Sample data is already loaded.'); return; }
+  const sample = seed();
+  const subjectIds = new Set(D.subjects.map(s => s.id));
+  sample.subjects.forEach(s => { if (!subjectIds.has(s.id)) D.subjects.push(s); });
+  const taskTitles = new Set(D.tasks.map(t => String(t.title).toLowerCase()));
+  sample.tasks.forEach(t => { if (!taskTitles.has(String(t.title).toLowerCase())) D.tasks.push(t); });
+  sample.goals.forEach(g => { if (!D.goals.some(x => x.title === g.title)) D.goals.push(g); });
+  sample.exams.forEach(x => { if (!D.exams.some(y => y.title === x.title && y.date === x.date)) D.exams.push(x); });
+  sample.habits.forEach(h => { if (!D.habits.some(x => x.name === h.name)) D.habits.push(h); });
+  const folderId = 'demo_subject_notes';
+  if (!(D.noteFolders || []).some(f => f.id === folderId)) D.noteFolders.push({ id:folderId, name:'Sample Notes' });
+  [
+    { id:'demo_note_1', title:'C Programming — Quick Reference', body:'Sample note: variables, data types, operators, conditionals, loops, functions, arrays and pointers. Edit or delete this note whenever you like.', folderId, subjectId:null },
+    { id:'demo_note_2', title:'Physics Lab Checklist', body:'Sample note: review the experiment objective, apparatus, procedure, observation table, calculations, graph and result.', folderId, subjectId:null },
+    { id:'demo_note_3', title:'Weekly Study Review', body:'Sample note: list wins from this week, topics to revise, unfinished assignments and the next three priorities.', folderId, subjectId:null }
+  ].forEach(n => { if (!D.notes.some(x => x.id === n.id)) D.notes.push(n); });
+  [
+    { id:'demo_plan_1', title:'Organize study materials', done:false },
+    { id:'demo_plan_2', title:'Review this week and plan next week', done:false },
+    { id:'demo_plan_3', title:'Clean up project files', done:true }
+  ].forEach(p => { if (!D.plans.some(x => x.id === p.id)) D.plans.push(p); });
+  D.demoLoaded = true;
+  save();
+  try {
+    const key = 'daycraft_flashcards_v1', decks = JSON.parse(localStorage.getItem(key) || '[]');
+    if (Array.isArray(decks) && !decks.some(d => d.id === 'demo_flashcards')) {
+      decks.push({ id:'demo_flashcards', title:'Sample Revision Cards', cards:[
+        {id:'demo_fc_1',front:'What does a C function do?',back:'A named block of code that performs a task and can be called when needed.',subject:'C Programming',topic:'Functions',dueAt:0},
+        {id:'demo_fc_2',front:'What is a matrix rank?',back:'The maximum number of linearly independent rows or columns.',subject:'Mathematics',topic:'Matrices',dueAt:0},
+        {id:'demo_fc_3',front:'What is diffraction?',back:'The bending and spreading of waves as they pass an aperture or around an obstacle.',subject:'Physics',topic:'Waves',dueAt:0}
+      ]});
+      localStorage.setItem(key, JSON.stringify(decks));
+    }
+  } catch (err) {}
+  render();
+  toast('Sample data added. Your existing planner data was kept.');
+}
+
 function migrate(o) {
   if (o.updatedAt == null) o.updatedAt = o.sample ? 0 : Date.now();
   o.settings = Object.assign({}, DEFAULT_SETTINGS, o.settings || {});
