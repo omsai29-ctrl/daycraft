@@ -702,7 +702,7 @@ function importData(file) {
     try { backup = validateBackup(JSON.parse(r.result)); }
     catch (err) { toast('Invalid or unsupported backup. Nothing was changed.'); return; }
     const p = backup.planner;
-    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || Object.keys(D.attendance || {}).length || (typeof flashcardStore === 'function' && flashcardStore().length));
+    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.subjects.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || (D.timetable && Array.isArray(D.timetable.entries) && D.timetable.entries.length) || Object.keys(D.attendance || {}).length || (typeof flashcardStore === 'function' && flashcardStore().length));
     if (!hasOwn) { applyImport(backup); return; }
     U.form = { kind: 'confirm', pending: backup };
     const flashcardCount = backup.bundled ? backup.flashcards.reduce((n, d) => n + d.cards.length, 0) : 0;
