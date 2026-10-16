@@ -20,7 +20,7 @@ function validateBackup(value) {
     flashcards = value.flashcards;
     let cardCount = 0;
     for (const deck of flashcards) {
-      if (!deck || typeof deck !== 'object' || Array.isArray(deck) || typeof deck.title !== 'string' || !Array.isArray(deck.cards)) throw new Error('deck');
+      if (!deck || typeof deck !== 'object' || Array.isArray(deck) || typeof deck.title !== 'string' || !Array.isArray(deck.cards) || deck.cards.length === 0) throw new Error('deck');
       if (deck.title.length > 500 || deck.cards.length > 10000 || (cardCount += deck.cards.length) > 20000) throw new Error('card limit');
       for (const card of deck.cards) {
         if (!card || typeof card !== 'object' || Array.isArray(card) || typeof card.front !== 'string' || typeof card.back !== 'string' || card.front.length > 20000 || card.back.length > 20000) throw new Error('card');
