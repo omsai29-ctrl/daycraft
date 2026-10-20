@@ -38,6 +38,11 @@ test('accepts a valid versioned bundle and returns planner plus flashcards', () 
   assert.equal(result.flashcards[0].cards[0].back, 'Answer');
 });
 
+test('accepts empty flashcard decks so they can be backed up before cards are added', () => {
+  const result = validateBackup(bundle({ flashcards: [{ id: 'empty-deck', title: 'New deck', cards: [] }] }));
+  assert.equal(result.flashcards[0].cards.length, 0);
+});
+
 test('accepts a legacy planner-only backup without replacing flashcards', () => {
   const result = validateBackup(planner());
   assert.equal(result.bundled, false);
@@ -64,7 +69,7 @@ test('rejects unsupported bundle versions', () => {
 
 test('rejects malformed decks and cards', () => {
   assert.throws(() => validateBackup(bundle({ flashcards: [{ title: 'Bad deck', cards: [{ front: 'Question' }] }] })));
-  assert.throws(() => validateBackup(bundle({ flashcards: [{ title: 'Bad deck', cards: [] }] })), { message: 'deck' });
+  assert.throws(() => validateBackup(bundle({ flashcards: [{ title: 'Bad deck', cards: [null] }] })));
 });
 
 test('enforces deck, card-count, and card-text limits', () => {
