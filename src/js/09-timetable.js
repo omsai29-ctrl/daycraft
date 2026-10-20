@@ -3,8 +3,8 @@ const TT_DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
 const TT_SLOTS=[
 {id:1,label:'S1',time:'9:30–10:20'},{id:2,label:'S2',time:'10:20–11:10'},
 {id:3,label:'S3',time:'11:25–12:15'},{id:4,label:'S4',time:'12:15–1:05'},
-{id:5,label:'S5',time:'1:05–1:45'},{id:6,label:'S6',time:'1:45–2:35'},
-{id:7,label:'S7',time:'2:35–3:25'},{id:8,label:'S8',time:'3:25–4:15'}];
+{id:5,label:'Lunch',time:'1:05–1:45'},{id:6,label:'S5',time:'1:45–2:35'},
+{id:7,label:'S6',time:'2:35–3:25'},{id:8,label:'S7',time:'3:25–4:15'}];
 function timetableSlots(){
 ensureTimetable();
 return Array.isArray(D.timetable.slots)&&D.timetable.slots.length===8?D.timetable.slots:TT_SLOTS.map(s=>({id:s.id,label:s.label,time:s.time}));
@@ -18,8 +18,8 @@ const TT_BG_COLORS=['#EAF4FF','#FFFFFF','#F3F4F6','#0E0E10','#162033','#1F2937']
 const TT_BORDER_COLORS=['#FFFFFF','#D1D5DB','#6B7280','#26262C','#60A5FA','#93C5FD'];
 function defaultTimetable(){
 const E=(day,start,end,course,room,color)=>({id:uid(),day,start,end,course,room,color,text:null});
-return{section:'B',break:'11:10–11:25',lunch:'1:05–1:45',appearance:{text:'#EDEBE8',background:'#EAF4FF',border:'#FFFFFF',showBorder:false},entries:[
-E('Monday',1,2,'DVDF-LAB','',TT_COLORS[1]),E('Monday',6,6,'IQP','',TT_COLORS[2]),E('Monday',7,7,'ELS','',TT_COLORS[0]),
+return{section:'B',break:'11:10–11:25',lunch:'1:05–1:45',appearance:{text:'#1F2937',background:'#EAF4FF',border:'#FFFFFF',showBorder:false},entries:[
+E('Monday',1,2,'DVDF-LAB','',TT_COLORS[1]),E('Monday',3,3,'DVDF','',TT_COLORS[1]),E('Monday',6,6,'IQP','',TT_COLORS[2]),E('Monday',7,7,'ELS','',TT_COLORS[0]),
 E('Tuesday',1,2,'CP-LAB','104',TT_COLORS[3]),E('Tuesday',3,3,'LA','',TT_COLORS[4]),E('Tuesday',4,4,'EAI','',TT_COLORS[1]),E('Tuesday',6,6,'DVDF','',TT_COLORS[1]),E('Tuesday',7,8,'IQP-LAB','107',TT_COLORS[2]),
 E('Wednesday',1,1,'EAI','',TT_COLORS[1]),E('Wednesday',2,2,'LA','',TT_COLORS[4]),E('Wednesday',3,4,'IQP-LAB','107',TT_COLORS[2]),E('Wednesday',6,6,'CP','',TT_COLORS[3]),E('Wednesday',7,7,'ELS','',TT_COLORS[0]),
 E('Thursday',1,2,'DVDF','',TT_COLORS[1]),E('Thursday',3,3,'IQP','',TT_COLORS[2]),E('Thursday',4,4,'CP','',TT_COLORS[3]),E('Thursday',7,8,'ELS-LAB','',TT_COLORS[0]),
@@ -32,10 +32,11 @@ function ensureTimetable(){
 if(!D.timetable||!Array.isArray(D.timetable.entries)){D.timetable=defaultTimetable();return true;}
 if(!D.timetable.section)D.timetable.section='B';if(!D.timetable.break)D.timetable.break='11:10–11:25';if(!D.timetable.lunch)D.timetable.lunch='1:05–1:45';
 if(!Array.isArray(D.timetable.slots)||D.timetable.slots.length!==8)D.timetable.slots=TT_SLOTS.map(s=>({id:s.id,label:s.label,time:s.time}));
+else D.timetable.slots=D.timetable.slots.map((slot)=>{const def=TT_SLOTS.find(s=>s.id===slot.id);if(!def)return slot;const oldDefaults={5:{label:'S5',time:'1:05–1:45'},6:{label:'S6',time:'1:45–2:35'},7:{label:'S7',time:'2:35–3:25'},8:{label:'S8',time:'3:25–4:15'}}[slot.id];if(oldDefaults&&slot.label===oldDefaults.label)slot.label=def.label;if(oldDefaults&&slot.time===oldDefaults.time)slot.time=def.time;return slot;});
 if(!Array.isArray(D.timetable.faculty))D.timetable.faculty=defaultTimetable().faculty;
 if(!D.timetable.appearance)D.timetable.appearance=defaultTimetable().appearance;
 const ap=D.timetable.appearance,def=defaultTimetable().appearance;
-if(!ap.text)ap.text=def.text;if(!ap.background)ap.background=def.background;if(!ap.border)ap.border=def.border;if(typeof ap.showBorder!=='boolean')ap.showBorder=def.showBorder;
+if(ap.text==='#EDEBE8')ap.text=def.text;if(!ap.text)ap.text=def.text;if(!ap.background)ap.background=def.background;if(!ap.border)ap.border=def.border;if(typeof ap.showBorder!=='boolean')ap.showBorder=def.showBorder;
 return false;}
 if(!IC.timetable)IC.timetable='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18M7 13h3M14 13h3M7 17h3M14 17h3"/>';
 function ttCol(slot){return slot<=2?slot+1:slot+2;}
@@ -47,14 +48,15 @@ function ttBlock(e,row){return '<button class="tt-block" data-a="tt-edit" data-i
 function viewTimetable(){
 const added=ensureTimetable();if(added)save();const tt=D.timetable,ap=tt.appearance;
 const head='<div class="tt-head"><div>'+pageHead('College Timetable','Section '+esc(tt.section)+' · Tap a class to edit it.','<button class="btn btn-primary" data-a="tt-new">'+ico('plus')+'Add class</button>')+'<button class="btn tt-theme" data-a="tt-theme">'+ico('settings')+'Display & Theme</button><button class="btn" data-a="tt-slots">'+ico('settings')+'Session Timings</button></div><button class="btn tt-home" data-a="nav" data-p="today">'+ico('today')+'Home</button></div>';
-const slots='<div class="tt-slot" style="grid-column:2"><b>S1</b><small>'+esc(timetableSlots()[0].time)+'</small></div><div class="tt-slot" style="grid-column:3"><b>S2</b><small>'+esc(timetableSlots()[1].time)+'</small></div><div class="tt-break tt-header-break" style="grid-column:4;grid-row:1">Break<br><small>'+esc(tt.break)+'</small></div>'+timetableSlots().filter(s=>s.id>=3).map(s=>'<div class="tt-slot" style="grid-column:'+ttCol(s.id)+'"><b>'+esc(s.label)+'</b><small>'+esc(s.time)+'</small></div>').join('');
+const slots='<div class="tt-slot" style="grid-column:2"><b>S1</b><small>'+esc(timetableSlots()[0].time)+'</small></div><div class="tt-slot" style="grid-column:3"><b>S2</b><small>'+esc(timetableSlots()[1].time)+'</small></div><div class="tt-break tt-header-break" style="grid-column:4;grid-row:1">Break<br><small>'+esc(tt.break)+'</small></div>'+timetableSlots().filter(s=>s.id>=3&&s.id!==5).map(s=>'<div class="tt-slot" style="grid-column:'+ttCol(s.id)+'"><b>'+esc(s.label)+'</b><small>'+esc(s.time)+'</small></div>').join('');
 const rows=TT_DAYS.map((day,i)=>{const row=i+2,parts=['<div class="tt-day" style="grid-row:'+row+';grid-column:1">'+esc(day.slice(0,3))+'</div>'];for(let s=1;s<=8;s++){const e=ttStart(day,s);if(e)parts.push(ttBlock(e,row));else if(!ttAt(day,s))parts.push('<button class="tt-empty" data-a="tt-new-slot" data-day="'+day+'" data-start="'+s+'"></button>');}return parts.join('');}).join('');
 const breaks='<div class="tt-break" style="grid-column:4;grid-row:2 / span 5">Break<br><small>'+esc(tt.break)+'</small></div><div class="tt-lunch" style="grid-column:7;grid-row:2 / span 5">Lunch<br><small>'+esc(tt.lunch)+'</small></div>';
 const faculty='<section class="tt-faculty"><div class="tt-faculty-head"><b>S#</b><b>Course</b><b>Name of the Faculty</b></div>'+tt.faculty.map(f=>'<div class="tt-faculty-row"><span>'+esc(f.no)+'</span><b>'+esc(f.course)+'</b><span>'+esc(f.name)+'</span></div>').join('')+'</section>';
 const vars='--tt-page-bg:'+esc(ap.background)+';--tt-page-text:'+esc(ap.text)+';--tt-border-color:'+esc(ap.border)+';--tt-border-style:'+(ap.showBorder?'solid':'none')+';';
 const mobileDay=U.ttDay&&TT_DAYS.includes(U.ttDay)?U.ttDay:TT_DAYS[Math.max(0,Math.min(4,new Date().getDay()-1))];
 const mobileNav='<div class="tt-mobile-nav"><button class="btn" data-a="tt-day-prev" aria-label="Previous day">‹</button><div><b>'+mobileDay+'</b><small>College timetable</small></div><button class="btn" data-a="tt-day-next" aria-label="Next day">›</button></div>';
-const mobileRows=timetableSlots().map((s,i)=>'<div class="tt-mobile-time" style="grid-row:'+(i+1)+';grid-column:1"><b>'+(s.id===5?'Lunch':s.label)+'</b><small>'+esc(s.id===5?tt.lunch:s.time)+'</small></div>').join('')+timetableSlots().map((s,i)=>{const e=ttStart(mobileDay,s.id);if(e)return '<button class="tt-mobile-class" data-a="tt-edit" data-id="'+e.id+'" style="grid-row:'+e.start+' / span '+(e.end-e.start+1)+';grid-column:2;--ttc:'+esc(e.color||TT_COLORS[0])+';--ttx:'+esc(ttTextFor(e))+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>Room '+esc(e.room)+'</small>':'')+'</button>';if(ttAt(mobileDay,s.id))return '';return '<button class="tt-mobile-empty" data-a="tt-new-slot" data-day="'+mobileDay+'" data-start="'+s.id+'" style="grid-row:'+(i+1)+';grid-column:2">Free</button>';}).join('');const mobile='<div class="tt-mobile-view">'+mobileNav+'<div class="tt-mobile-list">'+mobileRows+'</div></div>';
+const mobileRow=s=>s.id>=3?s.id+1:s.id;
+const mobileRows=timetableSlots().map(s=>'<div class="tt-mobile-time" style="grid-row:'+mobileRow(s)+';grid-column:1"><b>'+s.label+'</b><small>'+esc(s.id===5?tt.lunch:s.time)+'</small></div>').join('')+'<div class="tt-mobile-time tt-mobile-break" style="grid-row:3;grid-column:1"><b>Break</b><small>'+esc(tt.break)+'</small></div><div class="tt-mobile-break-fill" style="grid-row:3;grid-column:2"></div>'+timetableSlots().map(s=>{const e=ttStart(mobileDay,s.id);if(e)return '<button class="tt-mobile-class" data-a="tt-edit" data-id="'+e.id+'" style="grid-row:'+(e.start>=3?e.start+1:e.start)+' / span '+(e.end-e.start+1)+';grid-column:2;--ttc:'+esc(e.color||TT_COLORS[0])+';--ttx:'+esc(ttTextFor(e))+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>Room '+esc(e.room)+'</small>':'')+'</button>';if(s.id===5||ttAt(mobileDay,s.id))return '';return '<button class="tt-mobile-empty" data-a="tt-new-slot" data-day="'+mobileDay+'" data-start="'+s.id+'" style="grid-row:'+mobileRow(s)+';grid-column:2">Free</button>';}).join('');const mobile='<div class="tt-mobile-view">'+mobileNav+'<div class="tt-mobile-list">'+mobileRows+'</div></div>';
 return '<div class="tt-page" style="'+vars+'">'+head+'<div class="tt-desktop-view"><div class="tt-scroll"><div class="tt-grid"><div class="tt-day-head">Day</div>'+slots+rows+breaks+'</div></div></div>'+mobile+'<div class="tt-note"><b>Timing:</b> '+timetableSlots().filter(s=>s.id!==5).map(s=>esc(s.label)+' '+esc(s.time)).join(' · ')+' · <b>Break</b> '+esc(tt.break)+' · <b>Lunch</b> '+esc(tt.lunch)+'</div>'+faculty;}
 function openTimetableForm(id,preset){
 ensureTimetable();const old=id?D.timetable.entries.find(e=>e.id===id):null;const f=old||{day:(preset&&preset.day)||'Monday',start:(preset&&preset.start)||1,end:(preset&&preset.start)||1,course:'',room:'',color:TT_COLORS[0],text:null};U.form={kind:'timetable',id:id||null,text:f.text||null};

@@ -434,7 +434,8 @@ function onClick(e) {
     case 'export': exportData(); break;
     case 'load-demo-data': loadDemoData(); break;
     case 'import': $('#imp').click(); break;
-    case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
+    case 'remove-sample-data': openModal('<div class="m-head"><h2>Remove sample data?</h2></div><div class="m-body"><p>This removes records marked as sample data and the dedicated sample notes, plans and flashcard deck. Your other tasks, notes, attendance, timetable and settings will be kept.</p><p class="muted">Sample records created by older versions without a sample marker may be left behind to avoid accidentally deleting your own data.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="remove-sample-data-yes">Remove sample data</button></div>', { cls: 'sm', autofocus: false }); break;
+    case 'remove-sample-data-yes': closeModal(); removeDemoData(); break;
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
     case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.noteFolders = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
     /* modal + forms */
@@ -631,15 +632,34 @@ function onKey(e) {
 }
 
 /* ================= export / import ================= */
+function makeBackupBundle() {
+  return {
+    format: 'daycraft-backup',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    planner: clone(D),
+    flashcards: typeof flashcardStore === 'function' ? clone(flashcardStore()) : [],
+    attachmentsIncluded: false,
+    attachmentNote: 'Note attachment references may be present in planner data, but the attached files themselves are not embedded in this JSON backup.'
+  };
+}
+
 async function exportData() {
-  const json = JSON.stringify(D, null, 2);
-  const fileName = 'planner-backup-' + today() + '.json';
+  let json;
+  try {
+    json = JSON.stringify(makeBackupBundle(), null, 2);
+    if (new Blob([json]).size > 25 * 1024 * 1024) {
+      toast('Backup exceeds 25 MB and cannot be restored by Daycraft. Reduce the backup size before exporting.');
+      return;
+    }
+  } catch (err) { toast('Could not prepare the backup.'); return; }
+  const fileName = 'daycraft-backup-' + today() + '.json';
 
   try {
     const native = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DaycraftFiles;
     if (native && native.exportBackup) {
       await native.exportBackup({ fileName, data: json });
-      toast('Backup saved to Downloads/Daycraft.');
+      toast('Backup saved to Downloads/Daycraft. Note attachment files are not embedded.');
       return;
     }
   } catch (err) {
@@ -648,7 +668,7 @@ async function exportData() {
 
   try {
     const dl = window.claude && await window.claude.use('downloads');
-    if (dl) { await dl.save({ filename: fileName, data: json }); toast('Backup ready.'); return; }
+    if (dl) { await dl.save({ filename: fileName, data: json }); toast('Backup ready. Note attachment files are not embedded.'); return; }
   } catch (err) { if (err && err.code === 'declined') return; }
 
   try {
@@ -659,33 +679,57 @@ async function exportData() {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('Backup downloaded. Note attachment files are not embedded.');
   } catch (err) { toast('Couldn\'t export from here.'); }
 }
 function importData(file) {
   if (!file) return;
+  if (file.size > 25 * 1024 * 1024) { toast('Backup is larger than 25 MB. Nothing was changed.'); return; }
   const r = new FileReader();
   r.onload = () => {
-    let o;
-    try { o = JSON.parse(r.result); if (!o || !Array.isArray(o.tasks)) throw new Error('bad'); }
-    catch (err) { toast('That file doesn\'t look like a planner backup.'); return; }
-    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || Object.keys(D.attendance || {}).length);
-    if (!hasOwn) { applyImport(o); return; }
-    U.form = { kind: 'confirm', pending: o };
-    openModal(`<div class="m-head"><h2>Replace your data?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">${ico('x')}</button></div>
-      <div class="m-body"><p>This backup holds <b>${o.tasks.length}</b> ${o.tasks.length === 1 ? 'task' : 'tasks'}. Importing replaces everything currently on this device — tasks, plans, notes, attendance, goals, exams, habits and settings.</p>
-      <p class="muted">Export a backup of what you have now if you might want it back.</p></div>
-      <div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Replace everything</button></div>`,
-      { cls: 'sm', autofocus: false, label: 'Confirm import' });
+    let backup;
+    try { backup = validateBackup(JSON.parse(String(r.result || ''))); }
+    catch (err) { toast('Invalid or unsupported backup. Nothing was changed.'); return; }
+    const p = backup.planner;
+    const hasOwn = !D.sample && (D.tasks.length || D.plans.length || D.notes.length || D.noteFolders.length || D.subjects.length || D.goals.length || D.exams.length || D.habits.length || D.focusSessions.length || (D.timetable && Array.isArray(D.timetable.entries) && D.timetable.entries.length) || Object.keys(D.attendance || {}).length || (typeof flashcardStore === 'function' && flashcardStore().length));
+    if (!hasOwn) { applyImport(backup); return; }
+    U.form = { kind: 'confirm', pending: backup };
+    const flashcardCount = backup.bundled ? backup.flashcards.reduce((n, d) => n + d.cards.length, 0) : 0;
+    const flashcardSummary = backup.bundled ? ' and <b>' + flashcardCount + '</b> flashcards across ' + backup.flashcards.length + ' decks' : '';
+    const flashcardReplace = backup.bundled ? ' and its flashcard decks' : '';
+    const attachmentMessage = backup.bundled
+      ? '<p class="muted">The JSON includes note attachment references, not the actual attached files. Existing local attachment files are not deleted by this import.</p>'
+      : '<p class="muted">This is an older planner-only backup. Existing flashcard decks will be kept.</p>';
+    openModal('<div class="m-head"><h2>Restore backup?</h2><button class="icon-btn" data-a="close-modal" aria-label="Close">' + ico('x') + '</button></div>' +
+      '<div class="m-body"><p>This backup contains <b>' + p.tasks.length + '</b> ' + (p.tasks.length === 1 ? 'task' : 'tasks') + flashcardSummary + '. Restoring replaces the planner data on this device' + flashcardReplace + '.</p>' +
+      '<p class="muted">Export a backup of your current data first if you may need it later.</p>' + attachmentMessage + '</div>' +
+      '<div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="import-yes">Restore backup</button></div>',
+      { cls: 'sm', autofocus: false, label: 'Confirm backup restore' });
   };
+  r.onerror = () => toast('Could not read that backup file. Nothing was changed.');
   r.readAsText(file);
 }
-function applyImport(o) {
-  D = migrate(o);
+function applyImport(backup) {
+  let normalized;
+  try { normalized = backup && backup.planner ? backup : validateBackup(backup); }
+  catch (err) { toast('Invalid backup. Nothing was changed.'); return; }
+
+  let imported;
+  try { imported = migrate(clone(normalized.planner)); }
+  catch (err) { toast('Could not read that backup. Nothing was changed.'); return; }
+
+  if (normalized.bundled && typeof saveFlashcardStore === 'function') {
+    if (!saveFlashcardStore(clone(normalized.flashcards))) {
+      toast('Flashcards could not be restored. Planner data was left unchanged.');
+      return;
+    }
+  }
+  D = imported;
   const attendanceAdded = ensureAttendance();
   D.sample = false;
   save();
   render();
-  toast(attendanceAdded ? 'Backup imported. Attendance restored.' : 'Backup imported.');
+  toast(attendanceAdded ? 'Backup restored. Attendance restored too.' : 'Backup restored successfully.');
 }
 
 /* ================= drag & drop (planner) ================= */
