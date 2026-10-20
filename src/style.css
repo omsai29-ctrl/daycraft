@@ -1544,7 +1544,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 /* Touch-device safeguard: Chrome's "Desktop site" can report a wide CSS
    viewport on a phone. Prefer the compact app layout on touch-first devices
    with a physically narrow screen, even when desktop mode is enabled. */
-@media (pointer:coarse) and (max-device-width:900px){
+@media (pointer:coarse) and (hover:none){
   html,body{height:auto;overflow:auto}
   .shell{grid-template-columns:minmax(0,1fr);height:auto;min-height:100vh;overflow:visible}
   .side{display:none}
