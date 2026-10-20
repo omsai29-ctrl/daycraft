@@ -1564,3 +1564,23 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .task .ttl,.task .tm{max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:normal}
   .task .tm>*{max-width:100%;flex-wrap:wrap}
 }
+
+
+/* Follow-up responsive polish: avoid the old desktop shell on phones,
+   prevent the timetable card from stretching vertically, and keep headings
+   readable against the pale timetable canvas. */
+@media (pointer:coarse) and (hover:none){
+  .tt-page .page-title,.tt-page .page-sub{color:#1C1917}
+  .tt-page .page-title{font-size:clamp(22px,5vw,30px);line-height:1.15}
+  .tt-page .page-sub{font-size:14px;color:#57534E}
+  .tt-page .tt-note{overflow-wrap:anywhere;line-height:1.6}
+  .tt-page .tt-faculty{width:100%;overflow-x:auto}
+  .tt-page .tt-head>div .page-head{align-items:flex-start}
+  .tt-page .tt-home{margin-left:auto}
+  .tt-page .tt-theme,.tt-page [data-a="tt-slots"]{white-space:normal}
+  .task .ttl{overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+  .task .tm{min-width:0;overflow-wrap:anywhere}
+}
+.tt-page{min-height:0}
+.tt-page .page-title{color:var(--ink)}
+.tt-page .page-sub{color:var(--ink-2)}
