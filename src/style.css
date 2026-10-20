@@ -1609,3 +1609,61 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .today-glance{gap:7px}
   .glance-card{min-width:0}
 }
+
+
+/* Mobile usability fixes: timetable controls, search field, and safe bottom spacing */
+.search-panel,.search-panel .fld,.search-panel .input{box-sizing:border-box;min-width:0;max-width:100%;width:100%}
+.search-panel .fld{display:flex;flex-direction:column;align-items:stretch}
+#global-search{display:block;width:100%;min-width:0;max-width:100%;font-size:16px;overflow:hidden;text-overflow:ellipsis}
+#global-search::placeholder{opacity:.8;text-overflow:ellipsis}
+.tt-page{box-sizing:border-box;width:100%;max-width:100%;overflow:hidden;margin:0 auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.tt-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px}
+.tt-head>div{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}
+.tt-head>div .page-head{flex:1 0 100%;min-width:0;margin:0}
+.tt-head .tt-home{grid-column:2;grid-row:1;align-self:start}
+.tt-head .tt-theme,.tt-head>div>.btn{max-width:100%;white-space:normal}
+.tt-mobile-view{display:none}
+.tt-desktop-view{display:block;min-width:0;max-width:100%}
+.tt-scroll{max-width:100%;overflow-x:auto}
+.tt-grid{min-width:620px}
+@media(max-width:700px){
+ .main{min-width:0;overflow-x:hidden}
+ .tt-page{padding:10px 8px calc(100px + env(safe-area-inset-bottom,0px));border-radius:12px;min-height:0;overflow:visible}
+ .tt-head{grid-template-columns:minmax(0,1fr);gap:10px}
+ .tt-head .tt-home{grid-column:1;grid-row:auto;justify-self:start}
+ .tt-head>div{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px}
+ .tt-head>div .page-head{flex:1 0 100%}
+ .tt-head .page-title{font-size:clamp(23px,6vw,34px);overflow-wrap:anywhere}
+ .tt-head .page-head .page-subtitle{font-size:14px}
+ .tt-head .btn{font-size:13px;padding:9px 11px;min-height:40px}
+ .tt-mobile-view{display:block;min-width:0;width:100%}
+ .tt-desktop-view{display:none}
+ .tt-mobile-nav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;margin:18px 0 12px}
+ .tt-mobile-nav>div{text-align:center;min-width:0}
+ .tt-mobile-nav b,.tt-mobile-nav small{display:block;overflow-wrap:anywhere}
+ .tt-mobile-nav small{margin-top:5px;opacity:.7}
+ .tt-mobile-nav .btn{min-width:40px;padding:8px}
+ .tt-mobile-list{display:grid;grid-template-columns:minmax(94px,30%) minmax(0,1fr);grid-template-rows:repeat(10,minmax(52px,auto));gap:0;border:1px solid var(--tt-border-color,var(--line));border-radius:12px;overflow:hidden;background:#151519}
+ .tt-mobile-time{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:8px;min-width:0;border-right:1px solid var(--tt-border-color,var(--line));border-bottom:1px solid var(--tt-border-color,var(--line));color:var(--tt-page-text,var(--ink))}
+ .tt-mobile-time b{font-size:13px}
+ .tt-mobile-time small{font-size:11px;line-height:1.3;overflow-wrap:anywhere;opacity:.78}
+ .tt-mobile-class,.tt-mobile-empty,.tt-mobile-break-fill{box-sizing:border-box;min-width:0;width:100%;max-width:100%;margin:0;border-radius:0}
+ .tt-mobile-class{align-self:stretch;justify-self:stretch;padding:10px 12px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:5px;background:var(--ttc);color:var(--ttx);border:5px solid #151519;font-size:14px;overflow-wrap:anywhere}
+ .tt-mobile-class small{font-size:12px;opacity:.8}
+ .tt-mobile-empty{background:transparent;border:1px solid rgba(150,150,150,.15);color:var(--tt-page-text);font-size:12px;opacity:.65}
+ .tt-mobile-break{background:var(--sunken)}
+ .tt-mobile-break-fill{background:var(--sunken);border-bottom:1px solid var(--line)}
+ .tt-note{margin-top:12px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+ .tt-faculty{margin-top:12px;max-width:100%;overflow-x:auto}
+ .tt-faculty-head,.tt-faculty-row{min-width:300px}
+ .search-panel{padding:0;max-width:100%;overflow:hidden}
+ .search-panel .fld{gap:8px}
+ #global-search{font-size:16px;padding:12px 14px}
+}
+@media(max-width:380px){
+ .tt-mobile-list{grid-template-columns:minmax(82px,31%) minmax(0,1fr)}
+ .tt-mobile-time{padding:6px}
+ .tt-mobile-time b{font-size:12px}
+ .tt-mobile-time small{font-size:10px}
+ .tt-mobile-class{padding:8px;font-size:13px;border-width:4px}
+}
