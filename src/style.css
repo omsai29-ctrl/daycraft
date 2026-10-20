@@ -1584,3 +1584,28 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-page{min-height:0}
 .tt-page .page-title{color:var(--ink)}
 .tt-page .page-sub{color:var(--ink-2)}
+
+
+/* Final responsive pass: ensure task rows never shrink their text column
+   below a usable width, and let dashboard grids collapse before overflow. */
+.task{min-width:0;max-width:100%}
+.task .chk{flex:0 0 auto}
+.task .tb{flex:1 1 0%;width:0;min-width:0;max-width:100%}
+.task .ttl{display:block;min-width:0;max-width:100%;white-space:normal;overflow-wrap:break-word;word-break:normal}
+.task .tm{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.task .tm>*{min-width:0;max-width:100%}
+.today-glance,.grid-2{min-width:0}
+@media(max-width:900px){
+  .grid-2{grid-template-columns:minmax(0,1fr);gap:var(--s5)}
+  .today-glance{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .task{margin-left:0;margin-right:0}
+}
+@media(max-width:480px){
+  .main{min-width:0}
+  .page-head{gap:var(--s3)}
+  .page-title{overflow-wrap:anywhere}
+  .task{gap:8px;padding-left:4px;padding-right:4px}
+  .task .ttl{font-size:14px}
+  .today-glance{gap:7px}
+  .glance-card{min-width:0}
+}
