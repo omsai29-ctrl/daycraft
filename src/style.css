@@ -155,7 +155,7 @@ svg.i{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-widt
 /* =========================================================================
    LAYOUT
    ========================================================================= */
-.shell{display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100vh}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
 
 /* Keep desktop inside the viewport and hide only the outer scrollbar.
    The main pane remains scrollable with the mouse wheel/trackpad. */
@@ -1523,13 +1523,16 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .fc-format{margin-top:24px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .fc-format pre{overflow:auto;max-width:100%;padding:12px;border-radius:10px;background:var(--sunken);font-size:12px;line-height:1.5}
 .fc-study{max-width:760px;margin:18px auto}
-.fc-card-side{padding:clamp(20px,5vw,36px);border:1px solid var(--line);border-radius:18px;background:var(--surface);min-height:230px;display:flex;flex-direction:column;align-items:flex-start;gap:20px}
+.fc-card-side{box-sizing:border-box;width:100%;max-width:100%;min-width:0;padding:clamp(16px,4vw,36px);border:1px solid var(--line);border-radius:18px;background:var(--surface);min-height:230px;display:flex;flex-direction:column;align-items:flex-start;gap:20px;overflow-wrap:anywhere;word-break:normal}
 .fc-eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink-3)}
 .fc-card-side h2{font-size:clamp(21px,4vw,30px);line-height:1.35;font-weight:600;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .fc-answer{width:100%;padding-top:18px;border-top:1px solid var(--line)}
-.fc-answer p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
+.fc-answer p{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;line-height:1.65;max-width:100%}
 .fc-rating{margin-top:14px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .fc-rating>p{margin:0 0 12px;color:var(--ink-2);font-size:14px}
 .fc-rating .chips{display:flex;flex-wrap:wrap;gap:8px}
 .fc-progress{font-size:12px;text-align:center;margin-top:12px}
-@media(max-width:480px){.fc-card-side{min-height:190px;padding:20px}.fc-rating .chips .btn{flex:1}}
+@media(max-width:480px){.fc-study{width:100%;min-width:0;margin:12px auto}.fc-card-side{width:100%;min-height:170px;padding:16px;gap:14px}.fc-card-side h2{font-size:clamp(19px,5.5vw,25px);max-width:100%}.fc-rating{padding:12px}.fc-rating .chips{gap:6px}.fc-rating .chips .btn{flex:1;min-width:0;padding-inline:8px}}
+
+/* Keep desktop navigation compact without hiding labels. */
+@media(min-width:901px){.side{min-width:0}.side .nav button{min-width:0}.side .nav button span,.side .nav button{overflow-wrap:anywhere}}
