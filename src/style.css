@@ -1539,3 +1539,28 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 
 /* Keep desktop navigation compact without hiding labels. */
 @media(min-width:901px){.side{min-width:0}.side .nav button{min-width:0}.side .nav button span,.side .nav button{overflow-wrap:anywhere}}
+
+
+/* Touch-device safeguard: Chrome's "Desktop site" can report a wide CSS
+   viewport on a phone. Prefer the compact app layout on touch-first devices
+   with a physically narrow screen, even when desktop mode is enabled. */
+@media (pointer:coarse) and (max-device-width:900px){
+  html,body{height:auto;overflow:auto}
+  .shell{grid-template-columns:minmax(0,1fr);height:auto;min-height:100vh;overflow:visible}
+  .side{display:none}
+  .main{width:100%;max-width:none;height:auto;min-height:100vh;overflow:visible;padding:var(--s5) var(--s4) 108px;margin:0}
+  .tabbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:50}
+  .tt-desktop-view{display:none}
+  .tt-mobile-view{display:block}
+  .tt-page{min-width:0;width:100%;padding:10px;border-radius:var(--r-m);min-height:0}
+  .tt-head{align-items:flex-start}
+  .tt-head>div{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+  .tt-head>div .page-head{width:100%;margin-bottom:4px}
+  .tt-theme,.tt-home{padding:9px 11px;font-size:12px}
+  .tt-faculty{margin-top:16px}
+  .tt-grid,.tt-scroll,.tt-faculty{max-width:100%}
+  .task{min-width:0;width:100%;gap:10px}
+  .task .tb{flex:1 1 0%;min-width:0;max-width:100%}
+  .task .ttl,.task .tm{max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+  .task .tm>*{max-width:100%;flex-wrap:wrap}
+}
