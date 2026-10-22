@@ -10,7 +10,7 @@ ensureTimetable();
 return Array.isArray(D.timetable.slots)&&D.timetable.slots.length===8?D.timetable.slots:TT_SLOTS.map(s=>({id:s.id,label:s.label,time:s.time}));
 }
 function rangeParts(v){
-const p=String(v||'').split('–');return [p[0]||'',p[1]||''];
+const p=String(v||'').split('–');const norm=x=>{x=String(x||'').trim();const m=x.match(/^(\\d{1,2}):(\\d{2})$/);return m?m[1].padStart(2,'0')+':'+m[2]:x;};return [norm(p[0]),norm(p[1])];
 }
 const TT_COLORS=['#FFF2CC','#D9EAD3','#CFE2F3','#F4CCCC','#EADCF8','#D0E0E3','#FCE5CD','#D9D2E9'];
 const TT_TEXT_COLORS=['#111827','#FFFFFF','#D1D5DB','#EF4444','#F97316','#FACC15','#22C55E','#3B82F6','#A855F7'];
@@ -25,9 +25,9 @@ E('Wednesday',1,1,'EAI','',TT_COLORS[1]),E('Wednesday',2,2,'LA','',TT_COLORS[4])
 E('Thursday',1,2,'DVDF','',TT_COLORS[1]),E('Thursday',3,3,'IQP','',TT_COLORS[2]),E('Thursday',4,4,'CP','',TT_COLORS[3]),E('Thursday',7,8,'ELS-LAB','',TT_COLORS[0]),
 E('Friday',2,2,'EAI','',TT_COLORS[1]),E('Friday',3,3,'IQP','',TT_COLORS[2]),E('Friday',6,8,'CP-LAB','211',TT_COLORS[3])],
 faculty:[
-{no:1,course:'ELS',name:'Dr Swathi'},{no:2,course:'LA&ODE',name:'Dr. Rakesh Reddy'},
+{no:1,course:'ELS',name:'Dr Swathi'},{no:2,course:'LA',name:'Dr. Rakesh Reddy'},
 {no:3,course:'CP',name:'Dr J. Vamsinath'},{no:4,course:'IQP',name:'Dr. Shreecharan'},
-{no:5,course:'DV&DF',name:'Dr. Manmadhachary (IC)'},{no:6,course:'EAI',name:'Mr. Brahma naidu'}]}};
+{no:5,course:'DVDF',name:'Dr. Manmadhachary (IC)'},{no:6,course:'EAI',name:'Mr. Brahma naidu'}]}};
 function ensureTimetable(){
 if(!D.timetable||!Array.isArray(D.timetable.entries)){D.timetable=defaultTimetable();return true;}
 if(!D.timetable.section)D.timetable.section='B';if(!D.timetable.break)D.timetable.break='11:10–11:25';if(!D.timetable.lunch)D.timetable.lunch='1:05–1:45';
@@ -54,7 +54,7 @@ const faculty='<section class="tt-faculty"><div class="tt-faculty-head"><b>S#</b
 const vars='--tt-page-bg:'+esc(ap.background)+';--tt-page-text:'+esc(ap.text)+';--tt-border-color:'+esc(ap.border)+';--tt-border-style:'+(ap.showBorder?'solid':'none')+';';
 const mobileDay=U.ttDay&&TT_DAYS.includes(U.ttDay)?U.ttDay:TT_DAYS[Math.max(0,Math.min(4,new Date().getDay()-1))];
 const mobileNav='<div class="tt-mobile-nav"><button class="btn" data-a="tt-day-prev" aria-label="Previous day">‹</button><div><b>'+mobileDay+'</b><small>College timetable</small></div><button class="btn" data-a="tt-day-next" aria-label="Next day">›</button></div>';
-const mobileRows=timetableSlots().map((s,i)=>'<div class="tt-mobile-time" style="grid-row:'+(i+1)+';grid-column:1"><b>'+(s.id===5?'Lunch':s.label)+'</b><small>'+esc(s.id===5?tt.lunch:s.time)+'</small></div>').join('')+timetableSlots().map((s,i)=>{const e=ttStart(mobileDay,s.id);if(e)return '<button class="tt-mobile-class" data-a="tt-edit" data-id="'+e.id+'" style="grid-row:'+e.start+' / span '+(e.end-e.start+1)+';grid-column:2;--ttc:'+esc(e.color||TT_COLORS[0])+';--ttx:'+esc(ttTextFor(e))+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>Room '+esc(e.room)+'</small>':'')+'</button>';if(ttAt(mobileDay,s.id))return '';return '<button class="tt-mobile-empty" data-a="tt-new-slot" data-day="'+mobileDay+'" data-start="'+s.id+'" style="grid-row:'+(i+1)+';grid-column:2">Free</button>';}).join('');const mobile='<div class="tt-mobile-view">'+mobileNav+'<div class="tt-mobile-list">'+mobileRows+'</div></div>';
+const mobileRowForSlot={1:1,2:2,3:4,4:5,5:6,6:7,7:8,8:9};const mobileTimes=[{row:1,label:'S1',time:timetableSlots()[0].time},{row:2,label:'S2',time:timetableSlots()[1].time},{row:3,label:'Break',time:tt.break},{row:4,label:'S3',time:timetableSlots()[2].time},{row:5,label:'S4',time:timetableSlots()[3].time},{row:6,label:'Lunch',time:tt.lunch},{row:7,label:'S6',time:timetableSlots()[5].time},{row:8,label:'S7',time:timetableSlots()[6].time},{row:9,label:'S8',time:timetableSlots()[7].time}];const mobileRows=mobileTimes.map(x=>'<div class="tt-mobile-time '+(x.label==='Break'?'tt-mobile-break':'')+' '+(x.label==='Lunch'?'tt-mobile-lunch':'')+'" style="grid-row:'+x.row+';grid-column:1"><b>'+x.label+'</b><small>'+esc(x.time)+'</small></div>').join('')+timetableSlots().map((s,i)=>{const e=ttStart(mobileDay,s.id);const row=mobileRowForSlot[s.id];if(e){const endRow=mobileRowForSlot[e.end];return '<button class="tt-mobile-class" data-a="tt-edit" data-id="'+e.id+'" style="grid-row:'+row+' / span '+(endRow-row+1)+';grid-column:2;--ttc:'+esc(e.color||TT_COLORS[0])+';--ttx:'+esc(ttTextFor(e))+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>Room '+esc(e.room)+'</small>':'')+'</button>';}if(ttAt(mobileDay,s.id))return '';if(s.id===5)return '<div class="tt-mobile-lunch-slot" style="grid-row:6;grid-column:2">Lunch break</div>';return '<button class="tt-mobile-empty" data-a="tt-new-slot" data-day="'+mobileDay+'" data-start="'+s.id+'" style="grid-row:'+row+';grid-column:2">Free</button>';}).join('');const mobile='<div class="tt-mobile-view">'+mobileNav+'<div class="tt-mobile-list">'+mobileRows+'</div></div>';
 return '<div class="tt-page" style="'+vars+'">'+head+'<div class="tt-desktop-view"><div class="tt-scroll"><div class="tt-grid"><div class="tt-day-head">Day</div>'+slots+rows+breaks+'</div></div></div>'+mobile+'<div class="tt-note"><b>Timing:</b> '+timetableSlots().filter(s=>s.id!==5).map(s=>esc(s.label)+' '+esc(s.time)).join(' · ')+' · <b>Break</b> '+esc(tt.break)+' · <b>Lunch</b> '+esc(tt.lunch)+'</div>'+faculty;}
 function openTimetableForm(id,preset){
 ensureTimetable();const old=id?D.timetable.entries.find(e=>e.id===id):null;const f=old||{day:(preset&&preset.day)||'Monday',start:(preset&&preset.start)||1,end:(preset&&preset.start)||1,course:'',room:'',color:TT_COLORS[0],text:null};U.form={kind:'timetable',id:id||null,text:f.text||null};
