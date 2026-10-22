@@ -434,7 +434,35 @@ function onClick(e) {
     case 'export': exportData(); break;
     case 'load-demo-data': loadDemoData(); break;
     case 'import': $('#imp').click(); break;
-    case 'clear-sample': mutate(() => { D.tasks = []; D.goals = []; D.exams = []; D.habits.forEach(h => { h.log = {}; }); D.sample = false; }, 'Sample data cleared'); break;
+    case 'clear-sample': {
+      e.preventDefault();
+      mutate(() => {
+        const demoTaskTitles = new Set([
+          'Mathematics', 'C Programming', 'Break', 'Physics lab preparation', 'Lunch',
+          'Revise diffraction theory', 'AI assignment', 'Read C notes, chapter 4',
+          'Practice coding', 'Physics Lab Report', 'Physics', 'C Assignment',
+          'Revise for AI quiz', 'AI Quiz', 'Revise Optics',
+          'Submit lab attendance form', 'Email mentor about project idea', 'Tidy up lab notebook'
+        ]);
+        D.tasks = (D.tasks || []).filter(t => !demoTaskTitles.has(String(t.title || '').trim()));
+        D.plans = (D.plans || []).filter(p => !/^demo_plan_/.test(String(p.id || '')));
+        D.notes = (D.notes || []).filter(n => !/^demo_note_/.test(String(n.id || '')));
+        D.noteFolders = (D.noteFolders || []).filter(f => f.id !== 'demo_subject_notes');
+        D.goals = (D.goals || []).filter(g => ![
+          'Finish C programming unit', 'Complete Physics lab preparation', 'Finish project by October 10'
+        ].includes(String(g.title || '').trim()));
+        D.exams = (D.exams || []).filter(x => !(x.title === 'Physics Mid-Sem' && x.date === '2026-10-12'));
+        (D.habits || []).forEach(h => { h.log = {}; });
+        D.sample = false;
+        D.demoLoaded = false;
+        try {
+          const key = 'daycraft_flashcards_v1';
+          const decks = JSON.parse(localStorage.getItem(key) || '[]');
+          if (Array.isArray(decks)) localStorage.setItem(key, JSON.stringify(decks.filter(d => d.id !== 'demo_flashcards')));
+        } catch (err) {}
+      }, 'Sample data cleared');
+      break;
+    }
     case 'reset': U.form = { kind: 'confirm' }; openModal(`<div class="m-head"><h2>Erase everything?</h2></div><div class="m-body"><p>All tasks, goals, exams, habits and settings on this device will be removed. Export a backup first if you might want them back.</p></div><div class="m-foot"><span class="grow"></span><button class="btn" data-a="close-modal">Cancel</button><button class="btn btn-danger" data-a="reset-yes">Erase everything</button></div>`, { cls: 'sm', autofocus: false }); break;
     case 'reset-yes': closeModal(); D = seed(); D.sample = false; D.tasks = []; D.plans = []; D.notes = []; D.noteFolders = []; D.goals = []; D.exams = []; D.habits = defaultHabits(); D.settings = clone(DEFAULT_SETTINGS); save(); render(); toast('Everything erased.'); break;
     /* modal + forms */
