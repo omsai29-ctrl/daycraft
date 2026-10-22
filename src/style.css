@@ -1546,3 +1546,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
   .tt-mobile-time{min-width:0;padding:6px 7px;overflow-wrap:anywhere}
   .tt-mobile-time small{white-space:normal;font-variant-numeric:tabular-nums}
 }
+
+@media(max-width:700px){
+  .tt-mobile-break-slot{display:flex;align-items:center;justify-content:center;background:var(--orange-bg);color:var(--orange-ink);font-size:11px;font-weight:650;border-bottom:1px solid var(--tt-border-color,var(--line));letter-spacing:.03em}
+}
