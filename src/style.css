@@ -1533,3 +1533,16 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .fc-rating .chips{display:flex;flex-wrap:wrap;gap:8px}
 .fc-progress{font-size:12px;text-align:center;margin-top:12px}
 @media(max-width:480px){.fc-card-side{min-height:190px;padding:20px}.fc-rating .chips .btn{flex:1}}
+
+
+/* Mobile college timetable: include the 15-minute break and keep lunch separate from S5. */
+@media(max-width:700px){
+  .tt-mobile-list{grid-template-rows:minmax(58px,auto) minmax(58px,auto) 34px minmax(58px,auto) minmax(58px,auto) 46px minmax(58px,auto) minmax(58px,auto) minmax(58px,auto)}
+  .tt-mobile-break{background:var(--orange-bg);border-bottom-color:var(--tt-border-color,var(--line));}
+  .tt-mobile-break b,.tt-mobile-break small{color:var(--orange-ink)}
+  .tt-mobile-lunch{background:var(--orange-bg)}
+  .tt-mobile-lunch b,.tt-mobile-lunch small{color:var(--orange-ink)}
+  .tt-mobile-lunch-slot{display:flex;align-items:center;padding:8px 10px;color:var(--orange-ink);background:var(--orange-bg);font-size:12px;font-weight:600;border-bottom:1px solid var(--tt-border-color,var(--line))}
+  .tt-mobile-time{min-width:0;padding:6px 7px;overflow-wrap:anywhere}
+  .tt-mobile-time small{white-space:normal;font-variant-numeric:tabular-nums}
+}
