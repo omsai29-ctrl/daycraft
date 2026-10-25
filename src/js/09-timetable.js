@@ -35,7 +35,15 @@ if(!Array.isArray(D.timetable.slots)||D.timetable.slots.length!==8)D.timetable.s
 if(!Array.isArray(D.timetable.faculty))D.timetable.faculty=defaultTimetable().faculty;
 if(!D.timetable.appearance)D.timetable.appearance=defaultTimetable().appearance;
 const ap=D.timetable.appearance,def=defaultTimetable().appearance;
-if(!ap.text)ap.text=def.text;if(!ap.background)ap.background=def.background;if(!ap.border)ap.border=def.border;if(typeof ap.showBorder!=='boolean')ap.showBorder=def.showBorder;
+if(!ap.text)ap.text=def.text;
+if(!ap.background)ap.background=def.background;
+if(!ap.border)ap.border=def.border;
+if(typeof ap.showBorder!=='boolean')ap.showBorder=def.showBorder;
+/* Migrate the original pale-on-pale default to a readable dark heading.
+   Only change the known old default pair; preserve deliberate custom colours. */
+if(String(ap.text).toUpperCase()==='#EDEBE8' && String(ap.background).toUpperCase()==='#EAF4FF'){
+  ap.text='#1C1917';
+}
 return false;}
 if(!IC.timetable)IC.timetable='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18M7 13h3M14 13h3M7 17h3M14 17h3"/>';
 function ttCol(slot){return slot<=2?slot+1:slot+2;}
