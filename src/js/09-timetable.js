@@ -58,7 +58,7 @@ const mobileRowForSlot={1:1,2:2,3:4,4:5,5:6,6:7,7:8,8:9};const mobileTimes=[{row
 return '<div class="tt-page" style="'+vars+'">'+head+'<div class="tt-desktop-view"><div class="tt-scroll"><div class="tt-grid"><div class="tt-day-head">Day</div>'+slots+rows+breaks+'</div></div></div>'+mobile+'<div class="tt-note"><b>Timing:</b> '+timetableSlots().filter(s=>s.id!==5).map(s=>esc(s.label)+' '+esc(s.time)).join(' · ')+' · <b>Break</b> '+esc(tt.break)+' · <b>Lunch</b> '+esc(tt.lunch)+'</div>'+faculty;}
 function openTimetableForm(id,preset){
 ensureTimetable();const old=id?D.timetable.entries.find(e=>e.id===id):null;const f=old||{day:(preset&&preset.day)||'Monday',start:(preset&&preset.start)||1,end:(preset&&preset.start)||1,course:'',room:'',color:TT_COLORS[0],text:null};U.form={kind:'timetable',id:id||null,text:f.text||null};
-const opts=n=>timetableSlots().map(s=>'<option value="'+s.id+'" '+(s.id===n?'selected':'')+'>'+s.label+' · '+esc(s.time)+'</option>').join('');
+const opts=n=>timetableSlots().filter(s=>s.id!==5).map(s=>'<option value="'+s.id+'" '+(s.id===n?'selected':'')+'>'+s.label+' · '+esc(s.time)+'</option>').join('');
 const days=TT_DAYS.map(d=>'<option '+(d===f.day?'selected':'')+'>'+d+'</option>').join('');
 const colors=TT_COLORS.map(c=>'<option value="'+c+'" '+(c===f.color?'selected':'')+'>'+c+'</option>').join('');
 const textColors=TT_TEXT_COLORS.map(c=>'<button type="button" class="tt-swatch '+(c===(f.text||'')?'on':'')+'" style="background:'+c+'" data-a="tt-text-color" data-color="'+c+'" aria-label="Text colour '+c+'"></button>').join('');
