@@ -10,7 +10,7 @@ ensureTimetable();
 return Array.isArray(D.timetable.slots)&&D.timetable.slots.length===8?D.timetable.slots:TT_SLOTS.map(s=>({id:s.id,label:s.label,time:s.time}));
 }
 function rangeParts(v){
-const p=String(v||'').split('–');const norm=x=>{x=String(x||'').trim();const m=x.match(/^(\\d{1,2}):(\\d{2})$/);return m?m[1].padStart(2,'0')+':'+m[2]:x;};return [norm(p[0]),norm(p[1])];
+const p=String(v||'').split('–');const norm=x=>{x=String(x||'').trim();const m=x.match(/^(\d{1,2}):(\d{2})$/);return m?m[1].padStart(2,'0')+':'+m[2]:x;};return [norm(p[0]),norm(p[1])];
 }
 const TT_COLORS=['#FFF2CC','#D9EAD3','#CFE2F3','#F4CCCC','#EADCF8','#D0E0E3','#FCE5CD','#D9D2E9'];
 const TT_TEXT_COLORS=['#111827','#FFFFFF','#D1D5DB','#EF4444','#F97316','#FACC15','#22C55E','#3B82F6','#A855F7'];
