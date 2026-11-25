@@ -1211,7 +1211,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
    COLLEGE TIMETABLE
    ========================================================================= */
 .tt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r-l);background:var(--surface);box-shadow:var(--sh-1)}
-.tt-grid{display:grid;width:100%;min-width:0;grid-template-columns:56px repeat(2,minmax(0,1fr)) 48px repeat(2,minmax(0,1fr)) 52px repeat(3,minmax(0,1fr));grid-template-rows:54px repeat(5,minmax(72px,auto))}
+.tt-grid{display:grid;width:100%;min-width:0;grid-template-columns:56px repeat(2,minmax(0,1fr)) 48px repeat(2,minmax(0,1fr)) 52px repeat(4,minmax(0,1fr));grid-template-rows:54px repeat(5,minmax(72px,auto))}
 .tt-day-head,.tt-day,.tt-slot,.tt-break,.tt-lunch{border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center}
 .tt-day-head,.tt-day{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--sunken)}
 .tt-slot{flex-direction:column;gap:3px;background:var(--surface);min-width:0;padding:3px 1px}
@@ -1264,7 +1264,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 .tt-mobile-nav b{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--tt-heading-text,var(--tt-page-text,var(--ink)))}
 .tt-mobile-nav small{font-size:11px;color:var(--ink-4)}
 .tt-mobile-nav .btn{min-width:44px}
-.tt-mobile-list{display:grid;grid-template-columns:76px minmax(0,1fr);grid-template-rows:repeat(8,minmax(68px,auto));border:1px solid var(--tt-border-color,var(--line));border-radius:var(--r-m);overflow:hidden;background:var(--surface)}
+.tt-mobile-list{display:grid;grid-template-columns:76px minmax(0,1fr);grid-template-rows:repeat(10,minmax(68px,auto));border:1px solid var(--tt-border-color,var(--line));border-radius:var(--r-m);overflow:hidden;background:var(--surface)}
 .tt-mobile-time{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:8px 10px;background:var(--sunken);border-right:1px solid var(--tt-border-color,var(--line));border-bottom:1px solid var(--tt-border-color,var(--line))}
 .tt-mobile-time b{font-size:11px;color:var(--ink-2)}
 .tt-mobile-time small{font-size:10px;color:var(--ink-4);line-height:1.2;white-space:nowrap}
@@ -1571,7 +1571,7 @@ details.more .inner{display:flex;flex-direction:column;gap:var(--s4);padding-top
 
 /* Mobile college timetable: include the 15-minute break and keep lunch separate from S5. */
 @media(max-width:700px){
-  .tt-mobile-list{grid-template-rows:minmax(58px,auto) minmax(58px,auto) 34px minmax(58px,auto) minmax(58px,auto) 46px minmax(58px,auto) minmax(58px,auto) minmax(58px,auto)}
+  .tt-mobile-list{grid-template-rows:minmax(58px,auto) minmax(58px,auto) 34px minmax(58px,auto) minmax(58px,auto) 46px minmax(58px,auto) minmax(58px,auto) minmax(58px,auto) minmax(58px,auto)}
   .tt-mobile-break{background:var(--orange-bg);border-bottom-color:var(--tt-border-color,var(--line));}
   .tt-mobile-break b,.tt-mobile-break small{color:var(--orange-ink)}
   .tt-mobile-lunch{background:var(--orange-bg)}
