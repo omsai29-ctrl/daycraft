@@ -1,11 +1,12 @@
 /* ================= COLLEGE TIMETABLE ================= */
 const TT_DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const TT_IS_NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const TT_SLOTS=[
 {id:1,label:'S1',time:'9:30–10:20'},{id:2,label:'S2',time:'10:20–11:10'},
 {id:3,label:'S3',time:'11:25–12:15'},{id:4,label:'S4',time:'12:15–1:05'},
 {id:5,label:'S5',time:'1:05–1:45'},{id:6,label:'S6',time:'1:45–2:35'},
-{id:7,label:'S7',time:'2:35–3:25'},{id:8,label:'S8',time:'3:25–4:15'},
-{id:9,label:'S9',time:'4:15–5:00'}];
+{id:7,label:'S7',time:'2:35–3:25'},{id:8,label:'S8',time:'3:25–4:15'}];
+if(!TT_IS_NATIVE)TT_SLOTS.push({id:9,label:'S9',time:'4:15–5:00'});
 function timetableSlots(){
 ensureTimetable();
 return Array.isArray(D.timetable.slots)&&D.timetable.slots.length===9?D.timetable.slots:TT_SLOTS.map(s=>({id:s.id,label:s.label,time:s.time}));
@@ -64,7 +65,7 @@ const bgHex=String(ap.background||'#EAF4FF').replace('#','');const bgNum=parseIn
 const mobileDay=U.ttDay&&TT_DAYS.includes(U.ttDay)?U.ttDay:TT_DAYS[Math.max(0,Math.min(4,new Date().getDay()-1))];
 const mobileNav='<div class="tt-mobile-nav"><button class="btn" data-a="tt-day-prev" aria-label="Previous day">‹</button><div><b>'+mobileDay+'</b><small>College timetable</small></div><button class="btn" data-a="tt-day-next" aria-label="Next day">›</button></div>';
 const mobileRowForSlot={1:1,2:2,3:4,4:5,5:6,6:7,7:8,8:9,9:10};const mobileTimes=[{row:1,label:'S1',time:timetableSlots()[0].time},{row:2,label:'S2',time:timetableSlots()[1].time},{row:3,label:'Break',time:tt.break},{row:4,label:'S3',time:timetableSlots()[2].time},{row:5,label:'S4',time:timetableSlots()[3].time},{row:6,label:'Lunch',time:tt.lunch},{row:7,label:'S6',time:timetableSlots()[5].time},{row:8,label:'S7',time:timetableSlots()[6].time},{row:9,label:'S8',time:timetableSlots()[7].time},{row:10,label:'S9',time:timetableSlots()[8].time}];const mobileRows=mobileTimes.map(x=>'<div class="tt-mobile-time '+(x.label==='Break'?'tt-mobile-break':'')+' '+(x.label==='Lunch'?'tt-mobile-lunch':'')+'" style="grid-row:'+x.row+';grid-column:1"><b>'+x.label+'</b><small>'+esc(x.time)+'</small></div>').join('')+'<div class="tt-mobile-break-slot" style="grid-row:3;grid-column:2">Break</div>'+timetableSlots().map((s,i)=>{const e=ttStart(mobileDay,s.id);const row=mobileRowForSlot[s.id];if(e){const endRow=mobileRowForSlot[e.end];return '<button class="tt-mobile-class" data-a="tt-edit" data-id="'+e.id+'" style="grid-row:'+row+' / span '+(endRow-row+1)+';grid-column:2;--ttc:'+esc(e.color||TT_COLORS[0])+';--ttx:'+esc(ttTextFor(e))+'"><b>'+esc(e.course)+'</b>'+(e.room?'<small>Room '+esc(e.room)+'</small>':'')+'</button>';}if(ttAt(mobileDay,s.id))return '';if(s.id===5)return '<div class="tt-mobile-lunch-slot" style="grid-row:6;grid-column:2">Lunch break</div>';return '<button class="tt-mobile-empty" data-a="tt-new-slot" data-day="'+mobileDay+'" data-start="'+s.id+'" style="grid-row:'+row+';grid-column:2">Free</button>';}).join('');const mobile='<div class="tt-mobile-view">'+mobileNav+'<div class="tt-mobile-list">'+mobileRows+'</div></div>';
-return '<div class="tt-page" style="'+vars+'">'+head+'<div class="tt-desktop-view"><div class="tt-scroll"><div class="tt-grid"><div class="tt-day-head">Day</div>'+slots+rows+breaks+'</div></div></div>'+mobile+'<div class="tt-note"><b>Timing:</b> '+timetableSlots().filter(s=>s.id!==5).map(s=>esc(s.label)+' '+esc(s.time)).join(' · ')+' · <b>Break</b> '+esc(tt.break)+' · <b>Lunch</b> '+esc(tt.lunch)+'</div>'+faculty;}
+return '<div class="tt-page '+(!TT_IS_NATIVE?'tt-web-only-s9':'')+'" style="'+vars+'">'+head+'<div class="tt-desktop-view"><div class="tt-scroll"><div class="tt-grid"><div class="tt-day-head">Day</div>'+slots+rows+breaks+'</div></div></div>'+mobile+'<div class="tt-note"><b>Timing:</b> '+timetableSlots().filter(s=>s.id!==5).map(s=>esc(s.label)+' '+esc(s.time)).join(' · ')+' · <b>Break</b> '+esc(tt.break)+' · <b>Lunch</b> '+esc(tt.lunch)+'</div>'+faculty;}
 function openTimetableForm(id,preset){
 ensureTimetable();const old=id?D.timetable.entries.find(e=>e.id===id):null;const f=old||{day:(preset&&preset.day)||'Monday',start:(preset&&preset.start)||1,end:(preset&&preset.start)||1,course:'',room:'',color:TT_COLORS[0],text:null};U.form={kind:'timetable',id:id||null,text:f.text||null};
 const opts=n=>timetableSlots().filter(s=>s.id!==5).map(s=>'<option value="'+s.id+'" '+(s.id===n?'selected':'')+'>'+s.label+' · '+esc(s.time)+'</option>').join('');
